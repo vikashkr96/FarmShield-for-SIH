@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/repositories/farm_repository.dart';
 import '../../../core/values/constants.dart';
+import '../../../data/models/farm_models.dart';
 
 class AnimalDetailController extends GetxController with StateMixin<Map<String, dynamic>> {
   final FarmRepository repository;
@@ -13,35 +14,96 @@ class AnimalDetailController extends GetxController with StateMixin<Map<String, 
   final dio_client.Dio _dio = dio_client.Dio();
   
   final RxBool isUploading = false.obs;
-  late String animalId;
+  String animalId = '';
 
   @override
   void onInit() {
     super.onInit();
-    animalId = Get.arguments;
-    fetchAnimalFullProfile(animalId);
+    // Safely handle arguments to avoid TypeErrors
+    final dynamic args = Get.arguments;
+    if (args is String) {
+      animalId = args;
+    } else if (args is Animal) {
+      animalId = args.id ?? '';
+    } else if (args is Map && args.containsKey('id')) {
+      animalId = args['id'].toString();
+    }
+
+    if (animalId.isNotEmpty) {
+      fetchAnimalFullProfile(animalId);
+    } else {
+      change(null, status: RxStatus.error("Invalid Animal ID"));
+    }
   }
 
   Future<void> fetchAnimalFullProfile(String id) async {
     change(null, status: RxStatus.loading());
     try {
-      // Direct Supabase query with joins for full profile
-      final data = await _supabase
+      // Split the fetch into separate calls to avoid complex RLS recursion issues (Error 42P17)
+      // which often happens in Supabase when joining tables with interdependent policies.
+      
+      final animalFuture = _supabase
           .from('animals')
-          .select('''
-            *,
-            treatments:treatments(
-              *,
-              medicine:medicines(*)
-            ),
-            withdrawals:withdrawals(*)
-          ''')
+          .select()
           .eq('id', id)
           .single();
+
+      final treatmentsFuture = _supabase
+          .from('treatments')
+          .select()
+          .eq('animal_id', id);
+
+      final withdrawalsFuture = _supabase
+          .from('withdrawals')
+          .select()
+          .eq('animal_id', id);
+
+      // Use Future.wait with explicit type casting to avoid "List<Object> to Iterable<Future>" error
+      final results = await Future.wait<dynamic>([
+        animalFuture, 
+        treatmentsFuture, 
+        withdrawalsFuture
+      ]);
       
-      change(data, status: RxStatus.success());
+      final animalData = results[0] as Map<String, dynamic>;
+      final treatmentsData = results[1] as List<dynamic>;
+      final withdrawalsData = results[2] as List<dynamic>;
+
+      // Fetch medicine details for treatments separately if any exist to avoid join recursion
+      if (treatmentsData.isNotEmpty) {
+        final List<String> medicineIds = treatmentsData
+            .map((t) => t['medicine_id'] as String?)
+            .where((mid) => mid != null)
+            .toSet()
+            .cast<String>()
+            .toList();
+
+        if (medicineIds.isNotEmpty) {
+          final medicinesData = await _supabase
+              .from('medicines')
+              .select()
+              .inFilter('id', medicineIds);
+
+          for (var t in treatmentsData) {
+            t['medicine'] = (medicinesData as List).firstWhereOrNull(
+              (m) => m['id'] == t['medicine_id'],
+            );
+          }
+        }
+      }
+
+      final Map<String, dynamic> fullData = Map<String, dynamic>.from(animalData);
+      fullData['treatments'] = treatmentsData;
+      fullData['withdrawals'] = withdrawalsData;
+      
+      change(fullData, status: RxStatus.success());
     } catch (e) {
-      change(null, status: RxStatus.error(e.toString()));
+      Get.log("Fetch Animal Profile Error: $e");
+      String errorMessage = e.toString();
+      if (errorMessage.contains('42P17')) {
+        errorMessage = "Database policy error: Potential recursion detected in security rules. Please contact admin.";
+      }
+      change(null, status: RxStatus.error(errorMessage));
     }
   }
 
@@ -58,13 +120,11 @@ class AnimalDetailController extends GetxController with StateMixin<Map<String, 
       final response = await _dio.post(url, data: formData);
       String imageUrl = response.data['secure_url'];
 
-      // Update Supabase
       await _supabase
           .from('animals')
           .update({'image_url': imageUrl})
           .eq('id', animalId);
 
-      // Refresh data
       fetchAnimalFullProfile(animalId);
       Get.snackbar("Success", "Photo updated successfully");
     } catch (e) {

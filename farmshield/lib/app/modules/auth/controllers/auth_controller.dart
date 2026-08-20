@@ -126,7 +126,6 @@ class AuthController extends GetxController {
       final response = await _dio.post(url, data: formData);
       String imageUrl = response.data['secure_url'];
 
-      // If user is logged in, update profile in DB
       if (currentUser.value != null) {
         await _supabase
             .from('users')
@@ -145,7 +144,23 @@ class AuthController extends GetxController {
   }
 
   Future<void> signOut() async {
-    await _supabase.auth.signOut();
-    Get.offAllNamed(Routes.LOGIN);
+    try {
+      isLoading.value = true;
+      await _supabase.auth.signOut();
+      
+      // Clear all state
+      currentUser.value = null;
+      userProfile.clear();
+      selectedRole.value = 'farmer';
+      
+      // Force delete all controllers to reset their states completely
+      Get.deleteAll(force: true);
+      
+      Get.offAllNamed(Routes.LOGIN);
+    } catch (e) {
+      Get.snackbar("Logout Error", e.toString());
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

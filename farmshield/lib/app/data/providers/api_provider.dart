@@ -26,9 +26,13 @@ class ApiProvider {
 
   Future<Response> getAnimals({String? species, String? status}) async {
     return await _dio.get('animals', queryParameters: {
-      if (species != null) 'species': species,
+      if (species != null && species != 'all') 'species': species,
       if (status != null) 'status': status,
     });
+  }
+
+  Future<Response> getAnimal(String id) async {
+    return await _dio.get('animals/$id');
   }
 
   Future<Response> postAnimal(Map<String, dynamic> data) async {

@@ -14,7 +14,7 @@ class DashboardController extends GetxController with StateMixin<AmuSummary> {
   final amuTrendData = <Map<String, dynamic>>[].obs;
   
   // Locale observer to fix Obx issue
-  late Rx<Locale> currentLocale;
+  final Rx<Locale> currentLocale = Locale('en', 'US').obs;
   
   // Timer for real-time countdown
   Timer? _timer;
@@ -23,7 +23,9 @@ class DashboardController extends GetxController with StateMixin<AmuSummary> {
   @override
   void onInit() {
     super.onInit();
-    currentLocale = (Get.locale ?? const Locale('en', 'US')).obs;
+    if (Get.locale != null) {
+      currentLocale.value = Get.locale!;
+    }
     loadDashboardData();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       currentTime.value = DateTime.now();
@@ -76,9 +78,9 @@ class DashboardController extends GetxController with StateMixin<AmuSummary> {
 
   void toggleLanguage() {
     if (currentLocale.value.languageCode == 'hi') {
-      currentLocale.value = const Locale('en', 'US');
+      currentLocale.value = Locale('en', 'US');
     } else {
-      currentLocale.value = const Locale('hi', 'IN');
+      currentLocale.value = Locale('hi', 'IN');
     }
     Get.updateLocale(currentLocale.value);
   }

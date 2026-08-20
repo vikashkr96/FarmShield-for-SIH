@@ -88,12 +88,13 @@ class LoginView extends GetView<AuthController> {
                   style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 16),
                 ),
                 const SizedBox(height: 12),
-                Obx(() => Wrap(
-                      spacing: 8,
+                Obx(() => Row(
                       children: [
-                        _buildRoleChip('farmer', 'Farmer 👨‍🌾'),
-                        _buildRoleChip('vet', 'Veterinarian 🩺'),
-                        _buildRoleChip('admin', 'Admin 🏢'),
+                        Expanded(child: _buildRoleCard('farmer', 'Farmer', '👨‍🌾')),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildRoleCard('vet', 'Vet', '🩺')),
+                        const SizedBox(width: 8),
+                        Expanded(child: _buildRoleCard('admin', 'Admin', '🏢')),
                       ],
                     )),
                 const SizedBox(height: 24),
@@ -228,14 +229,35 @@ class LoginView extends GetView<AuthController> {
     );
   }
 
-  Widget _buildRoleChip(String role, String label) {
-    return ChoiceChip(
-      label: Text(label, style: GoogleFonts.poppins(fontSize: 13)),
-      selected: controller.selectedRole.value == role,
-      selectedColor: Theme.of(Get.context!).primaryColor.withOpacity(0.2),
-      onSelected: (selected) {
-        if (selected) controller.selectedRole.value = role;
-      },
+  Widget _buildRoleCard(String role, String label, String emoji) {
+    final isSelected = controller.selectedRole.value == role;
+    return GestureDetector(
+      onTap: () => controller.selectedRole.value = role,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? Theme.of(Get.context!).primaryColor.withOpacity(0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Theme.of(Get.context!).primaryColor : Colors.grey[300]!,
+            width: 2,
+          ),
+        ),
+        child: Column(
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 24)),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? Theme.of(Get.context!).primaryColor : Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

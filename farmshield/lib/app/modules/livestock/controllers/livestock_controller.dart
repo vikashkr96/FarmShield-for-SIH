@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dio/dio.dart' as dio_client;
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../data/models/farm_models.dart';
@@ -18,16 +19,40 @@ class LivestockController extends GetxController with StateMixin<List<Animal>> {
   @override
   void onInit() {
     super.onInit();
+    // Reactively fetch animals when selected species changes
+    ever(selectedSpecies, (_) => fetchAnimals());
     fetchAnimals();
   }
 
   Future<void> fetchAnimals() async {
     change(null, status: RxStatus.loading());
     try {
-      final species = selectedSpecies.value == 'all' ? null : selectedSpecies.value;
-      final animals = await repository.getAnimals(species: species);
-      change(animals, status: RxStatus.success());
+      final selected = selectedSpecies.value;
+      List<Animal> animals;
+
+      if (selected == 'all') {
+        animals = await repository.getAnimals(species: null);
+      } else if (selected == 'other') {
+        // Fetch all and filter locally for 'other' to avoid 500 errors from backend
+        // if it doesn't support 'other' as a species query parameter.
+        final allAnimals = await repository.getAnimals(species: null);
+        final knownSpecies = ['cow', 'buffalo', 'goat', 'sheep', 'fishery'];
+        animals = allAnimals.where((a) => 
+          a.species == null || 
+          a.species == 'other' || 
+          !knownSpecies.contains(a.species!.toLowerCase())
+        ).toList();
+      } else {
+        animals = await repository.getAnimals(species: selected);
+      }
+      
+      if (animals.isEmpty) {
+        change([], status: RxStatus.empty());
+      } else {
+        change(animals, status: RxStatus.success());
+      }
     } catch (e) {
+      Get.log("Fetch Animals Error: $e");
       change(null, status: RxStatus.error(e.toString()));
     }
   }
@@ -62,18 +87,24 @@ class LivestockController extends GetxController with StateMixin<List<Animal>> {
 
   Future<void> registerAnimal(Animal animal) async {
     try {
+      isUploading.value = true;
       if (selectedImage.value != null) {
         final imageUrl = await uploadToCloudinary(selectedImage.value!);
         animal.imageUrl = imageUrl;
       }
       
       await repository.registerAnimal(animal);
-      fetchAnimals();
+      fetchAnimals(); // Refresh the list
       selectedImage.value = null;
       Get.back();
-      Get.snackbar('Success', 'Animal registered successfully');
+      Get.snackbar('Success', 'Animal registered successfully', 
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white);
     } catch (e) {
       Get.snackbar('Error', 'Failed to register animal: $e');
+    } finally {
+      isUploading.value = false;
     }
   }
 }

@@ -18,10 +18,13 @@ void main() async {
     anonKey: constants.supabaseKey,
   );
 
+  final session = Supabase.instance.client.auth.currentSession;
+  final String initialRoute = session != null ? Routes.DASHBOARD : Routes.LOGIN;
+
   runApp(
     GetMaterialApp(
       title: AppStrings.appName,
-      initialRoute: AppPages.INITIAL,
+      initialRoute: initialRoute,
       getPages: AppPages.routes,
       translations: AppTranslations(),
       locale: const Locale('en', 'US'),

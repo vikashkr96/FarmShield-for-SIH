@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../../routes/app_pages.dart';
 import '../controllers/dashboard_controller.dart';
 import '../../../data/models/farm_models.dart';
+import '../../auth/controllers/auth_controller.dart';
 
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({Key? key}) : super(key: key);
@@ -27,6 +28,10 @@ class DashboardView extends GetView<DashboardController> {
           IconButton(
             icon: const Icon(Icons.notifications_active),
             onPressed: () => _showAlertsDialog(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () => _showLogoutDialog(),
           ),
         ],
       ),
@@ -72,9 +77,37 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
+  void _showLogoutDialog() {
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('Logout', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+        content: Text('Are you sure you want to logout? This will clear all session data.', 
+          style: GoogleFonts.poppins()),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('Cancel', style: GoogleFonts.poppins(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Get.back();
+              Get.find<AuthController>().signOut();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: Text('Logout', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildLanguageSwitcher() {
     return Obx(() {
-      // Accessing currentLocale.value fixes the GetX improper use exception
       final isHindi = controller.currentLocale.value.languageCode == 'hi';
       return TextButton(
         onPressed: () => controller.toggleLanguage(),
@@ -259,26 +292,106 @@ class DashboardView extends GetView<DashboardController> {
   void _showAnimalTooltip(Animal animal, Color statusColor) {
     Get.bottomSheet(
       Container(
-        padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(25))),
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircleAvatar(radius: 40, backgroundImage: animal.imageUrl != null ? NetworkImage(animal.imageUrl!) : null),
-            const SizedBox(height: 12),
-            Text('Tag: ${animal.animalCode ?? "N/A"}', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold)),
-            Text('Status: ${animal.healthStatus ?? "CLEARED"}', style: TextStyle(color: statusColor, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Get.back();
-                Get.toNamed(Routes.ANIMAL_DETAIL, arguments: animal);
-              },
-              child: const Text('View Full History'),
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 35,
+                  backgroundColor: statusColor.withOpacity(0.1),
+                  backgroundImage: animal.imageUrl != null ? NetworkImage(animal.imageUrl!) : null,
+                  child: animal.imageUrl == null 
+                    ? Icon(Icons.pets, color: statusColor, size: 30) 
+                    : null,
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Tag: ${animal.animalCode ?? "N/A"}',
+                        style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        '${animal.species?.capitalizeFirst} • ${animal.breed ?? "Unknown"}',
+                        style: GoogleFonts.poppins(color: Colors.grey[600]),
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: statusColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          animal.healthStatus ?? 'HEALTHY',
+                          style: GoogleFonts.poppins(
+                            color: statusColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Get.back(),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: Text('Close', style: GoogleFonts.poppins()),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Get.back();
+                      // Passing animal.id as String to match AnimalDetailController expectations
+                      Get.toNamed(Routes.ANIMAL_DETAIL, arguments: animal.id);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green.shade700,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      elevation: 0,
+                    ),
+                    child: Text('Full Profile', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
           ],
         ),
       ),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
     );
   }
 
