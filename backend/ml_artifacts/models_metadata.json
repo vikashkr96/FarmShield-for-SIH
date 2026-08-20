@@ -1,0 +1,26 @@
+{
+  "project": "Digital Farm Management Portal - MRL & AMU Prediction",
+  "exported_at": "2026-08-19T14:32:20.627828",
+  "model_a": {
+    "name": "Antimicrobial Overuse Risk Classifier",
+    "algorithm": "XGBClassifier (multi:softprob)",
+    "macro_f1": 0.7701534441575043,
+    "roc_auc_ovr": 0.9331582963842803,
+    "classes": [
+      "LOW",
+      "MEDIUM",
+      "HIGH"
+    ]
+  },
+  "model_b": {
+    "name": "MRL / Withdrawal Compliance Risk Classifier",
+    "algorithm": "XGBClassifier (multi:softprob)",
+    "macro_f1": 0.8193414030561135,
+    "roc_auc_ovr": 0.9462389689620544,
+    "classes": [
+      "LOW",
+      "MEDIUM",
+      "HIGH"
+    ]
+  }
+}
