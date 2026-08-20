@@ -10,6 +10,7 @@ class Animal {
   String? purpose;
   String? healthStatus;
   String? qrToken;
+  String? imageUrl;
   Map<String, dynamic>? fisheryDetails;
 
   Animal({
@@ -24,6 +25,7 @@ class Animal {
     this.purpose,
     this.healthStatus,
     this.qrToken,
+    this.imageUrl,
     this.fisheryDetails,
   });
 
@@ -39,6 +41,7 @@ class Animal {
         purpose: json['purpose'],
         healthStatus: json['health_status'],
         qrToken: json['qr_token'],
+        imageUrl: json['image_url'],
         fisheryDetails: json['fishery_details'],
       );
 
@@ -50,6 +53,7 @@ class Animal {
         "sex": sex,
         "weight": weightKg,
         "purpose": purpose,
+        "image_url": imageUrl,
       };
 }
 
@@ -167,6 +171,7 @@ class PublicPassport {
   bool? isMeatSafe;
   DateTime? safeDate;
   int? remainingWithdrawalHours;
+  String? imageUrl;
 
   PublicPassport({
     this.animalCode,
@@ -180,6 +185,7 @@ class PublicPassport {
     this.isMeatSafe,
     this.safeDate,
     this.remainingWithdrawalHours,
+    this.imageUrl,
   });
 
   factory PublicPassport.fromJson(Map<String, dynamic> json) => PublicPassport(
@@ -194,6 +200,7 @@ class PublicPassport {
         isMeatSafe: json['isMeatSafe'],
         safeDate: json['safeDate'] != null ? DateTime.parse(json['safeDate']) : null,
         remainingWithdrawalHours: json['remainingWithdrawalHours'],
+        imageUrl: json['imageUrl'],
       );
 }
 
