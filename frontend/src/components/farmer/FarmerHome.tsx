@@ -18,6 +18,7 @@ import {
 import { useLanguage } from '../../providers/LanguageProvider';
 import { useAuth } from '../../providers/AuthProvider';
 import { FarmSlider } from './FarmSlider';
+import { FarmShieldVideoShowcase } from './FarmShieldVideoShowcase';
 import { ArticleModal, ArticleData } from './ArticleModal';
 
 interface FarmerHomeProps {
@@ -232,7 +233,7 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
   ];
 
   return (
-    <div className="space-y-6 sm:space-y-8 max-w-6xl mx-auto px-4 py-1 font-sans">
+    <div className="space-y-8 sm:space-y-10 max-w-6xl mx-auto px-4 py-1 font-sans">
       {/* ========================================================================= */}
       {/* 🌟 1ST IMPRESSION HERO SECTION (FULL IMPACT ABOVE THE FOLD) */}
       {/* ========================================================================= */}
@@ -280,9 +281,14 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
       </div>
 
       {/* ========================================================================= */}
+      {/* 🎬 WATCH VASUDHA / FARMSHIELD IN ACTION (VIDEO DEMONSTRATION) */}
+      {/* ========================================================================= */}
+      <FarmShieldVideoShowcase />
+
+      {/* ========================================================================= */}
       {/* 🚀 2. THE 2 PRIMARY ACTION CARDS */}
       {/* ========================================================================= */}
-      <div id="farmer-primary-actions" className="space-y-4 pt-6">
+      <div id="farmer-primary-actions" className="space-y-4 pt-4 border-t-2 border-gray-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Sparkles className="w-6 h-6 text-[#1B5E20]" />
