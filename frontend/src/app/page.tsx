@@ -14,6 +14,7 @@ import { ConnectionStatus } from '../components/ConnectionStatus';
 import { AuthModal } from '../components/auth/AuthModal';
 import { useAuth } from '../providers/AuthProvider';
 import { useLanguage } from '../providers/LanguageProvider';
+import { API_BASE_URL } from '../lib/config';
 
 export default function Home() {
   const { t } = useLanguage();
@@ -92,7 +93,7 @@ export default function Home() {
 
   const fetchAnimals = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/animals');
+      const res = await fetch(`${API_BASE_URL}/api/animals`);
       const json = await res.json();
       if (json.status === 'success' && Array.isArray(json.data) && json.data.length > 0) {
         setAnimals(json.data);
@@ -118,7 +119,7 @@ export default function Home() {
     setAnimals((prev) => [newAnimal, ...prev]);
 
     try {
-      await fetch('http://localhost:5000/api/animals', {
+      await fetch(`${API_BASE_URL}/api/animals`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newAnimalData),

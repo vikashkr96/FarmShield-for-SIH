@@ -1,14 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../../providers/LanguageProvider';
 
 interface Slide {
   id: string;
   image: string;
-  tag: string;
-  tagColor: string;
   titleEn: string;
   titleHi: string;
   descEn: string;
@@ -24,8 +22,6 @@ export const FarmSlider: React.FC = () => {
     {
       id: 'dairy-cows',
       image: '/images/cows-pasture.jpg',
-      tag: '🐄 Dairy Cattle Stewardship',
-      tagColor: 'bg-emerald-700 text-white',
       titleEn: 'Zero-Residue Dairy Farming & MRL Compliance',
       titleHi: 'रसायन मुक्त डेयरी उत्पादन व MRL सुरक्षा मानक',
       descEn: 'Ensuring 100% statutory adherence to withdrawal times so every drop of milk is pure, residue-free, and safe for society.',
@@ -34,8 +30,6 @@ export const FarmSlider: React.FC = () => {
     {
       id: 'ear-tagged-calves',
       image: '/images/ear-tagged-calves.jpg',
-      tag: '🏷️ Digital Ear-Tagging & Traceability',
-      tagColor: 'bg-blue-700 text-white',
       titleEn: 'Instant QR Health Passports for Every Cattle',
       titleHi: 'प्रत्येक पशु के लिए तत्काल QR डिजिटल हेल्थ पासपोर्ट',
       descEn: 'Assign unique tamper-proof ear-tag IDs linked to treatment history, antibiotic withdrawal countdowns, and milk collection verification.',
@@ -44,8 +38,6 @@ export const FarmSlider: React.FC = () => {
     {
       id: 'buffalo-herd',
       image: '/images/buffalo-calf.jpg',
-      tag: '🐃 Murrah Buffalo Management',
-      tagColor: 'bg-amber-700 text-white',
       titleEn: 'High-Yield Buffalo Herd Monitoring & Safe Therapy',
       titleHi: 'उच्च उपज भैंस डेयरी प्रबंधन व सुरक्षित उपचार',
       descEn: 'Track mastitis treatments, dosage logs, and automated safe clearance dates tailored to dairy buffalo physiology.',
@@ -54,8 +46,6 @@ export const FarmSlider: React.FC = () => {
     {
       id: 'aquaculture-pond',
       image: '/images/aquaculture-pond.png',
-      tag: '🐟 Sustainable Aquaculture',
-      tagColor: 'bg-cyan-700 text-white',
       titleEn: 'United Fishery Pond Biomass & Zero-Residue Harvest',
       titleHi: 'सामूहिक मत्स्य तालाब बायोमास व रसायन मुक्त निकासी',
       descEn: 'Manage collective pond water dosing per metric ton and pre-harvest chemical testing for clean aquaculture exports.',
@@ -88,7 +78,7 @@ export const FarmSlider: React.FC = () => {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Crisp, Crystal Clear Image Container with Perfectly Calibrated Height */}
+      {/* Crisp, Crystal Clear Image Container */}
       <div className="relative h-[280px] sm:h-[320px] md:h-[350px] w-full overflow-hidden">
         {slides.map((slide, idx) => (
           <div
@@ -108,18 +98,8 @@ export const FarmSlider: React.FC = () => {
           </div>
         ))}
 
-        {/* Content Overlay */}
-        <div className="absolute inset-0 p-5 sm:p-7 flex flex-col justify-between text-white z-10 pointer-events-none">
-          {/* Top Tag */}
-          <div className="flex items-center justify-between">
-            <span
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black shadow-lg backdrop-blur-md ${currentSlide.tagColor}`}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{currentSlide.tag}</span>
-            </span>
-          </div>
-
+        {/* Content Overlay (Bottom Only) */}
+        <div className="absolute inset-0 p-5 sm:p-7 flex flex-col justify-end text-white z-10 pointer-events-none">
           {/* Bottom Title & Description */}
           <div className="space-y-1.5 max-w-2xl pb-2">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] leading-tight">

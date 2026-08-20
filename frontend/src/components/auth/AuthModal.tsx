@@ -25,6 +25,7 @@ import {
   UserCheck,
   Info,
 } from 'lucide-react';
+import { API_BASE_URL } from '../../lib/config';
 
 interface AuthModalProps {
   onSuccessRoleChange?: (role: UserRoleMode) => void;
@@ -95,7 +96,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/send-otp', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone }),
@@ -139,7 +140,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
     setShowGooglePrompt(false);
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -210,7 +211,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
       }
 
       try {
-        const res = await fetch('http://localhost:5000/api/auth/login', {
+        const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -245,7 +246,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
       }
 
       try {
-        const res = await fetch('http://localhost:5000/api/auth/register', {
+        const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
