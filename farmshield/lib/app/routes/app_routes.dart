@@ -10,6 +10,7 @@ abstract class Routes {
   static const LIVESTOCK = _Paths.LIVESTOCK;
   static const LOGIN = _Paths.LOGIN;
   static const REGISTER = _Paths.REGISTER;
+  static const ANIMAL_DETAIL = _Paths.ANIMAL_DETAIL;
 }
 
 abstract class _Paths {
@@ -22,4 +23,5 @@ abstract class _Paths {
   static const LIVESTOCK = '/livestock';
   static const LOGIN = '/login';
   static const REGISTER = '/register';
+  static const ANIMAL_DETAIL = '/animal-detail';
 }

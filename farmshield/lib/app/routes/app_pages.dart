@@ -16,6 +16,8 @@ import '../modules/livestock/views/livestock_view.dart';
 import '../modules/auth/bindings/auth_binding.dart';
 import '../modules/auth/views/login_view.dart';
 import '../modules/auth/views/register_view.dart';
+import '../modules/animal_detail/bindings/animal_detail_binding.dart';
+import '../modules/animal_detail/views/animal_detail_view.dart';
 
 part 'app_routes.dart';
 
@@ -67,6 +69,11 @@ class AppPages {
       name: _Paths.LIVESTOCK,
       page: () => const LivestockView(),
       binding: LivestockBinding(),
+    ),
+    GetPage(
+      name: _Paths.ANIMAL_DETAIL,
+      page: () => const AnimalDetailView(),
+      binding: AnimalDetailBinding(),
     ),
   ];
 }

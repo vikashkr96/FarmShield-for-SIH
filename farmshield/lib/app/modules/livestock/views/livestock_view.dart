@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../data/models/farm_models.dart';
+import '../../../routes/app_pages.dart';
 import '../controllers/livestock_controller.dart';
 
 class LivestockView extends GetView<LivestockController> {
@@ -38,19 +39,22 @@ class LivestockView extends GetView<LivestockController> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     child: ListTile(
                       contentPadding: const EdgeInsets.all(12),
-                      leading: Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(8),
-                          image: animal.imageUrl != null
-                              ? DecorationImage(image: NetworkImage(animal.imageUrl!), fit: BoxFit.cover)
+                      leading: Hero(
+                        tag: 'animal_image_${animal.id}',
+                        child: Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(8),
+                            image: animal.imageUrl != null
+                                ? DecorationImage(image: NetworkImage(animal.imageUrl!), fit: BoxFit.cover)
+                                : null,
+                          ),
+                          child: animal.imageUrl == null
+                              ? Icon(_getSpeciesIcon(animal.species), color: _getSpeciesColor(animal.species))
                               : null,
                         ),
-                        child: animal.imageUrl == null
-                            ? Icon(_getSpeciesIcon(animal.species), color: _getSpeciesColor(animal.species))
-                            : null,
                       ),
                       title: Text(animal.animalCode ?? 'Unknown ID',
                           style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
@@ -78,7 +82,7 @@ class LivestockView extends GetView<LivestockController> {
                       ),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
-                        // Navigate to detail if needed
+                        Get.toNamed(Routes.ANIMAL_DETAIL, arguments: animal.id);
                       },
                     ),
                   );
