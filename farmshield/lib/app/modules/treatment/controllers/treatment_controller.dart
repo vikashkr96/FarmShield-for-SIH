@@ -1,7 +1,9 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/models/farm_models.dart';
 import '../../../data/repositories/farm_repository.dart';
+import '../../../core/services/offline_storage_service.dart';
 
 class TreatmentController extends GetxController {
   final FarmRepository repository;
@@ -38,17 +40,33 @@ class TreatmentController extends GetxController {
   Future<void> submitTreatment(Treatment treatment) async {
     isLoading.value = true;
     try {
-      final result = await repository.addTreatment(treatment);
+      final List<ConnectivityResult> connectivityResults = await Connectivity().checkConnectivity();
       
-      final mlRisk = result['ml_risk_assessment'];
-      if (mlRisk != null) {
-        _showRiskSummary(mlRisk);
-      } else {
+      if (connectivityResults.contains(ConnectivityResult.none)) {
+        // Offline mode
+        await OfflineStorageService().saveTreatmentLocally(treatment.toJson());
         Get.back();
-        Get.snackbar('Success', 'Treatment recorded successfully');
+        Get.snackbar(
+          'offline_sync'.tr, 
+          'treatment_saved_offline'.tr,
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 5),
+        );
+      } else {
+        // Online mode
+        final result = await repository.addTreatment(treatment);
+        final mlRisk = result['ml_risk_assessment'];
+        if (mlRisk != null) {
+          _showRiskSummary(mlRisk);
+        } else {
+          Get.back();
+          Get.snackbar('success'.tr, 'Treatment recorded successfully');
+        }
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to record treatment: $e');
+      Get.snackbar('error'.tr, 'Failed to record treatment: $e');
     } finally {
       isLoading.value = false;
     }
@@ -66,7 +84,7 @@ class TreatmentController extends GetxController {
       confirm: ElevatedButton(
         onPressed: () {
           Get.back(); // Close dialog
-          Get.back(); // Back to dashboard
+          Get.back(); // Back to previous screen
         },
         child: const Text('Confirm'),
       ),

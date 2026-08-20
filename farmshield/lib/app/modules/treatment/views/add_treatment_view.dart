@@ -43,7 +43,7 @@ class AddTreatmentView extends GetView<TreatmentController> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: DropdownButtonFormField<String>(
-                          value: 'mg/kg',
+                          initialValue: 'mg/kg',
                           decoration: InputDecoration(
                             labelText: 'Unit',
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -60,7 +60,7 @@ class AddTreatmentView extends GetView<TreatmentController> {
                   _buildTextField('Indication (e.g. Mastitis)', indicationController, Icons.description),
                   
                   DropdownButtonFormField<String>(
-                    value: productAffected.value,
+                    initialValue: productAffected.value,
                     decoration: InputDecoration(
                       labelText: 'Product Affected',
                       prefixIcon: const Icon(Icons.shopping_basket),
@@ -130,7 +130,7 @@ class AddTreatmentView extends GetView<TreatmentController> {
 
   Widget _buildAnimalDropdown() {
     return Obx(() => DropdownButtonFormField<String>(
-          value: controller.selectedAnimalId.value.isEmpty ? null : controller.selectedAnimalId.value,
+          initialValue: controller.selectedAnimalId.value.isEmpty ? null : controller.selectedAnimalId.value,
           decoration: InputDecoration(
             labelText: 'Select Animal (Tag ID)',
             prefixIcon: const Icon(Icons.pets),
@@ -148,7 +148,7 @@ class AddTreatmentView extends GetView<TreatmentController> {
 
   Widget _buildMedicineDropdown() {
     return Obx(() => DropdownButtonFormField<String>(
-          value: controller.selectedMedicineId.value.isEmpty ? null : controller.selectedMedicineId.value,
+          initialValue: controller.selectedMedicineId.value.isEmpty ? null : controller.selectedMedicineId.value,
           decoration: InputDecoration(
             labelText: 'Select Medication',
             prefixIcon: const Icon(Icons.medication),
@@ -157,7 +157,7 @@ class AddTreatmentView extends GetView<TreatmentController> {
           items: controller.medicines
               .map((m) => DropdownMenuItem(
                     value: m.id ?? '',
-                    child: Text('${m.brandName ?? 'Unknown'} (${m.activeIngredient ?? 'N/A'})'),
+                    child: Text('${m.name ?? 'Unknown'} (${m.activeIngredient ?? 'N/A'})'),
                   ))
               .toList(),
           onChanged: (val) => controller.selectedMedicineId.value = val ?? '',

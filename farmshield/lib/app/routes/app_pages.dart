@@ -22,6 +22,8 @@ import '../modules/calendar/bindings/calendar_binding.dart';
 import '../modules/calendar/views/withdrawal_calendar_view.dart';
 import '../modules/medicines_catalog/bindings/medicines_catalog_binding.dart';
 import '../modules/medicines_catalog/views/medicines_catalog_view.dart';
+import '../modules/reports/bindings/reports_binding.dart';
+import '../modules/reports/views/reports_view.dart';
 
 part 'app_routes.dart';
 
@@ -88,6 +90,11 @@ class AppPages {
       name: _Paths.MEDICINES_CATALOG,
       page: () => const MedicinesCatalogView(),
       binding: MedicinesCatalogBinding(),
+    ),
+    GetPage(
+      name: _Paths.REPORTS,
+      page: () => const ReportsView(),
+      binding: ReportsBinding(),
     ),
   ];
 }

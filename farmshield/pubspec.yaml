@@ -20,6 +20,15 @@ dependencies:
   image_picker: ^1.2.3
   mobile_scanner: ^5.1.0
   table_calendar: ^3.1.1
+  pdf: ^3.10.8
+  printing: ^5.13.0
+  csv: ^6.0.0
+  share_plus: 10.1.4
+  fl_chart: ^0.68.0
+  flutter_animate: ^4.5.0
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  connectivity_plus: ^6.0.3
 
 dev_dependencies:
   flutter_test:

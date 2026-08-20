@@ -4,11 +4,10 @@ import '../../core/values/strings.dart';
 class ApiProvider {
   final Dio _dio = Dio(BaseOptions(
     baseUrl: AppStrings.baseUrl,
-    connectTimeout: const Duration(seconds: 60), // Increased for Render cold start
-    receiveTimeout: const Duration(seconds: 60), // Increased for Render cold start
+    connectTimeout: const Duration(seconds: 60),
+    receiveTimeout: const Duration(seconds: 60),
   ));
 
-  // ML Endpoints (from FASTAPI ML doc)
   Future<Response> postOveruseRisk(Map<String, dynamic> data) async {
     return await _dio.post('ml/overuse-risk', data: data);
   }
@@ -21,9 +20,7 @@ class ApiProvider {
     return await _dio.get('ml/models-info');
   }
 
-  // Backend Core Endpoints (from Backend Architecture doc)
   Future<Response> getHealth() async {
-    // Note: If health is at root (outside /api/), use '/health' with a leading slash to override baseUrl path
     return await _dio.get('health'); 
   }
 
@@ -50,11 +47,18 @@ class ApiProvider {
     return await _dio.get('amu/summary');
   }
 
+  Future<Response> getAmuRecords() async {
+    return await _dio.get('amu/records');
+  }
+
+  Future<Response> getWithdrawals() async {
+    return await _dio.get('withdrawals');
+  }
+
   Future<Response> getMedicines() async {
     return await _dio.get('medicines');
   }
 
-  // Additional Endpoints
   Future<Response> getWithdrawal(String id) async {
     return await _dio.get('animals/$id/withdrawal');
   }

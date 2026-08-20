@@ -54,6 +54,16 @@ class FarmRepository {
     return AmuSummary.fromJson(response.data['data']);
   }
 
+  Future<List<Map<String, dynamic>>> getAmuRecords() async {
+    final response = await apiProvider.getAmuRecords();
+    return List<Map<String, dynamic>>.from(response.data['data']);
+  }
+
+  Future<List<Withdrawal>> getWithdrawals() async {
+    final response = await apiProvider.getWithdrawals();
+    return (response.data['data'] as List).map((e) => Withdrawal.fromJson(e)).toList();
+  }
+
   Future<List<Alert>> getAlerts() async {
     final response = await apiProvider.getAlerts();
     return (response.data['data'] as List).map((e) => Alert.fromJson(e)).toList();
