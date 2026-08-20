@@ -3,7 +3,7 @@ import 'package:dio/dio.dart' as dio_client;
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/repositories/farm_repository.dart';
-import '../../../core/values/constants.dart' as constants;
+import '../../../core/values/constants.dart';
 
 class AnimalDetailController extends GetxController with StateMixin<Map<String, dynamic>> {
   final FarmRepository repository;

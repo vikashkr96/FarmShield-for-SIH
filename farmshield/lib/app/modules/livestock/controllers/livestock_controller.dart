@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../data/models/farm_models.dart';
 import '../../../data/repositories/farm_repository.dart';
-import '../../../core/values/constants.dart' as constants;
+import '../../../core/values/constants.dart';
 
 class LivestockController extends GetxController with StateMixin<List<Animal>> {
   final FarmRepository repository;
