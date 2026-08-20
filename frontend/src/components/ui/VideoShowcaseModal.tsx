@@ -66,8 +66,8 @@ export const VideoShowcaseModal: React.FC<VideoShowcaseModalProps> = ({ isOpen, 
         <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 border-2 border-[#1B5E20] shadow-2xl flex items-center justify-center group">
           <iframe
             className="w-full h-full"
-            src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=0&rel=0"
-            title="Vasudha FarmShield MRL & AMU Portal Walkthrough"
+            src="https://www.youtube.com/embed/HTCLwz5mdZM?autoplay=0&rel=0"
+            title="FarmShield MRL & AMU Portal Walkthrough"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           />
@@ -99,12 +99,12 @@ export const VideoShowcaseModal: React.FC<VideoShowcaseModalProps> = ({ isOpen, 
         {/* Footer Link & Close */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-gray-200 text-xs">
           <a
-            href="https://www.vasudha-dahd.app/"
+            href="https://youtu.be/HTCLwz5mdZM"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 font-black text-[#1B5E20] hover:underline"
           >
-            <span>Visit Reference Official Portal (vasudha-dahd.app)</span>
+            <span>Watch on YouTube</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
 

@@ -8,8 +8,8 @@ export const FarmShieldVideoShowcase: React.FC = () => {
   const { language } = useLanguage();
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
-  // Official livestock & MRL revolution demonstration video link
-  const youtubeEmbedUrl = 'https://www.youtube.com/embed/z4y9m3Ym1d4?autoplay=1&rel=0';
+  // User provided YouTube demonstration video link (HTCLwz5mdZM)
+  const youtubeEmbedUrl = 'https://www.youtube.com/embed/HTCLwz5mdZM?autoplay=1&rel=0';
 
   return (
     <section className="w-full max-w-5xl mx-auto py-6 sm:py-8 space-y-4 font-sans text-center">
@@ -78,12 +78,16 @@ export const FarmShieldVideoShowcase: React.FC = () => {
             </div>
 
             {/* Bottom YouTube Badge */}
-            <div className="absolute bottom-4 right-4 z-10 pointer-events-none">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-black/70 backdrop-blur-md text-[11px] font-bold text-white border border-white/10">
-                <span>Watch on</span>
-                <span className="text-red-500 font-black">YouTube</span>
-              </span>
-            </div>
+            <a
+              href="https://youtu.be/HTCLwz5mdZM"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="absolute bottom-4 right-4 z-10 inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-black/70 hover:bg-black/90 backdrop-blur-md text-[11px] font-bold text-white border border-white/10 transition-colors"
+            >
+              <span>Watch on</span>
+              <span className="text-red-500 font-black">YouTube</span>
+            </a>
           </div>
         )}
       </div>
