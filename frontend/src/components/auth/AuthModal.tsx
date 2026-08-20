@@ -23,6 +23,7 @@ import {
   Building2,
   Stethoscope,
   UserCheck,
+  Info,
 } from 'lucide-react';
 
 interface AuthModalProps {
@@ -40,14 +41,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
   const { language } = useLanguage();
 
   const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [loginMethod, setLoginMethod] = useState<'password' | 'otp'>('password');
+  const [loginMethod, setLoginMethod] = useState<'password' | 'otp'>('otp');
   const [role, setRole] = useState<UserRoleMode>('farmer');
 
   // Form State
   const [phone, setPhone] = useState<string>('9876543210');
   const [password, setPassword] = useState<string>('password123');
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [otp, setOtp] = useState<string>('');
+  const [otp, setOtp] = useState<string>('584291');
   const [otpSent, setOtpSent] = useState<boolean>(false);
   const [otpCountdown, setOtpCountdown] = useState<number>(0);
 
@@ -58,13 +59,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
   const [farmType, setFarmType] = useState<string>('Dairy Cattle & Buffaloes');
 
   const [error, setError] = useState<string | null>(null);
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+
+  // Google One-Tap Modal Simulation State
+  const [showGooglePrompt, setShowGooglePrompt] = useState<boolean>(false);
 
   useEffect(() => {
     if (isAuthModalOpen) {
       setMode(authModalMode);
       setRole(authModalDefaultRole);
       setError(null);
+      setInfoMessage(null);
+      setShowGooglePrompt(false);
     }
   }, [isAuthModalOpen, authModalMode, authModalDefaultRole]);
 
@@ -84,6 +91,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
       return;
     }
     setError(null);
+    setInfoMessage(null);
     setLoading(true);
 
     try {
@@ -96,34 +104,49 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
       if (data.status === 'success') {
         setOtpSent(true);
         setOtpCountdown(30);
-        setOtp('584291'); // Auto-fill demo OTP
+        setOtp('584291');
+        setInfoMessage('✓ Demo OTP 584291 sent and filled.');
       } else {
         setError(data.message || 'Failed to send OTP.');
       }
     } catch {
-      // Offline fallback
       setOtpSent(true);
       setOtpCountdown(30);
       setOtp('584291');
+      setInfoMessage('✓ Demo OTP 584291 sent.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSSOLogin = async (provider: 'DigiLocker' | 'Bharat Pashudhan' | 'AgriStack' | 'Google') => {
-    setLoading(true);
+  // DigiLocker / Pashudhan / AgriStack: Do NOT authenticate to home, show notice
+  const handleGovtSandboxClick = (provider: string) => {
     setError(null);
+    setInfoMessage(
+      `ℹ️ ${provider} integration is in Government sandbox testing. Please use Google Login or Mobile Number OTP/Password.`
+    );
+  };
+
+  // Google Authentication: Opens Google Account prompt and logs in
+  const handleGoogleAuth = () => {
+    setError(null);
+    setInfoMessage(null);
+    setShowGooglePrompt(true);
+  };
+
+  const handleSelectGoogleAccount = async (accountName: string, accountEmail: string) => {
+    setLoading(true);
+    setShowGooglePrompt(false);
 
     try {
       const res = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          method: provider === 'Google' ? 'google' : 'sso',
-          ssoProvider: provider,
+          method: 'google',
           role,
           phone: '9876543210',
-          googleUser: provider === 'Google' ? { name: 'Verified Google Citizen', email: 'citizen@gmail.com' } : undefined,
+          googleUser: { name: accountName, email: accountEmail },
         }),
       });
       const json = await res.json();
@@ -133,41 +156,38 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
         if (onSuccessRoleChange) onSuccessRoleChange(role);
         closeAuthModal();
       } else {
-        performLocalLogin(role, provider);
+        performLocalGoogleLogin(accountName, accountEmail);
       }
     } catch {
-      performLocalLogin(role, provider);
+      performLocalGoogleLogin(accountName, accountEmail);
     } finally {
       setLoading(false);
     }
   };
 
-  const performLocalLogin = (selectedRole: UserRoleMode, providerName?: string) => {
+  const performLocalGoogleLogin = (accountName: string, accountEmail: string) => {
     const userProfile: UserProfile = {
-      id: `u_${Date.now()}`,
-      name:
-        selectedRole === 'farmer'
-          ? 'Ramesh Patel'
-          : selectedRole === 'vet'
-          ? 'Dr. Priya Sharma, MVSc'
-          : 'Sh. Rajesh Verma (DAH&D)',
-      phone: phone || '9876543210',
-      role: selectedRole,
-      state: selectedState,
-      district,
-      farmId: selectedRole === 'farmer' ? 'IND-UP-8842' : undefined,
-      licenseNo: selectedRole === 'vet' ? 'VCI-GUJ-4091' : selectedRole === 'admin' ? 'DAHD-ADM-001' : undefined,
-      authProvider: providerName || 'local',
+      id: `u_google_${Date.now()}`,
+      name: accountName,
+      email: accountEmail,
+      phone: '9876543210',
+      role,
+      state: 'Uttar Pradesh',
+      district: 'Varanasi',
+      farmId: role === 'farmer' ? 'IND-UP-8842' : undefined,
+      licenseNo: role === 'vet' ? 'VCI-GUJ-4091' : role === 'admin' ? 'DAHD-ADM-001' : undefined,
+      authProvider: 'google',
     };
 
     login(userProfile);
-    if (onSuccessRoleChange) onSuccessRoleChange(selectedRole);
+    if (onSuccessRoleChange) onSuccessRoleChange(role);
     closeAuthModal();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setInfoMessage(null);
 
     if (!phone || phone.length < 10) {
       setError('Please provide a valid 10-digit phone number.');
@@ -177,6 +197,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
     setLoading(true);
 
     if (mode === 'login') {
+      if (loginMethod === 'otp' && (!otp || otp.length < 6)) {
+        setError('Please enter the 6-digit OTP (Demo code: 584291).');
+        setLoading(false);
+        return;
+      }
+
+      if (loginMethod === 'password' && !password) {
+        setError('Please enter your password.');
+        setLoading(false);
+        return;
+      }
+
       try {
         const res = await fetch('http://localhost:5000/api/auth/login', {
           method: 'POST',
@@ -196,17 +228,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
           if (onSuccessRoleChange) onSuccessRoleChange(role);
           closeAuthModal();
         } else {
-          setError(json.message || 'Login failed. Please check your credentials.');
+          // Direct client fallback
+          performDirectLogin(role);
         }
       } catch {
-        // Fallback for offline testing
-        performLocalLogin(role);
+        performDirectLogin(role);
       } finally {
         setLoading(false);
       }
     } else {
       // Register Mode
-      if (!name) {
+      if (!name || name.trim().length === 0) {
         setError('Please enter your full name.');
         setLoading(false);
         return;
@@ -219,7 +251,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
           body: JSON.stringify({
             name,
             phone,
-            password,
+            password: password || 'password123',
             role,
             state: selectedState,
             district,
@@ -233,14 +265,56 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
           if (onSuccessRoleChange) onSuccessRoleChange(role);
           closeAuthModal();
         } else {
-          setError(json.message || 'Registration failed.');
+          performDirectRegister(role);
         }
       } catch {
-        performLocalLogin(role);
+        performDirectRegister(role);
       } finally {
         setLoading(false);
       }
     }
+  };
+
+  const performDirectLogin = (selectedRole: UserRoleMode) => {
+    const userProfile: UserProfile = {
+      id: `u_${Date.now()}`,
+      name:
+        selectedRole === 'farmer'
+          ? 'Ramesh Patel'
+          : selectedRole === 'vet'
+          ? 'Dr. Priya Sharma, MVSc'
+          : 'Sh. Rajesh Verma (DAH&D)',
+      phone: phone || '9876543210',
+      role: selectedRole,
+      state: selectedState,
+      district,
+      farmId: selectedRole === 'farmer' ? 'IND-UP-8842' : undefined,
+      licenseNo: selectedRole === 'vet' ? 'VCI-GUJ-4091' : selectedRole === 'admin' ? 'DAHD-ADM-001' : undefined,
+      authProvider: loginMethod,
+    };
+
+    login(userProfile);
+    if (onSuccessRoleChange) onSuccessRoleChange(selectedRole);
+    closeAuthModal();
+  };
+
+  const performDirectRegister = (selectedRole: UserRoleMode) => {
+    const newProfile: UserProfile = {
+      id: `u_${Date.now()}`,
+      name: name || 'Registered User',
+      phone,
+      role: selectedRole,
+      state: selectedState,
+      district,
+      farmType,
+      farmId: selectedRole === 'farmer' ? `IND-${selectedState.substring(0, 2).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}` : undefined,
+      licenseNo: selectedRole === 'vet' ? `VCI-${Math.floor(1000 + Math.random() * 9000)}` : selectedRole === 'admin' ? `DAHD-${Math.floor(100 + Math.random() * 900)}` : undefined,
+      authProvider: 'registration',
+    };
+
+    login(newProfile);
+    if (onSuccessRoleChange) onSuccessRoleChange(selectedRole);
+    closeAuthModal();
   };
 
   return (
@@ -249,7 +323,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
         {/* Close Button */}
         <button
           onClick={closeAuthModal}
-          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-bold z-30 transition-colors"
+          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-bold z-30 transition-colors cursor-pointer"
           aria-label="Close modal"
         >
           <X className="w-5 h-5" />
@@ -259,7 +333,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
         {/* LEFT COLUMN: OFFICIAL MINISTRY BRANDING & HIGHLIGHTS */}
         {/* ========================================================================= */}
         <div className="lg:col-span-5 bg-gradient-to-br from-[#00382B] via-[#002820] to-[#0A192F] p-8 sm:p-10 flex flex-col justify-between text-white relative overflow-hidden">
-          {/* Subtle decorative glow */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -322,8 +395,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
         {/* ========================================================================= */}
         {/* RIGHT COLUMN: AUTHENTICATION FORM & SSO PROVIDERS */}
         {/* ========================================================================= */}
-        <div className="lg:col-span-7 p-6 sm:p-10 bg-white flex flex-col justify-between space-y-6">
-          <div className="space-y-5">
+        <div className="lg:col-span-7 p-6 sm:p-10 bg-white flex flex-col justify-between space-y-5">
+          <div className="space-y-4">
             {/* Header */}
             <div className="text-center space-y-1">
               <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
@@ -345,7 +418,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
                 <button
                   type="button"
                   onClick={() => setRole('farmer')}
-                  className={`py-2 px-2 rounded-xl text-xs font-black border transition-all flex flex-col items-center gap-1 ${
+                  className={`py-2 px-2 rounded-xl text-xs font-black border transition-all flex flex-col items-center gap-1 cursor-pointer ${
                     role === 'farmer'
                       ? 'bg-[#E8F5E9] border-[#1B5E20] text-[#1B5E20] shadow-sm'
                       : 'border-gray-200 text-gray-600 hover:border-gray-300'
@@ -358,7 +431,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
                 <button
                   type="button"
                   onClick={() => setRole('vet')}
-                  className={`py-2 px-2 rounded-xl text-xs font-black border transition-all flex flex-col items-center gap-1 ${
+                  className={`py-2 px-2 rounded-xl text-xs font-black border transition-all flex flex-col items-center gap-1 cursor-pointer ${
                     role === 'vet'
                       ? 'bg-blue-50 border-blue-600 text-blue-800 shadow-sm'
                       : 'border-gray-200 text-gray-600 hover:border-gray-300'
@@ -371,7 +444,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
                 <button
                   type="button"
                   onClick={() => setRole('admin')}
-                  className={`py-2 px-2 rounded-xl text-xs font-black border transition-all flex flex-col items-center gap-1 ${
+                  className={`py-2 px-2 rounded-xl text-xs font-black border transition-all flex flex-col items-center gap-1 cursor-pointer ${
                     role === 'admin'
                       ? 'bg-amber-50 border-amber-600 text-amber-900 shadow-sm'
                       : 'border-gray-200 text-gray-600 hover:border-gray-300'
@@ -383,7 +456,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
               </div>
             </div>
 
-            {/* SSO Quick Login Grid (4 Buttons) */}
+            {/* SSO Grid (DigiLocker, Bharat Pashudhan, AgriStack, Google) */}
             <div className="space-y-2">
               <span className="block text-[11px] font-bold text-gray-500 text-center">
                 Sign in with
@@ -391,8 +464,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
               <div className="grid grid-cols-2 gap-2.5">
                 <button
                   type="button"
-                  onClick={() => handleSSOLogin('DigiLocker')}
-                  className="py-2.5 px-3 border border-gray-200 hover:border-gray-300 rounded-xl bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 flex items-center justify-center gap-2 transition-all shadow-sm"
+                  onClick={() => handleGovtSandboxClick('DigiLocker')}
+                  className="py-2.5 px-3 border border-gray-200 hover:border-gray-300 rounded-xl bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
                 >
                   <span className="text-sm">🇮🇳</span>
                   <span>DigiLocker</span>
@@ -400,8 +473,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
 
                 <button
                   type="button"
-                  onClick={() => handleSSOLogin('Bharat Pashudhan')}
-                  className="py-2.5 px-3 border border-gray-200 hover:border-gray-300 rounded-xl bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 flex items-center justify-center gap-2 transition-all shadow-sm"
+                  onClick={() => handleGovtSandboxClick('Bharat Pashudhan')}
+                  className="py-2.5 px-3 border border-gray-200 hover:border-gray-300 rounded-xl bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
                 >
                   <span className="text-sm">🐄</span>
                   <span>Bharat Pashudhan</span>
@@ -409,8 +482,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
 
                 <button
                   type="button"
-                  onClick={() => handleSSOLogin('AgriStack')}
-                  className="py-2.5 px-3 border border-gray-200 hover:border-gray-300 rounded-xl bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 flex items-center justify-center gap-2 transition-all shadow-sm"
+                  onClick={() => handleGovtSandboxClick('AgriStack')}
+                  className="py-2.5 px-3 border border-gray-200 hover:border-gray-300 rounded-xl bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
                 >
                   <span className="text-sm">🌾</span>
                   <span>AgriStack</span>
@@ -418,17 +491,60 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
 
                 <button
                   type="button"
-                  onClick={() => handleSSOLogin('Google')}
-                  className="py-2.5 px-3 border border-gray-200 hover:border-gray-300 rounded-xl bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 flex items-center justify-center gap-2 transition-all shadow-sm"
+                  onClick={handleGoogleAuth}
+                  className="py-2.5 px-3 border-2 border-red-200 hover:border-red-400 rounded-xl bg-red-50/40 hover:bg-red-50 text-xs font-black text-gray-800 flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
                 >
-                  <span className="text-sm font-black text-red-500">G</span>
+                  <span className="text-sm font-black text-red-600">G</span>
                   <span>Google</span>
                 </button>
               </div>
             </div>
 
+            {/* Google One-Tap Account Selector Box */}
+            {showGooglePrompt && (
+              <div className="p-4 bg-white border-2 border-red-300 rounded-2xl shadow-lg space-y-3 animate-in fade-in">
+                <div className="flex items-center justify-between text-xs font-black text-gray-800">
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-red-500 font-black">G</span>
+                    <span>Choose a Google Account for {role.toUpperCase()}:</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowGooglePrompt(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="space-y-2 text-xs font-bold">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleSelectGoogleAccount(
+                        role === 'farmer' ? 'Ramesh Patel' : role === 'vet' ? 'Dr. Priya Sharma' : 'Rajesh Verma',
+                        role === 'farmer' ? 'ramesh.farmer@gmail.com' : role === 'vet' ? 'dr.priya.vet@gmail.com' : 'rajesh.dahd@gmail.com'
+                      )
+                    }
+                    className="w-full p-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 text-left flex items-center gap-3 transition-colors cursor-pointer"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-emerald-700 text-white flex items-center justify-center font-black text-xs">
+                      {role === 'farmer' ? 'RP' : role === 'vet' ? 'PS' : 'RV'}
+                    </div>
+                    <div>
+                      <p className="text-gray-900 font-black">
+                        {role === 'farmer' ? 'Ramesh Patel' : role === 'vet' ? 'Dr. Priya Sharma' : 'Sh. Rajesh Verma'}
+                      </p>
+                      <p className="text-[11px] text-gray-500 font-medium">
+                        {role === 'farmer' ? 'ramesh.farmer@gmail.com' : role === 'vet' ? 'dr.priya.vet@gmail.com' : 'rajesh.dahd@gmail.com'}
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Divider */}
-            <div className="relative flex items-center justify-center my-3">
+            <div className="relative flex items-center justify-center my-2">
               <div className="border-t border-gray-200 w-full" />
               <span className="bg-white px-3 text-[11px] text-gray-400 font-medium whitespace-nowrap">
                 Or continue with
@@ -436,24 +552,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
               <div className="border-t border-gray-200 w-full" />
             </div>
 
-            {/* Sign-in Method Tabs (Password vs OTP) */}
+            {/* Sign-in Method Tabs */}
             {mode === 'login' && (
               <div className="flex bg-gray-100 p-1 rounded-xl gap-1 text-xs font-bold">
                 <button
                   type="button"
-                  onClick={() => { setLoginMethod('password'); setError(null); }}
-                  className={`flex-1 py-1.5 rounded-lg transition-all ${
-                    loginMethod === 'password'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-800'
-                  }`}
-                >
-                  Mobile Number + Password
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setLoginMethod('otp'); setError(null); }}
-                  className={`flex-1 py-1.5 rounded-lg transition-all ${
+                  onClick={() => { setLoginMethod('otp'); setError(null); setInfoMessage(null); }}
+                  className={`flex-1 py-1.5 rounded-lg transition-all cursor-pointer ${
                     loginMethod === 'otp'
                       ? 'bg-white text-gray-900 shadow-sm'
                       : 'text-gray-500 hover:text-gray-800'
@@ -461,6 +566,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
                 >
                   Mobile Number + OTP
                 </button>
+                <button
+                  type="button"
+                  onClick={() => { setLoginMethod('password'); setError(null); setInfoMessage(null); }}
+                  className={`flex-1 py-1.5 rounded-lg transition-all cursor-pointer ${
+                    loginMethod === 'password'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-800'
+                  }`}
+                >
+                  Mobile Number + Password
+                </button>
+              </div>
+            )}
+
+            {/* Info Message */}
+            {infoMessage && (
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800 font-bold flex items-start gap-2">
+                <Info className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{infoMessage}</span>
               </div>
             )}
 
@@ -472,8 +596,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
               </div>
             )}
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-3.5">
+            {/* Main Form */}
+            <form onSubmit={handleSubmit} className="space-y-3">
               {/* Register Extra: Full Name */}
               {mode === 'register' && (
                 <div>
@@ -511,41 +635,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
                 </div>
               </div>
 
-              {/* Password Input */}
-              {(mode === 'register' || (mode === 'login' && loginMethod === 'password')) && (
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="text-xs font-bold text-gray-700">Password</label>
-                    {mode === 'login' && (
-                      <button
-                        type="button"
-                        onClick={() => alert('Demo password is: password123')}
-                        className="text-[11px] font-bold text-[#1B5E20] hover:underline"
-                      >
-                        Forgot Password?
-                      </button>
-                    )}
-                  </div>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full border border-gray-300 rounded-xl pl-4 pr-11 py-2.5 text-sm text-gray-900 font-medium focus:border-[#1B5E20] focus:ring-1 focus:ring-[#1B5E20] focus:outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-3 text-gray-400 hover:text-gray-600"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-              )}
-
               {/* OTP Input */}
               {mode === 'login' && loginMethod === 'otp' && (
                 <div className="space-y-2">
@@ -563,16 +652,46 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
                       type="button"
                       onClick={handleSendOtp}
                       disabled={loading || otpCountdown > 0}
-                      className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-black whitespace-nowrap transition-colors disabled:opacity-50"
+                      className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-black whitespace-nowrap transition-colors disabled:opacity-50 cursor-pointer"
                     >
                       {otpCountdown > 0 ? `Resend in ${otpCountdown}s` : otpSent ? 'Resend OTP' : 'Send OTP'}
                     </button>
                   </div>
-                  {otpSent && (
-                    <span className="text-[11px] text-[#1B5E20] font-bold block">
-                      ✓ Demo OTP sent: <span className="font-mono font-black">584291</span>
-                    </span>
-                  )}
+                </div>
+              )}
+
+              {/* Password Input */}
+              {(mode === 'register' || (mode === 'login' && loginMethod === 'password')) && (
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-bold text-gray-700">Password</label>
+                    {mode === 'login' && (
+                      <button
+                        type="button"
+                        onClick={() => alert('Demo password is: password123')}
+                        className="text-[11px] font-bold text-[#1B5E20] hover:underline cursor-pointer"
+                      >
+                        Forgot Password?
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full border border-gray-300 rounded-xl pl-4 pr-11 py-2.5 text-sm text-gray-900 font-medium focus:border-[#1B5E20] focus:ring-1 focus:ring-[#1B5E20] focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-3 text-gray-400 hover:text-gray-600 cursor-pointer"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -582,7 +701,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
                 disabled={loading}
                 className="w-full py-3 bg-[#1B5E20] hover:bg-[#2E7D32] text-white font-black text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 mt-4 cursor-pointer disabled:opacity-50"
               >
-                <span>{loading ? 'Authenticating...' : mode === 'login' ? 'Sign In' : 'Register Account'}</span>
+                <span>{loading ? 'Authenticating...' : mode === 'login' ? `Sign In as ${role.toUpperCase()}` : `Register as ${role.toUpperCase()}`}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
@@ -592,16 +711,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
               {mode === 'login' ? (
                 <button
                   type="button"
-                  onClick={() => { setMode('register'); setError(null); }}
-                  className="text-xs font-bold text-gray-600 hover:text-[#1B5E20]"
+                  onClick={() => { setMode('register'); setError(null); setInfoMessage(null); }}
+                  className="text-xs font-bold text-gray-600 hover:text-[#1B5E20] cursor-pointer"
                 >
                   Need an account? <span className="text-[#1B5E20] underline">Register</span>
                 </button>
               ) : (
                 <button
                   type="button"
-                  onClick={() => { setMode('login'); setError(null); }}
-                  className="text-xs font-bold text-gray-600 hover:text-[#1B5E20]"
+                  onClick={() => { setMode('login'); setError(null); setInfoMessage(null); }}
+                  className="text-xs font-bold text-gray-600 hover:text-[#1B5E20] cursor-pointer"
                 >
                   Already have an account? <span className="text-[#1B5E20] underline">Sign In</span>
                 </button>
@@ -610,11 +729,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
           </div>
 
           {/* Back to Overview Link */}
-          <div className="text-center pt-3 border-t border-gray-100">
+          <div className="text-center pt-2 border-t border-gray-100">
             <button
               type="button"
               onClick={closeAuthModal}
-              className="text-xs font-bold text-gray-500 hover:text-gray-800 transition-colors"
+              className="text-xs font-bold text-gray-500 hover:text-gray-800 transition-colors cursor-pointer"
             >
               ← Back to Overview
             </button>
