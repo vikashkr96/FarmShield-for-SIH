@@ -8,6 +8,8 @@ abstract class Routes {
   static const LAB_RESULTS = _Paths.LAB_RESULTS;
   static const MODELS_INFO = _Paths.MODELS_INFO;
   static const LIVESTOCK = _Paths.LIVESTOCK;
+  static const LOGIN = _Paths.LOGIN;
+  static const REGISTER = _Paths.REGISTER;
 }
 
 abstract class _Paths {
@@ -18,4 +20,6 @@ abstract class _Paths {
   static const LAB_RESULTS = '/lab-results';
   static const MODELS_INFO = '/models-info';
   static const LIVESTOCK = '/livestock';
+  static const LOGIN = '/login';
+  static const REGISTER = '/register';
 }
