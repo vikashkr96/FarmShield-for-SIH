@@ -18,6 +18,8 @@ import '../modules/auth/views/login_view.dart';
 import '../modules/auth/views/register_view.dart';
 import '../modules/animal_detail/bindings/animal_detail_binding.dart';
 import '../modules/animal_detail/views/animal_detail_view.dart';
+import '../modules/calendar/bindings/calendar_binding.dart';
+import '../modules/calendar/views/withdrawal_calendar_view.dart';
 
 part 'app_routes.dart';
 
@@ -74,6 +76,11 @@ class AppPages {
       name: _Paths.ANIMAL_DETAIL,
       page: () => const AnimalDetailView(),
       binding: AnimalDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.CALENDAR,
+      page: () => const WithdrawalCalendarView(),
+      binding: CalendarBinding(),
     ),
   ];
 }

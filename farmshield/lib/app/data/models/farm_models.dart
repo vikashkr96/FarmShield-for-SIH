@@ -57,6 +57,39 @@ class Animal {
       };
 }
 
+class Withdrawal {
+  final String id;
+  final String treatmentId;
+  final String animalId;
+  final String product;
+  final DateTime startDate;
+  final DateTime endDate;
+  final String status;
+  final Animal? animal;
+
+  Withdrawal({
+    required this.id,
+    required this.treatmentId,
+    required this.animalId,
+    required this.product,
+    required this.startDate,
+    required this.endDate,
+    required this.status,
+    this.animal,
+  });
+
+  factory Withdrawal.fromJson(Map<String, dynamic> json) => Withdrawal(
+        id: json['id'],
+        treatmentId: json['treatment_id'],
+        animalId: json['animal_id'],
+        product: json['product'],
+        startDate: DateTime.parse(json['start_date']),
+        endDate: DateTime.parse(json['end_date']),
+        status: json['status'],
+        animal: json['animals'] != null ? Animal.fromJson(json['animals']) : null,
+      );
+}
+
 class Medicine {
   String? id;
   String? brandName;
