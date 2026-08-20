@@ -20,6 +20,8 @@ import '../modules/animal_detail/bindings/animal_detail_binding.dart';
 import '../modules/animal_detail/views/animal_detail_view.dart';
 import '../modules/calendar/bindings/calendar_binding.dart';
 import '../modules/calendar/views/withdrawal_calendar_view.dart';
+import '../modules/medicines_catalog/bindings/medicines_catalog_binding.dart';
+import '../modules/medicines_catalog/views/medicines_catalog_view.dart';
 
 part 'app_routes.dart';
 
@@ -46,7 +48,7 @@ class AppPages {
       name: _Paths.RISK_ASSESSMENT,
       page: () => const RiskAssessmentView(),
       binding: RiskAssessmentBinding(),
-    ),
+      ),
     GetPage(
       name: _Paths.ANIMAL_PASSPORT,
       page: () => const AnimalPassportView(),
@@ -81,6 +83,11 @@ class AppPages {
       name: _Paths.CALENDAR,
       page: () => const WithdrawalCalendarView(),
       binding: CalendarBinding(),
+    ),
+    GetPage(
+      name: _Paths.MEDICINES_CATALOG,
+      page: () => const MedicinesCatalogView(),
+      binding: MedicinesCatalogBinding(),
     ),
   ];
 }

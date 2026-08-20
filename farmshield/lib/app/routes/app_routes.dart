@@ -12,6 +12,7 @@ abstract class Routes {
   static const REGISTER = _Paths.REGISTER;
   static const ANIMAL_DETAIL = _Paths.ANIMAL_DETAIL;
   static const CALENDAR = _Paths.CALENDAR;
+  static const MEDICINES_CATALOG = _Paths.MEDICINES_CATALOG;
 }
 
 abstract class _Paths {
@@ -26,4 +27,5 @@ abstract class _Paths {
   static const REGISTER = '/register';
   static const ANIMAL_DETAIL = '/animal-detail';
   static const CALENDAR = '/calendar';
+  static const MEDICINES_CATALOG = '/medicines-catalog';
 }

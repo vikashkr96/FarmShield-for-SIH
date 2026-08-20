@@ -92,47 +92,110 @@ class Withdrawal {
 
 class Medicine {
   String? id;
-  String? brandName;
+  String? name;
   String? activeIngredient;
-  String? drugClass;
-  String? whoClassification;
-  double? standardDosePerKg;
-  String? defaultRoute;
-  int? milkWithdrawalDays;
-  int? aquacultureWithdrawalDays;
-  double? mrlMilkUgKg;
-  double? mrlAquacultureUgKg;
-  bool? isFssaiApproved;
+  String? antimicrobialClass;
+  String? strength;
+  String? status;
+  String? imageUrl;
+  List<RegulatoryRule>? rules;
 
   Medicine({
     this.id,
-    this.brandName,
+    this.name,
     this.activeIngredient,
-    this.drugClass,
-    this.whoClassification,
-    this.standardDosePerKg,
-    this.defaultRoute,
-    this.milkWithdrawalDays,
-    this.aquacultureWithdrawalDays,
-    this.mrlMilkUgKg,
-    this.mrlAquacultureUgKg,
-    this.isFssaiApproved,
+    this.antimicrobialClass,
+    this.strength,
+    this.status,
+    this.imageUrl,
+    this.rules,
   });
 
   factory Medicine.fromJson(Map<String, dynamic> json) => Medicine(
         id: json['id'],
-        brandName: json['brand_name'],
+        name: json['name'],
         activeIngredient: json['active_ingredient'],
-        drugClass: json['drug_class'],
-        whoClassification: json['who_classification'],
-        standardDosePerKg: json['standard_dose_per_kg']?.toDouble(),
-        defaultRoute: json['default_route'],
-        milkWithdrawalDays: json['milk_withdrawal_days'],
-        aquacultureWithdrawalDays: json['aquaculture_withdrawal_days'],
-        mrlMilkUgKg: json['mrl_milk_ug_kg']?.toDouble(),
-        mrlAquacultureUgKg: json['mrl_aquaculture_ug_kg']?.toDouble(),
-        isFssaiApproved: json['is_fssai_approved'],
+        antimicrobialClass: json['antimicrobial_class'],
+        strength: json['strength'],
+        status: json['status'],
+        imageUrl: json['image_url'],
+        rules: json['regulatory_rules'] != null
+            ? (json['regulatory_rules'] as List)
+                .map((e) => RegulatoryRule.fromJson(e))
+                .toList()
+            : null,
       );
+
+  Map<String, dynamic> toJson() => {
+        "name": name,
+        "active_ingredient": activeIngredient,
+        "antimicrobial_class": antimicrobialClass,
+        "strength": strength,
+        "status": status,
+        "image_url": imageUrl,
+      };
+}
+
+class RegulatoryRule {
+  String? id;
+  String? medicineId;
+  String? species;
+  String? product;
+  double? mrl;
+  int? withdrawalDays;
+  String? jurisdiction;
+  String? source;
+  String? version;
+  DateTime? effectiveFrom;
+  DateTime? effectiveTo;
+  String? approvalStatus;
+
+  RegulatoryRule({
+    this.id,
+    this.medicineId,
+    this.species,
+    this.product,
+    this.mrl,
+    this.withdrawalDays,
+    this.jurisdiction,
+    this.source,
+    this.version,
+    this.effectiveFrom,
+    this.effectiveTo,
+    this.approvalStatus,
+  });
+
+  factory RegulatoryRule.fromJson(Map<String, dynamic> json) => RegulatoryRule(
+        id: json['id'],
+        medicineId: json['medicine_id'],
+        species: json['species'],
+        product: json['product'],
+        mrl: (json['mrl'] as num?)?.toDouble(),
+        withdrawalDays: json['withdrawal_days'],
+        jurisdiction: json['jurisdiction'],
+        source: json['source'],
+        version: json['version'],
+        effectiveFrom: json['effective_from'] != null
+            ? DateTime.parse(json['effective_from'])
+            : null,
+        effectiveTo: json['effective_to'] != null
+            ? DateTime.parse(json['effective_to'])
+            : null,
+        approvalStatus: json['approval_status'],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "medicine_id": medicineId,
+        "species": species,
+        "product": product,
+        "mrl": mrl,
+        "withdrawal_days": withdrawalDays,
+        "jurisdiction": jurisdiction,
+        "source": source,
+        "version": version,
+        "effective_from": effectiveFrom?.toIso8601String(),
+        "approval_status": approvalStatus,
+      };
 }
 
 class Treatment {
