@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import healthRouter from './health';
+import authRouter from './auth';
 import animalsRouter from './animals';
 import treatmentsRouter from './treatments';
 import withdrawalsRouter from './withdrawals';
@@ -14,6 +15,7 @@ const router = Router();
 router.use('/', healthRouter);
 
 // REST API Modular Mounts
+router.use('/', authRouter);
 router.use('/', animalsRouter);
 router.use('/', treatmentsRouter);
 router.use('/', withdrawalsRouter);

@@ -7,12 +7,14 @@ export interface UserProfile {
   id: string;
   name: string;
   phone: string;
+  email?: string;
   role: UserRoleMode;
   state: string;
   district: string;
   farmId?: string;
   licenseNo?: string;
   farmType?: string;
+  authProvider?: string;
 }
 
 interface AuthContextType {
@@ -42,21 +44,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const savedSession = localStorage.getItem(AUTH_STORAGE_KEY);
       if (savedSession) {
         setUser(JSON.parse(savedSession));
-      } else {
-        // Default Demo Session for SIH evaluators
-        const defaultUser: UserProfile = {
-          id: 'u_farmer_01',
-          name: 'Ramesh Patel',
-          phone: '9876543210',
-          role: 'farmer',
-          state: 'Uttar Pradesh',
-          district: 'Varanasi',
-          farmId: 'IND-UP-8842',
-          farmType: 'Dairy Cattle & Aquaculture',
-        };
-        setUser(defaultUser);
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(defaultUser));
       }
+      // Note: Initially user is null when first visiting, allowing clean overview landing
     } catch {
       // Ignore localStorage errors
     }

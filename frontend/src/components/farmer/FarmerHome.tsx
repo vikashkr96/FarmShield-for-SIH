@@ -16,6 +16,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { useLanguage } from '../../providers/LanguageProvider';
+import { useAuth } from '../../providers/AuthProvider';
 import { FarmSlider } from './FarmSlider';
 import { ArticleModal, ArticleData } from './ArticleModal';
 
@@ -32,7 +33,16 @@ interface FarmerHomeProps {
 
 export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegisterAnimal, stats }) => {
   const { t, language } = useLanguage();
+  const { isAuthenticated, openAuthModal } = useAuth();
   const [selectedArticle, setSelectedArticle] = useState<ArticleData | null>(null);
+
+  const handleProtectedAction = (action: () => void) => {
+    if (!isAuthenticated) {
+      openAuthModal('login', 'farmer');
+    } else {
+      action();
+    }
+  };
 
   const richArticles: ArticleData[] = [
     {
@@ -241,10 +251,14 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
           <div className="flex items-center justify-center gap-3.5 pt-0.5">
             <button
               onClick={() => {
-                const el = document.getElementById('farmer-primary-actions');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-                else if (onOpenRegisterAnimal) onOpenRegisterAnimal();
-                else onNavigate('animals');
+                if (!isAuthenticated) {
+                  openAuthModal('login', 'farmer');
+                } else {
+                  const el = document.getElementById('farmer-primary-actions');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  else if (onOpenRegisterAnimal) onOpenRegisterAnimal();
+                  else onNavigate('animals');
+                }
               }}
               className="px-6 py-2.5 sm:py-3 bg-[#1B5E20] hover:bg-[#2E7D32] text-white font-black text-xs sm:text-sm rounded-xl shadow-lg transition-all hover:scale-105 flex items-center gap-2 cursor-pointer"
             >
@@ -257,7 +271,7 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
                 const el = document.getElementById('knowledge-hub-section');
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="px-6 py-3 bg-white hover:bg-gray-50 border-2 border-gray-300 text-gray-800 font-black text-xs sm:text-sm rounded-xl shadow-sm transition-all hover:border-[#1B5E20] cursor-pointer"
+              className="px-6 py-2.5 sm:py-3 bg-white hover:bg-gray-50 border-2 border-gray-300 text-gray-800 font-black text-xs sm:text-sm rounded-xl shadow-sm transition-all hover:border-[#1B5E20] cursor-pointer"
             >
               <span>{language === 'en' ? 'Learn More' : 'और जानें'}</span>
             </button>
@@ -282,10 +296,12 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* PRIMARY ACTION 1: REGISTER ANIMAL / FISHERY UNIT */}
           <div
-            onClick={() => {
-              if (onOpenRegisterAnimal) onOpenRegisterAnimal();
-              else onNavigate('animals');
-            }}
+            onClick={() =>
+              handleProtectedAction(() => {
+                if (onOpenRegisterAnimal) onOpenRegisterAnimal();
+                else onNavigate('animals');
+              })
+            }
             className="bg-gradient-to-br from-white to-[#F1F8E9] border-2 border-[#1B5E20] hover:border-[#2E7D32] p-8 rounded-3xl shadow-xl hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#A5D6A7]/20 rounded-full blur-2xl pointer-events-none" />
@@ -332,7 +348,7 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
 
           {/* PRIMARY ACTION 2: SCAN QR OR ENTER ANIMAL ID */}
           <div
-            onClick={() => onNavigate('qr_scan')}
+            onClick={() => handleProtectedAction(() => onNavigate('qr_scan'))}
             className="bg-gradient-to-br from-white to-blue-50/60 border-2 border-blue-600 hover:border-blue-700 p-8 rounded-3xl shadow-xl hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200/30 rounded-full blur-2xl pointer-events-none" />
@@ -420,7 +436,7 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
           <Card
             variant="glass"
             hoverEffect
-            onClick={() => onNavigate('animals')}
+            onClick={() => handleProtectedAction(() => onNavigate('animals'))}
             className="cursor-pointer border-2 border-[#1B5E20]/30 hover:bg-[#E8F5E9]/50 p-5 flex flex-col justify-between group text-center items-center space-y-2"
           >
             <span className="text-3xl">🐄</span>
@@ -430,7 +446,7 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
           <Card
             variant="glass"
             hoverEffect
-            onClick={() => onNavigate('treatment')}
+            onClick={() => handleProtectedAction(() => onNavigate('treatment'))}
             className="cursor-pointer border-2 border-[#1B5E20]/30 hover:bg-[#E8F5E9]/50 p-5 flex flex-col justify-between group text-center items-center space-y-2"
           >
             <span className="text-3xl">💊</span>
@@ -440,7 +456,7 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
           <Card
             variant="glass"
             hoverEffect
-            onClick={() => onNavigate('milk_safety')}
+            onClick={() => handleProtectedAction(() => onNavigate('milk_safety'))}
             className="cursor-pointer border-2 border-[#1B5E20]/30 hover:bg-[#E8F5E9]/50 p-5 flex flex-col justify-between group text-center items-center space-y-2"
           >
             <span className="text-3xl">🥛</span>
@@ -450,7 +466,7 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
           <Card
             variant="glass"
             hoverEffect
-            onClick={() => onNavigate('alerts')}
+            onClick={() => handleProtectedAction(() => onNavigate('alerts'))}
             className="cursor-pointer border-2 border-[#1B5E20]/30 hover:bg-[#E8F5E9]/50 p-5 flex flex-col justify-between group text-center items-center space-y-2"
           >
             <span className="text-3xl">⚠️</span>

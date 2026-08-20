@@ -11,15 +11,27 @@ import { QRScannerModal } from '../components/farmer/QRScannerModal';
 import { VetDashboard } from '../components/vet/VetDashboard';
 import { AdminDashboard } from '../components/admin/AdminDashboard';
 import { ConnectionStatus } from '../components/ConnectionStatus';
+import { AuthModal } from '../components/auth/AuthModal';
+import { useAuth } from '../providers/AuthProvider';
 import { useLanguage } from '../providers/LanguageProvider';
 
 export default function Home() {
   const { t } = useLanguage();
+  const { user, isAuthenticated } = useAuth();
 
-  const [roleMode, setRoleMode] = useState<UserRoleMode>('farmer');
+  const [roleMode, setRoleMode] = useState<UserRoleMode | undefined>(undefined);
   const [farmerView, setFarmerView] = useState<'home' | 'animals' | 'treatment' | 'milk_safety' | 'alerts' | 'history' | 'qr_scan'>('home');
   const [selectedQrToken, setSelectedQrToken] = useState<string>('');
   const [autoOpenRegisterForm, setAutoOpenRegisterForm] = useState<boolean>(false);
+
+  // Sync roleMode when user logs in or out
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setRoleMode(user.role);
+    } else {
+      setRoleMode(undefined);
+    }
+  }, [isAuthenticated, user]);
 
   // Initial Livestock & Fishery Pond Units State
   const [animals, setAnimals] = useState<AnimalItem[]>([
@@ -141,26 +153,19 @@ export default function Home() {
           }}
         />
 
+        {/* Global VASUDHA / FarmShield Auth Modal */}
+        <AuthModal
+          onSuccessRoleChange={(authenticatedRole) => {
+            setRoleMode(authenticatedRole);
+            if (authenticatedRole === 'farmer') setFarmerView('home');
+          }}
+        />
+
         <main className="py-6">
-          {/* VETERINARIAN ROLE MODE */}
-          {roleMode === 'vet' && <VetDashboard />}
-
-          {/* ADMIN / GOVT BODY ROLE MODE */}
-          {roleMode === 'admin' && <AdminDashboard />}
-
-          {/* PUBLIC QR SCANNER MODE */}
-          {roleMode === 'qr_scanner' && (
-            <QRScannerModal
-              initialToken={selectedQrToken}
-              onBack={() => {
-                setRoleMode('farmer');
-                setFarmerView('home');
-              }}
-            />
-          )}
-
-          {/* FARMER ROLE MODE */}
-          {roleMode === 'farmer' && (
+          {/* ========================================================================= */}
+          {/* PUBLIC LANDING OVERVIEW OR FARMER HOME */}
+          {/* ========================================================================= */}
+          {(!isAuthenticated || roleMode === 'farmer' || roleMode === undefined) && (
             <>
               {farmerView === 'home' && (
                 <div className="space-y-12">
@@ -235,6 +240,29 @@ export default function Home() {
                 />
               )}
             </>
+          )}
+
+          {/* ========================================================================= */}
+          {/* VETERINARIAN ROLE MODE */}
+          {/* ========================================================================= */}
+          {isAuthenticated && roleMode === 'vet' && <VetDashboard />}
+
+          {/* ========================================================================= */}
+          {/* ADMIN / GOVT BODY ROLE MODE */}
+          {/* ========================================================================= */}
+          {isAuthenticated && roleMode === 'admin' && <AdminDashboard />}
+
+          {/* ========================================================================= */}
+          {/* PUBLIC QR SCANNER MODE */}
+          {/* ========================================================================= */}
+          {isAuthenticated && roleMode === 'qr_scanner' && (
+            <QRScannerModal
+              initialToken={selectedQrToken}
+              onBack={() => {
+                setRoleMode('farmer');
+                setFarmerView('home');
+              }}
+            />
           )}
         </main>
       </div>
