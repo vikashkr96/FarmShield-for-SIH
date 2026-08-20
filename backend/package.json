@@ -10,6 +10,9 @@
     "lint": "eslint src --ext .ts",
     "test": "ts-node src/tests/api.test.ts"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
     "cors": "^2.8.5",
