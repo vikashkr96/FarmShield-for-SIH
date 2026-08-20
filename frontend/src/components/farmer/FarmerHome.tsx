@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
@@ -18,7 +19,6 @@ import {
 import { useLanguage } from '../../providers/LanguageProvider';
 import { useAuth } from '../../providers/AuthProvider';
 import { FarmSlider } from './FarmSlider';
-import { FarmShieldVideoShowcase } from './FarmShieldVideoShowcase';
 import { ArticleModal, ArticleData } from './ArticleModal';
 
 interface FarmerHomeProps {
@@ -233,7 +233,7 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
   ];
 
   return (
-    <div className="space-y-8 sm:space-y-10 max-w-6xl mx-auto px-4 py-1 font-sans">
+    <div className="space-y-6 sm:space-y-8 max-w-6xl mx-auto px-4 py-1 font-sans">
       {/* ========================================================================= */}
       {/* 🌟 1ST IMPRESSION HERO SECTION (FULL IMPACT ABOVE THE FOLD) */}
       {/* ========================================================================= */}
@@ -241,7 +241,7 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
         {/* 1. MOVING ANIMATED HERO SLIDER WITH CALIBRATED HEIGHT */}
         <FarmSlider />
 
-        {/* 2. OVERVIEW SUBTITLE & 2 HERO ACTION BUTTONS */}
+        {/* 2. OVERVIEW SUBTITLE & HERO ACTION BUTTON */}
         <div className="text-center space-y-2.5 max-w-4xl mx-auto pt-1 pb-1">
           <p className="text-xs sm:text-sm md:text-base text-gray-700 font-bold leading-relaxed px-2">
             {language === 'en'
@@ -250,304 +250,283 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
           </p>
 
           <div className="flex items-center justify-center gap-3.5 pt-0.5">
-            <button
-              onClick={() => {
-                if (!isAuthenticated) {
-                  openAuthModal('login', 'farmer');
-                } else {
-                  const el = document.getElementById('farmer-primary-actions');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  else if (onOpenRegisterAnimal) onOpenRegisterAnimal();
-                  else onNavigate('animals');
-                }
-              }}
-              className="px-6 py-2.5 sm:py-3 bg-[#1B5E20] hover:bg-[#2E7D32] text-white font-black text-xs sm:text-sm rounded-xl shadow-lg transition-all hover:scale-105 flex items-center gap-2 cursor-pointer"
+            <Link
+              href="/login?role=farmer"
+              className="px-8 py-3 bg-[#1B5E20] hover:bg-[#2E7D32] text-white font-black text-sm sm:text-base rounded-xl shadow-xl transition-all hover:scale-105 flex items-center gap-2 cursor-pointer"
             >
               <span>{language === 'en' ? 'Get Started' : 'शुरू करें'}</span>
               <ArrowRight className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={() => {
-                const el = document.getElementById('knowledge-hub-section');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="px-6 py-2.5 sm:py-3 bg-white hover:bg-gray-50 border-2 border-gray-300 text-gray-800 font-black text-xs sm:text-sm rounded-xl shadow-sm transition-all hover:border-[#1B5E20] cursor-pointer"
-            >
-              <span>{language === 'en' ? 'Learn More' : 'और जानें'}</span>
-            </button>
+            </Link>
           </div>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 🎬 WATCH VASUDHA / FARMSHIELD IN ACTION (VIDEO DEMONSTRATION) */}
+      {/* 🔒 ONLY WHEN AUTHENTICATED: SHOW LOGGED-IN FARMER DASHBOARD SECTIONS */}
       {/* ========================================================================= */}
-      <FarmShieldVideoShowcase />
+      {isAuthenticated && (
+        <>
+          {/* 🚀 2 PRIMARY ACTION CARDS */}
+          <div id="farmer-primary-actions" className="space-y-4 pt-4 border-t-2 border-gray-100">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Sparkles className="w-6 h-6 text-[#1B5E20]" />
+                <h2 className="text-2xl font-black text-[#1B5E20]">
+                  {t('farmerHome.primaryActions.title')}
+                </h2>
+              </div>
+              <span className="text-xs font-bold text-gray-500">{t('farmerHome.primaryActions.subTitle')}</span>
+            </div>
 
-      {/* ========================================================================= */}
-      {/* 🚀 2. THE 2 PRIMARY ACTION CARDS */}
-      {/* ========================================================================= */}
-      <div id="farmer-primary-actions" className="space-y-4 pt-4 border-t-2 border-gray-100">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Sparkles className="w-6 h-6 text-[#1B5E20]" />
-            <h2 className="text-2xl font-black text-[#1B5E20]">
-              {t('farmerHome.primaryActions.title')}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* PRIMARY ACTION 1: REGISTER ANIMAL / FISHERY UNIT */}
+              <div
+                onClick={() => {
+                  if (onOpenRegisterAnimal) onOpenRegisterAnimal();
+                  else onNavigate('animals');
+                }}
+                className="bg-gradient-to-br from-white to-[#F1F8E9] border-2 border-[#1B5E20] hover:border-[#2E7D32] p-8 rounded-3xl shadow-xl hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#A5D6A7]/20 rounded-full blur-2xl pointer-events-none" />
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="w-18 h-18 rounded-3xl bg-[#1B5E20] text-white flex items-center justify-center text-4xl shadow-lg group-hover:scale-110 transition-transform p-3">
+                      🐄🐟
+                    </div>
+                    <Badge variant="success" className="bg-[#1B5E20] text-white border-none font-black text-xs px-3 py-1">
+                      Instant QR Tag
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-black text-gray-900 group-hover:text-[#1B5E20] transition-colors flex items-center justify-between">
+                      <span>{t('farmerHome.primaryActions.registerTitle')}</span>
+                      <ArrowRight className="w-6 h-6 text-[#1B5E20] group-hover:translate-x-2 transition-transform" />
+                    </h3>
+                    <p className="text-xs font-bold text-gray-600 leading-relaxed">
+                      {t('farmerHome.primaryActions.registerDesc')}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    <span className="text-[11px] font-bold px-2.5 py-1 bg-white border border-[#A5D6A7] rounded-lg text-[#1B5E20]">
+                      📷 Photo Upload
+                    </span>
+                    <span className="text-[11px] font-bold px-2.5 py-1 bg-white border border-[#A5D6A7] rounded-lg text-[#1B5E20]">
+                      🏷️ Auto ID & QR
+                    </span>
+                    <span className="text-[11px] font-bold px-2.5 py-1 bg-white border border-[#A5D6A7] rounded-lg text-[#1B5E20]">
+                      🐟 Pond Biomass Unit
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-6 mt-4 border-t border-[#A5D6A7]/40">
+                  <div className="w-full py-3 rounded-2xl bg-[#1B5E20] text-white font-black text-sm flex items-center justify-center gap-2 shadow-md group-hover:bg-[#2E7D32] transition-colors">
+                    <PlusCircle className="w-5 h-5" />
+                    <span>{t('farmerHome.primaryActions.registerBtn')}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* PRIMARY ACTION 2: SCAN QR OR ENTER ANIMAL ID */}
+              <div
+                onClick={() => onNavigate('qr_scan')}
+                className="bg-gradient-to-br from-white to-blue-50/60 border-2 border-blue-600 hover:border-blue-700 p-8 rounded-3xl shadow-xl hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200/30 rounded-full blur-2xl pointer-events-none" />
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="w-18 h-18 rounded-3xl bg-blue-700 text-white flex items-center justify-center text-4xl shadow-lg group-hover:scale-110 transition-transform p-3">
+                      📷🔍
+                    </div>
+                    <Badge variant="warning" className="bg-blue-700 text-white border-none font-black text-xs px-3 py-1">
+                      Passport Lookup
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-black text-gray-900 group-hover:text-blue-800 transition-colors flex items-center justify-between">
+                      <span>{t('farmerHome.primaryActions.scanTitle')}</span>
+                      <ArrowRight className="w-6 h-6 text-blue-700 group-hover:translate-x-2 transition-transform" />
+                    </h3>
+                    <p className="text-xs font-bold text-gray-600 leading-relaxed">
+                      {t('farmerHome.primaryActions.scanDesc')}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    <span className="text-[11px] font-bold px-2.5 py-1 bg-white border border-blue-200 rounded-lg text-blue-800">
+                      📱 Camera Live Scanner
+                    </span>
+                    <span className="text-[11px] font-bold px-2.5 py-1 bg-white border border-blue-200 rounded-lg text-blue-800">
+                      🥛 Safe Milk Countdown
+                    </span>
+                    <span className="text-[11px] font-bold px-2.5 py-1 bg-white border border-blue-200 rounded-lg text-blue-800">
+                      💊 Treatment Timeline
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-6 mt-4 border-t border-blue-200">
+                  <div className="w-full py-3 rounded-2xl bg-blue-700 text-white font-black text-sm flex items-center justify-center gap-2 shadow-md group-hover:bg-blue-800 transition-colors">
+                    <QrCode className="w-5 h-5" />
+                    <span>{t('farmerHome.primaryActions.scanBtn')}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. FOUR KEY STATISTICS CARDS */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white border-2 border-[#1B5E20] rounded-3xl p-5 flex flex-col justify-between shadow-md">
+              <span className="text-xs sm:text-sm text-[#1B5E20] font-black">{t('farmerHome.stats.totalAnimals')}</span>
+              <div className="flex items-baseline space-x-2 mt-2">
+                <span className="text-4xl font-black text-[#1B5E20]">{stats.totalAnimals}</span>
+              </div>
+            </div>
+
+            <div className="bg-white border-2 border-[#1B5E20]/40 rounded-3xl p-5 flex flex-col justify-between shadow-md">
+              <span className="text-xs sm:text-sm text-[#1B5E20] font-black">{t('farmerHome.stats.underTreatment')}</span>
+              <div className="flex items-baseline space-x-2 mt-2">
+                <span className="text-4xl font-black text-[#1B5E20]">{stats.underTreatment}</span>
+              </div>
+            </div>
+
+            <div className="bg-white border-2 border-red-500/60 rounded-3xl p-5 flex flex-col justify-between shadow-md">
+              <span className="text-xs sm:text-sm text-red-700 font-black">{t('farmerHome.stats.underWithdrawal')}</span>
+              <div className="flex items-baseline space-x-2 mt-2">
+                <span className="text-4xl font-black text-red-700">{stats.underWithdrawal}</span>
+              </div>
+            </div>
+
+            <div className="bg-white border-2 border-[#1B5E20] rounded-3xl p-5 flex flex-col justify-between shadow-md">
+              <span className="text-xs sm:text-sm text-[#1B5E20] font-black">{t('farmerHome.stats.cleared')}</span>
+              <div className="flex items-baseline space-x-2 mt-2">
+                <span className="text-4xl font-black text-[#1B5E20]">{stats.clearedCount}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. SECONDARY QUICK ACTIONS */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-black text-[#1B5E20]">
+              {language === 'en' ? 'Quick Actions' : 'अन्य सुविधाएं'}
             </h2>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card
+                variant="glass"
+                hoverEffect
+                onClick={() => onNavigate('animals')}
+                className="cursor-pointer border-2 border-[#1B5E20]/30 hover:bg-[#E8F5E9]/50 p-5 flex flex-col justify-between group text-center items-center space-y-2"
+              >
+                <span className="text-3xl">🐄</span>
+                <span className="text-sm font-black text-[#1B5E20]">{t('farmerHome.actions.myAnimals')}</span>
+              </Card>
+
+              <Card
+                variant="glass"
+                hoverEffect
+                onClick={() => onNavigate('treatment')}
+                className="cursor-pointer border-2 border-[#1B5E20]/30 hover:bg-[#E8F5E9]/50 p-5 flex flex-col justify-between group text-center items-center space-y-2"
+              >
+                <span className="text-3xl">💊</span>
+                <span className="text-sm font-black text-[#1B5E20]">{t('farmerHome.actions.recordMedicine')}</span>
+              </Card>
+
+              <Card
+                variant="glass"
+                hoverEffect
+                onClick={() => onNavigate('milk_safety')}
+                className="cursor-pointer border-2 border-[#1B5E20]/30 hover:bg-[#E8F5E9]/50 p-5 flex flex-col justify-between group text-center items-center space-y-2"
+              >
+                <span className="text-3xl">🥛</span>
+                <span className="text-sm font-black text-[#1B5E20]">{t('farmerHome.actions.isMilkSafe')}</span>
+              </Card>
+
+              <Card
+                variant="glass"
+                hoverEffect
+                onClick={() => onNavigate('alerts')}
+                className="cursor-pointer border-2 border-[#1B5E20]/30 hover:bg-[#E8F5E9]/50 p-5 flex flex-col justify-between group text-center items-center space-y-2"
+              >
+                <span className="text-3xl">⚠️</span>
+                <span className="text-sm font-black text-[#1B5E20]">{t('farmerHome.actions.warnings')}</span>
+              </Card>
+            </div>
           </div>
-          <span className="text-xs font-bold text-gray-500">{t('farmerHome.primaryActions.subTitle')}</span>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* PRIMARY ACTION 1: REGISTER ANIMAL / FISHERY UNIT */}
-          <div
-            onClick={() =>
-              handleProtectedAction(() => {
-                if (onOpenRegisterAnimal) onOpenRegisterAnimal();
-                else onNavigate('animals');
-              })
-            }
-            className="bg-gradient-to-br from-white to-[#F1F8E9] border-2 border-[#1B5E20] hover:border-[#2E7D32] p-8 rounded-3xl shadow-xl hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#A5D6A7]/20 rounded-full blur-2xl pointer-events-none" />
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="w-18 h-18 rounded-3xl bg-[#1B5E20] text-white flex items-center justify-center text-4xl shadow-lg group-hover:scale-110 transition-transform p-3">
-                  🐄🐟
+          {/* 5. 📖 RICH ILLUSTRATED KNOWLEDGE HUB & ARTICLES */}
+          <div id="knowledge-hub-section" className="space-y-6 pt-4 border-t-2 border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center space-x-2">
+                  <BookOpen className="w-6 h-6 text-[#1B5E20]" />
+                  <h2 className="text-2xl font-black text-[#1B5E20]">
+                    {t('farmerHome.knowledgeHub.title')}
+                  </h2>
                 </div>
-                <Badge variant="success" className="bg-[#1B5E20] text-white border-none font-black text-xs px-3 py-1">
-                  Instant QR Tag
-                </Badge>
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-2xl font-black text-gray-900 group-hover:text-[#1B5E20] transition-colors flex items-center justify-between">
-                  <span>{t('farmerHome.primaryActions.registerTitle')}</span>
-                  <ArrowRight className="w-6 h-6 text-[#1B5E20] group-hover:translate-x-2 transition-transform" />
-                </h3>
-                <p className="text-xs font-bold text-gray-600 leading-relaxed">
-                  {t('farmerHome.primaryActions.registerDesc')}
+                <p className="text-xs text-gray-600 font-bold">
+                  {t('farmerHome.knowledgeHub.subtitle')}
                 </p>
               </div>
-
-              <div className="flex flex-wrap gap-2 pt-2">
-                <span className="text-[11px] font-bold px-2.5 py-1 bg-white border border-[#A5D6A7] rounded-lg text-[#1B5E20]">
-                  📷 Photo Upload
-                </span>
-                <span className="text-[11px] font-bold px-2.5 py-1 bg-white border border-[#A5D6A7] rounded-lg text-[#1B5E20]">
-                  🏷️ Auto ID & QR
-                </span>
-                <span className="text-[11px] font-bold px-2.5 py-1 bg-white border border-[#A5D6A7] rounded-lg text-[#1B5E20]">
-                  🐟 Pond Biomass Unit
-                </span>
-              </div>
             </div>
 
-            <div className="pt-6 mt-4 border-t border-[#A5D6A7]/40">
-              <div className="w-full py-3 rounded-2xl bg-[#1B5E20] text-white font-black text-sm flex items-center justify-center gap-2 shadow-md group-hover:bg-[#2E7D32] transition-colors">
-                <PlusCircle className="w-5 h-5" />
-                <span>{t('farmerHome.primaryActions.registerBtn')}</span>
-              </div>
-            </div>
-          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {richArticles.map((article) => (
+                <div
+                  key={article.id}
+                  onClick={() => setSelectedArticle(article)}
+                  className="bg-white border-2 border-gray-200 hover:border-[#1B5E20] rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+                >
+                  {/* Top Image Preview */}
+                  <div className="relative h-48 sm:h-56 w-full overflow-hidden bg-slate-900">
+                    <img
+                      src={article.image}
+                      alt={language === 'en' ? article.titleEn : article.titleHi}
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                    <div className="absolute top-3 right-3">
+                      <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border shadow-sm backdrop-blur-md ${article.badgeColor}`}>
+                        {article.badge}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-3 left-4 right-4 text-white">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-emerald-300 block">
+                        {article.category} • {article.readTime}
+                      </span>
+                      <h3 className="text-base sm:text-lg font-black leading-snug drop-shadow-md">
+                        {language === 'en' ? article.titleEn : article.titleHi}
+                      </h3>
+                    </div>
+                  </div>
 
-          {/* PRIMARY ACTION 2: SCAN QR OR ENTER ANIMAL ID */}
-          <div
-            onClick={() => handleProtectedAction(() => onNavigate('qr_scan'))}
-            className="bg-gradient-to-br from-white to-blue-50/60 border-2 border-blue-600 hover:border-blue-700 p-8 rounded-3xl shadow-xl hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200/30 rounded-full blur-2xl pointer-events-none" />
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="w-18 h-18 rounded-3xl bg-blue-700 text-white flex items-center justify-center text-4xl shadow-lg group-hover:scale-110 transition-transform p-3">
-                  📷🔍
+                  {/* Card Footer */}
+                  <div className="p-5 space-y-3">
+                    <p className="text-xs text-gray-600 font-medium leading-relaxed line-clamp-2">
+                      {language === 'en' ? article.subtitleEn : article.subtitleHi}
+                    </p>
+
+                    <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-xs font-black text-[#1B5E20]">
+                      <span>{language === 'en' ? 'Read Full Guidelines & Tips' : 'पूरा दिशानिर्देश पढ़ें'}</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
+                    </div>
+                  </div>
                 </div>
-                <Badge variant="warning" className="bg-blue-700 text-white border-none font-black text-xs px-3 py-1">
-                  Passport Lookup
-                </Badge>
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-2xl font-black text-gray-900 group-hover:text-blue-800 transition-colors flex items-center justify-between">
-                  <span>{t('farmerHome.primaryActions.scanTitle')}</span>
-                  <ArrowRight className="w-6 h-6 text-blue-700 group-hover:translate-x-2 transition-transform" />
-                </h3>
-                <p className="text-xs font-bold text-gray-600 leading-relaxed">
-                  {t('farmerHome.primaryActions.scanDesc')}
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2 pt-2">
-                <span className="text-[11px] font-bold px-2.5 py-1 bg-white border border-blue-200 rounded-lg text-blue-800">
-                  📱 Camera Live Scanner
-                </span>
-                <span className="text-[11px] font-bold px-2.5 py-1 bg-white border border-blue-200 rounded-lg text-blue-800">
-                  🥛 Safe Milk Countdown
-                </span>
-                <span className="text-[11px] font-bold px-2.5 py-1 bg-white border border-blue-200 rounded-lg text-blue-800">
-                  💊 Treatment Timeline
-                </span>
-              </div>
-            </div>
-
-            <div className="pt-6 mt-4 border-t border-blue-200">
-              <div className="w-full py-3 rounded-2xl bg-blue-700 text-white font-black text-sm flex items-center justify-center gap-2 shadow-md group-hover:bg-blue-800 transition-colors">
-                <QrCode className="w-5 h-5" />
-                <span>{t('farmerHome.primaryActions.scanBtn')}</span>
-              </div>
+              ))}
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* 3. FOUR KEY STATISTICS CARDS */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border-2 border-[#1B5E20] rounded-3xl p-5 flex flex-col justify-between shadow-md">
-          <span className="text-xs sm:text-sm text-[#1B5E20] font-black">{t('farmerHome.stats.totalAnimals')}</span>
-          <div className="flex items-baseline space-x-2 mt-2">
-            <span className="text-4xl font-black text-[#1B5E20]">{stats.totalAnimals}</span>
-          </div>
-        </div>
-
-        <div className="bg-white border-2 border-[#1B5E20]/40 rounded-3xl p-5 flex flex-col justify-between shadow-md">
-          <span className="text-xs sm:text-sm text-[#1B5E20] font-black">{t('farmerHome.stats.underTreatment')}</span>
-          <div className="flex items-baseline space-x-2 mt-2">
-            <span className="text-4xl font-black text-[#1B5E20]">{stats.underTreatment}</span>
-          </div>
-        </div>
-
-        <div className="bg-white border-2 border-red-500/60 rounded-3xl p-5 flex flex-col justify-between shadow-md">
-          <span className="text-xs sm:text-sm text-red-700 font-black">{t('farmerHome.stats.underWithdrawal')}</span>
-          <div className="flex items-baseline space-x-2 mt-2">
-            <span className="text-4xl font-black text-red-700">{stats.underWithdrawal}</span>
-          </div>
-        </div>
-
-        <div className="bg-white border-2 border-[#1B5E20] rounded-3xl p-5 flex flex-col justify-between shadow-md">
-          <span className="text-xs sm:text-sm text-[#1B5E20] font-black">{t('farmerHome.stats.cleared')}</span>
-          <div className="flex items-baseline space-x-2 mt-2">
-            <span className="text-4xl font-black text-[#1B5E20]">{stats.clearedCount}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 4. SECONDARY QUICK ACTIONS */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-black text-[#1B5E20]">
-          {language === 'en' ? 'Quick Actions' : 'अन्य सुविधाएं'}
-        </h2>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card
-            variant="glass"
-            hoverEffect
-            onClick={() => handleProtectedAction(() => onNavigate('animals'))}
-            className="cursor-pointer border-2 border-[#1B5E20]/30 hover:bg-[#E8F5E9]/50 p-5 flex flex-col justify-between group text-center items-center space-y-2"
-          >
-            <span className="text-3xl">🐄</span>
-            <span className="text-sm font-black text-[#1B5E20]">{t('farmerHome.actions.myAnimals')}</span>
-          </Card>
-
-          <Card
-            variant="glass"
-            hoverEffect
-            onClick={() => handleProtectedAction(() => onNavigate('treatment'))}
-            className="cursor-pointer border-2 border-[#1B5E20]/30 hover:bg-[#E8F5E9]/50 p-5 flex flex-col justify-between group text-center items-center space-y-2"
-          >
-            <span className="text-3xl">💊</span>
-            <span className="text-sm font-black text-[#1B5E20]">{t('farmerHome.actions.recordMedicine')}</span>
-          </Card>
-
-          <Card
-            variant="glass"
-            hoverEffect
-            onClick={() => handleProtectedAction(() => onNavigate('milk_safety'))}
-            className="cursor-pointer border-2 border-[#1B5E20]/30 hover:bg-[#E8F5E9]/50 p-5 flex flex-col justify-between group text-center items-center space-y-2"
-          >
-            <span className="text-3xl">🥛</span>
-            <span className="text-sm font-black text-[#1B5E20]">{t('farmerHome.actions.isMilkSafe')}</span>
-          </Card>
-
-          <Card
-            variant="glass"
-            hoverEffect
-            onClick={() => handleProtectedAction(() => onNavigate('alerts'))}
-            className="cursor-pointer border-2 border-[#1B5E20]/30 hover:bg-[#E8F5E9]/50 p-5 flex flex-col justify-between group text-center items-center space-y-2"
-          >
-            <span className="text-3xl">⚠️</span>
-            <span className="text-sm font-black text-[#1B5E20]">{t('farmerHome.actions.warnings')}</span>
-          </Card>
-        </div>
-      </div>
-
-      {/* 5. 📖 RICH ILLUSTRATED KNOWLEDGE HUB & ARTICLES */}
-      <div id="knowledge-hub-section" className="space-y-6 pt-4 border-t-2 border-gray-200">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center space-x-2">
-              <BookOpen className="w-6 h-6 text-[#1B5E20]" />
-              <h2 className="text-2xl font-black text-[#1B5E20]">
-                {t('farmerHome.knowledgeHub.title')}
-              </h2>
-            </div>
-            <p className="text-xs text-gray-600 font-bold">
-              {t('farmerHome.knowledgeHub.subtitle')}
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {richArticles.map((article) => (
-            <div
-              key={article.id}
-              onClick={() => setSelectedArticle(article)}
-              className="bg-white border-2 border-gray-200 hover:border-[#1B5E20] rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group cursor-pointer"
-            >
-              {/* Top Image Preview */}
-              <div className="relative h-48 sm:h-56 w-full overflow-hidden bg-slate-900">
-                <img
-                  src={article.image}
-                  alt={language === 'en' ? article.titleEn : article.titleHi}
-                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                <div className="absolute top-3 right-3">
-                  <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border shadow-sm backdrop-blur-md ${article.badgeColor}`}>
-                    {article.badge}
-                  </span>
-                </div>
-                <div className="absolute bottom-3 left-4 right-4 text-white">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-emerald-300 block">
-                    {article.category} • {article.readTime}
-                  </span>
-                  <h3 className="text-base sm:text-lg font-black leading-snug drop-shadow-md">
-                    {language === 'en' ? article.titleEn : article.titleHi}
-                  </h3>
-                </div>
-              </div>
-
-              {/* Card Footer */}
-              <div className="p-5 space-y-3">
-                <p className="text-xs text-gray-600 font-medium leading-relaxed line-clamp-2">
-                  {language === 'en' ? article.subtitleEn : article.subtitleHi}
-                </p>
-
-                <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-xs font-black text-[#1B5E20]">
-                  <span>{language === 'en' ? 'Read Full Guidelines & Tips' : 'पूरा दिशानिर्देश पढ़ें'}</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 6. Interactive Article Reading Modal */}
-      <ArticleModal
-        article={selectedArticle}
-        onClose={() => setSelectedArticle(null)}
-      />
+          {/* 6. Interactive Article Reading Modal */}
+          <ArticleModal
+            article={selectedArticle}
+            onClose={() => setSelectedArticle(null)}
+          />
+        </>
+      )}
     </div>
   );
 };

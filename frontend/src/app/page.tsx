@@ -149,8 +149,7 @@ export default function Home() {
           currentRole={roleMode}
           onRoleChange={(newRole) => {
             setRoleMode(newRole);
-            if (newRole === 'qr_scanner') setFarmerView('qr_scan');
-            else if (newRole === 'farmer') setFarmerView('home');
+            if (newRole === 'farmer') setFarmerView('home');
           }}
         />
 
@@ -252,19 +251,6 @@ export default function Home() {
           {/* ADMIN / GOVT BODY ROLE MODE */}
           {/* ========================================================================= */}
           {isAuthenticated && roleMode === 'admin' && <AdminDashboard />}
-
-          {/* ========================================================================= */}
-          {/* PUBLIC QR SCANNER MODE */}
-          {/* ========================================================================= */}
-          {isAuthenticated && roleMode === 'qr_scanner' && (
-            <QRScannerModal
-              initialToken={selectedQrToken}
-              onBack={() => {
-                setRoleMode('farmer');
-                setFarmerView('home');
-              }}
-            />
-          )}
         </main>
       </div>
 
