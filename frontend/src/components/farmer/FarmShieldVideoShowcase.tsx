@@ -8,7 +8,7 @@ export const FarmShieldVideoShowcase: React.FC = () => {
   const { language } = useLanguage();
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
-  // Official VASUDHA DAHD livestock revolution video link
+  // Official livestock & MRL revolution demonstration video link
   const youtubeEmbedUrl = 'https://www.youtube.com/embed/z4y9m3Ym1d4?autoplay=1&rel=0';
 
   return (
@@ -16,12 +16,12 @@ export const FarmShieldVideoShowcase: React.FC = () => {
       {/* Section Header */}
       <div className="space-y-1.5">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 tracking-tight">
-          {language === 'en' ? 'Watch VASUDHA in Action' : 'वसुधा को कार्य करते देखें'}
+          {language === 'en' ? 'Watch FarmShield in Action' : 'फार्मशील्ड को कार्य करते देखें'}
         </h2>
         <p className="text-xs sm:text-sm md:text-base text-gray-600 font-medium max-w-2xl mx-auto">
           {language === 'en'
-            ? 'Discover how VASUDHA is transforming livestock management across India'
-            : 'जानिए कैसे वसुधा पूरे भारत में पशुधन और डेयरी प्रबंधन में डिजिटल क्रांति ला रहा है'}
+            ? 'Discover how FarmShield is transforming livestock management across India'
+            : 'जानिए कैसे फार्मशील्ड पूरे भारत में पशुधन और डेयरी प्रबंधन में डिजिटल क्रांति ला रहा है'}
         </p>
       </div>
 
@@ -31,7 +31,7 @@ export const FarmShieldVideoShowcase: React.FC = () => {
           <iframe
             className="w-full h-full"
             src={youtubeEmbedUrl}
-            title="Vasudha: Digital Revolution in Indian Livestock Sector"
+            title="FarmShield: Digital Revolution in Indian Livestock Sector"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
           />
@@ -54,14 +54,14 @@ export const FarmShieldVideoShowcase: React.FC = () => {
             <div className="absolute top-4 left-4 right-4 flex items-center justify-between text-white text-left z-10 pointer-events-none">
               <div className="flex items-center space-x-2.5">
                 <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-xl shadow-md">
-                  🏛️
+                  🛡️
                 </div>
                 <div>
                   <h3 className="text-xs sm:text-sm md:text-base font-black leading-tight drop-shadow-md">
-                    Vasudha: Digital Revolution in Indian Livestock Sector
+                    FarmShield: Digital Revolution in Indian Livestock Sector
                   </h3>
                   <p className="text-[10px] sm:text-xs text-emerald-300 font-bold">
-                    वसुधा: भारतीय पशुधन क्षेत्र में डिजिटल क्रांति • DAHD Govt of India
+                    फार्मशील्ड: भारतीय पशुधन क्षेत्र में डिजिटल क्रांति • DAHD Govt of India
                   </p>
                 </div>
               </div>
