@@ -36,74 +36,97 @@ class AnimalDetailController extends GetxController with StateMixin<Map<String, 
     }
   }
 
+  bool _isUuid(String str) {
+    final uuidRegex = RegExp(r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$');
+    return uuidRegex.hasMatch(str.trim());
+  }
+
   Future<void> fetchAnimalFullProfile(String id) async {
     change(null, status: RxStatus.loading());
     try {
-      // Split the fetch into separate calls to avoid complex RLS recursion issues (Error 42P17)
-      // which often happens in Supabase when joining tables with interdependent policies.
-      
-      final animalFuture = _supabase
-          .from('animals')
-          .select()
-          .eq('id', id)
-          .single();
+      Map<String, dynamic>? animalData;
 
-      final treatmentsFuture = _supabase
-          .from('treatments')
-          .select()
-          .eq('animal_id', id);
+      if (_isUuid(id)) {
+        final res = await _supabase.from('animals').select().eq('id', id).maybeSingle();
+        if (res != null) animalData = Map<String, dynamic>.from(res);
+      } else {
+        // Query by animal_code or qr_token if not a UUID
+        final res = await _supabase
+            .from('animals')
+            .select()
+            .or('animal_code.eq.$id,qr_token.eq.$id')
+            .maybeSingle();
+        if (res != null) animalData = Map<String, dynamic>.from(res);
+      }
 
-      final withdrawalsFuture = _supabase
-          .from('withdrawals')
-          .select()
-          .eq('animal_id', id);
+      // If found in Supabase, fetch related treatments and withdrawals
+      if (animalData != null) {
+        final realId = animalData['id'].toString();
+        List<dynamic> treatmentsData = [];
+        List<dynamic> withdrawalsData = [];
 
-      // Use Future.wait with explicit type casting to avoid "List<Object> to Iterable<Future>" error
-      final results = await Future.wait<dynamic>([
-        animalFuture, 
-        treatmentsFuture, 
-        withdrawalsFuture
-      ]);
-      
-      final animalData = results[0] as Map<String, dynamic>;
-      final treatmentsData = results[1] as List<dynamic>;
-      final withdrawalsData = results[2] as List<dynamic>;
+        try {
+          if (_isUuid(realId)) {
+            final tRes = await _supabase.from('treatments').select().eq('animal_id', realId);
+            treatmentsData = List<dynamic>.from(tRes);
 
-      // Fetch medicine details for treatments separately if any exist to avoid join recursion
-      if (treatmentsData.isNotEmpty) {
-        final List<String> medicineIds = treatmentsData
-            .map((t) => t['medicine_id'] as String?)
-            .where((mid) => mid != null)
-            .toSet()
-            .cast<String>()
-            .toList();
+            final wRes = await _supabase.from('withdrawals').select().eq('animal_id', realId);
+            withdrawalsData = List<dynamic>.from(wRes);
+          }
+        } catch (_) {}
 
-        if (medicineIds.isNotEmpty) {
-          final medicinesData = await _supabase
-              .from('medicines')
-              .select()
-              .inFilter('id', medicineIds);
+        if (treatmentsData.isNotEmpty) {
+          final List<String> medicineIds = treatmentsData
+              .map((t) => t['medicine_id'] as String?)
+              .where((mid) => mid != null && _isUuid(mid))
+              .toSet()
+              .cast<String>()
+              .toList();
 
-          for (var t in treatmentsData) {
-            t['medicine'] = (medicinesData as List).firstWhereOrNull(
-              (m) => m['id'] == t['medicine_id'],
-            );
+          if (medicineIds.isNotEmpty) {
+            try {
+              final medicinesData = await _supabase
+                  .from('medicines')
+                  .select()
+                  .inFilter('id', medicineIds);
+
+              for (var t in treatmentsData) {
+                t['medicine'] = (medicinesData as List).firstWhereOrNull(
+                  (m) => m['id'] == t['medicine_id'],
+                );
+              }
+            } catch (_) {}
           }
         }
+
+        final Map<String, dynamic> fullData = Map<String, dynamic>.from(animalData);
+        fullData['treatments'] = treatmentsData;
+        fullData['withdrawals'] = withdrawalsData;
+        
+        change(fullData, status: RxStatus.success());
+        return;
       }
 
-      final Map<String, dynamic> fullData = Map<String, dynamic>.from(animalData);
-      fullData['treatments'] = treatmentsData;
-      fullData['withdrawals'] = withdrawalsData;
-      
-      change(fullData, status: RxStatus.success());
+      // Fallback: Fetch from Backend Express API
+      final response = await repository.apiProvider.getAnimal(id);
+      if (response.data != null && response.data['data'] != null) {
+        change(Map<String, dynamic>.from(response.data['data']), status: RxStatus.success());
+        return;
+      }
+
+      change(null, status: RxStatus.error("Animal profile not found"));
     } catch (e) {
       Get.log("Fetch Animal Profile Error: $e");
-      String errorMessage = e.toString();
-      if (errorMessage.contains('42P17')) {
-        errorMessage = "Database policy error: Potential recursion detected in security rules. Please contact admin.";
-      }
-      change(null, status: RxStatus.error(errorMessage));
+      try {
+        // Ultimate fallback to API
+        final response = await repository.apiProvider.getAnimal(id);
+        if (response.data != null && response.data['data'] != null) {
+          change(Map<String, dynamic>.from(response.data['data']), status: RxStatus.success());
+          return;
+        }
+      } catch (_) {}
+      
+      change(null, status: RxStatus.error("Could not load animal profile. Please try again."));
     }
   }
 
