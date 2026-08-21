@@ -27,23 +27,24 @@ class LivestockController extends GetxController with StateMixin<List<Animal>> {
   Future<void> fetchAnimals() async {
     change(null, status: RxStatus.loading());
     try {
-      final selected = selectedSpecies.value;
+      final selected = selectedSpecies.value.toLowerCase().trim();
+      final allAnimals = await repository.getAnimals();
       List<Animal> animals;
 
       if (selected == 'all') {
-        animals = await repository.getAnimals(species: null);
+        animals = allAnimals;
       } else if (selected == 'other') {
-        // Fetch all and filter locally for 'other' to avoid 500 errors from backend
-        // if it doesn't support 'other' as a species query parameter.
-        final allAnimals = await repository.getAnimals(species: null);
         final knownSpecies = ['cow', 'buffalo', 'goat', 'sheep', 'fishery'];
         animals = allAnimals.where((a) => 
           a.species == null || 
-          a.species == 'other' || 
-          !knownSpecies.contains(a.species!.toLowerCase())
+          a.species!.toLowerCase() == 'other' || 
+          !knownSpecies.contains(a.species!.toLowerCase().trim())
         ).toList();
       } else {
-        animals = await repository.getAnimals(species: selected);
+        animals = allAnimals.where((a) => 
+          a.species != null && 
+          a.species!.toLowerCase().trim() == selected
+        ).toList();
       }
       
       if (animals.isEmpty) {

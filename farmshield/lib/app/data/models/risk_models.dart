@@ -153,13 +153,24 @@ class RiskResponse {
   String? clearanceBadge;
 
   RiskResponse.fromJson(Map<String, dynamic> json) {
-    status = json['status'];
-    model = json['model'];
-    riskLevel = json['risk_level'];
-    probabilityDistribution = json['probability_distribution'];
-    riskScore = json['risk_score']?.toDouble();
-    reasonCodes = json['reason_codes']?.cast<String>();
-    recommendedAction = json['recommended_action'];
-    clearanceBadge = json['clearance_badge'];
+    final Map<String, dynamic> data = (json['data'] is Map<String, dynamic>) 
+        ? json['data'] 
+        : json;
+
+    status = json['status'] ?? data['status'];
+    model = data['model'] ?? json['model'];
+    riskLevel = (data['risk_level'] ?? data['riskLevel'] ?? json['risk_level'])?.toString().toUpperCase();
+    probabilityDistribution = data['probability_distribution'] ?? data['probabilityDistribution'];
+    
+    final rawScore = data['risk_score'] ?? data['riskScore'] ?? data['score'] ?? json['risk_score'];
+    riskScore = rawScore != null ? double.tryParse(rawScore.toString()) : null;
+
+    final rawReasons = data['reason_codes'] ?? data['reasons'] ?? json['reason_codes'];
+    if (rawReasons is List) {
+      reasonCodes = rawReasons.map((e) => e.toString()).toList();
+    }
+
+    recommendedAction = data['recommended_action'] ?? data['action'] ?? data['recommendation'] ?? json['recommended_action'];
+    clearanceBadge = data['clearance_badge'] ?? data['badge'] ?? json['clearance_badge'];
   }
 }

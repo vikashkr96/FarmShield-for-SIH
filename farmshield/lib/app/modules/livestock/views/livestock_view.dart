@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import '../../../data/models/farm_models.dart';
 import '../../../routes/app_pages.dart';
+import '../../../core/values/breed_assets.dart';
 import '../controllers/livestock_controller.dart';
 import 'widgets/category_tile.dart';
 
@@ -120,14 +121,11 @@ class LivestockView extends GetView<LivestockController> {
                     decoration: BoxDecoration(
                       color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(18),
-                      image: animal.imageUrl != null
-                          ? DecorationImage(image: NetworkImage(animal.imageUrl!), fit: BoxFit.cover)
-                          : null,
+                      image: DecorationImage(
+                        image: NetworkImage(animal.imageUrl ?? BreedAssetHelper.getBreedImage(animal.breed, animal.species)),
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                    child: animal.imageUrl == null
-                        ? Icon(_getSpeciesIcon(animal.species), 
-                            color: _getSpeciesColor(animal.species), size: 36)
-                        : null,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -243,25 +241,7 @@ class LivestockView extends GetView<LivestockController> {
     );
   }
 
-  Color _getSpeciesColor(String? species) {
-    switch (species?.toLowerCase()) {
-      case 'cow': return Colors.brown;
-      case 'buffalo': return Colors.black87;
-      case 'fishery': return Colors.blue;
-      case 'goat': return Colors.orange.shade700;
-      case 'sheep': return Colors.blueGrey;
-      default: return Colors.green;
-    }
-  }
 
-  IconData _getSpeciesIcon(String? species) {
-    switch (species?.toLowerCase()) {
-      case 'fishery': return Icons.water;
-      case 'goat':
-      case 'sheep': return Icons.cruelty_free;
-      default: return Icons.pets;
-    }
-  }
 
   void _showAddAnimalDialog(BuildContext context) {
     final codeCtrl = TextEditingController();

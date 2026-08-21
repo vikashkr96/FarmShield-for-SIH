@@ -170,19 +170,33 @@ class RegulatoryRule {
         medicineId: json['medicine_id'],
         species: json['species'],
         product: json['product'],
-        mrl: (json['mrl'] as num?)?.toDouble(),
-        withdrawalDays: json['withdrawal_days'],
+        mrl: _parseMrl(json['mrl']),
+        withdrawalDays: json['withdrawal_days'] != null
+            ? int.tryParse(json['withdrawal_days'].toString())
+            : null,
         jurisdiction: json['jurisdiction'],
         source: json['source'],
         version: json['version'],
         effectiveFrom: json['effective_from'] != null
-            ? DateTime.parse(json['effective_from'])
+            ? DateTime.tryParse(json['effective_from'])
             : null,
         effectiveTo: json['effective_to'] != null
-            ? DateTime.parse(json['effective_to'])
+            ? DateTime.tryParse(json['effective_to'])
             : null,
         approvalStatus: json['approval_status'],
       );
+
+  static double? _parseMrl(dynamic val) {
+    if (val == null) return null;
+    if (val is num) return val.toDouble();
+    if (val is String) {
+      final match = RegExp(r'([0-9]+(?:\.[0-9]+)?)').firstMatch(val);
+      if (match != null) {
+        return double.tryParse(match.group(1)!);
+      }
+    }
+    return null;
+  }
 
   Map<String, dynamic> toJson() => {
         "medicine_id": medicineId,
@@ -331,22 +345,37 @@ class Alert {
   String? id;
   String? title;
   String? message;
+  String? messageHi;
   String? type;
+  String? severity;
+  String? status;
   DateTime? timestamp;
 
   Alert({
     this.id,
     this.title,
     this.message,
+    this.messageHi,
     this.type,
+    this.severity,
+    this.status,
     this.timestamp,
   });
 
-  factory Alert.fromJson(Map<String, dynamic> json) => Alert(
-        id: json['id'],
-        title: json['title'],
-        message: json['message'],
-        type: json['type'],
-        timestamp: json['timestamp'] != null ? DateTime.parse(json['timestamp']) : null,
-      );
+  factory Alert.fromJson(Map<String, dynamic> json) {
+    final typeVal = json['type']?.toString().toUpperCase() ?? 'INFO';
+    final rawMsg = json['message'] ?? json['message_hi'] ?? '';
+    return Alert(
+      id: json['id'],
+      title: json['title'] ?? (typeVal == 'CRITICAL' ? 'Critical Alert' : (typeVal == 'WARNING' ? 'Warning Alert' : 'Advisory')),
+      message: rawMsg,
+      messageHi: json['message_hi'],
+      type: typeVal,
+      severity: json['severity']?.toString().toUpperCase() ?? 'MEDIUM',
+      status: json['status'] ?? 'active',
+      timestamp: json['timestamp'] != null
+          ? DateTime.tryParse(json['timestamp'])
+          : (json['created_at'] != null ? DateTime.tryParse(json['created_at']) : DateTime.now()),
+    );
+  }
 }
