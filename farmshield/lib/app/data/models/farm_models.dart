@@ -66,6 +66,9 @@ class Withdrawal {
   final DateTime endDate;
   final String status;
   final Animal? animal;
+  final String? medicineName;
+  final String? indication;
+  final String? dosage;
 
   Withdrawal({
     required this.id,
@@ -76,17 +79,25 @@ class Withdrawal {
     required this.endDate,
     required this.status,
     this.animal,
+    this.medicineName,
+    this.indication,
+    this.dosage,
   });
 
   factory Withdrawal.fromJson(Map<String, dynamic> json) => Withdrawal(
-        id: json['id'],
-        treatmentId: json['treatment_id'],
-        animalId: json['animal_id'],
-        product: json['product'],
-        startDate: DateTime.parse(json['start_date']),
-        endDate: DateTime.parse(json['end_date']),
-        status: json['status'],
-        animal: json['animals'] != null ? Animal.fromJson(json['animals']) : null,
+        id: json['id']?.toString() ?? '',
+        treatmentId: json['treatment_id']?.toString() ?? '',
+        animalId: json['animal_id']?.toString() ?? '',
+        product: json['product']?.toString() ?? 'milk',
+        startDate: json['start_date'] != null ? DateTime.parse(json['start_date'].toString()) : DateTime.now(),
+        endDate: json['end_date'] != null ? DateTime.parse(json['end_date'].toString()) : DateTime.now().add(const Duration(days: 3)),
+        status: json['status']?.toString() ?? 'active',
+        animal: json['animals'] != null
+            ? Animal.fromJson(json['animals'])
+            : (json['animal'] != null ? Animal.fromJson(json['animal']) : null),
+        medicineName: json['medicine_name'] ?? json['medicine']?['name'],
+        indication: json['indication'] ?? json['treatment']?['indication'],
+        dosage: json['dosage'] ?? (json['treatment'] != null ? "${json['treatment']['dose']} ${json['treatment']['dose_unit']}" : null),
       );
 }
 
@@ -220,11 +231,13 @@ class Treatment {
   double? doseAmount;
   String? doseUnit;
   String? route;
+  String? frequency;
   int? durationDays;
   DateTime? startDate;
   DateTime? endDate;
   String? indication;
   String? productAffected;
+  String? notes;
 
   Treatment({
     this.id,
@@ -234,39 +247,53 @@ class Treatment {
     this.doseAmount,
     this.doseUnit,
     this.route,
+    this.frequency = 'Once daily',
     this.durationDays,
     this.startDate,
     this.endDate,
     this.indication,
     this.productAffected,
+    this.notes,
   });
 
   factory Treatment.fromJson(Map<String, dynamic> json) => Treatment(
-        id: json['id'],
-        animalId: json['animal_id'],
-        medicineId: json['medicine_id'],
-        vetId: json['vet_id'],
+        id: json['id']?.toString(),
+        animalId: json['animal_id']?.toString(),
+        medicineId: json['medicine_id']?.toString(),
+        vetId: (json['veterinarian_id'] ?? json['vet_id'])?.toString(),
         doseAmount: (json['dose_amount'] ?? json['dose'])?.toDouble(),
         doseUnit: json['dose_unit'] ?? json['unit'],
         route: json['route'],
+        frequency: json['frequency'] ?? 'Once daily',
         durationDays: json['duration_days'] ?? json['duration'],
         startDate: json['start_date'] != null ? DateTime.parse(json['start_date']) : null,
         endDate: json['end_date'] != null ? DateTime.parse(json['end_date']) : null,
         indication: json['indication'],
-        productAffected: json['product_affected'] ?? json['product'],
+        productAffected: json['product_affected'] ?? json['product'] ?? 'milk',
+        notes: json['notes'],
       );
 
-  Map<String, dynamic> toJson() => {
-        "animal_id": animalId,
-        "medicine_id": medicineId,
-        "dose": doseAmount,
-        "dose_unit": doseUnit,
-        "route": route,
-        "duration": durationDays,
-        "start_date": startDate?.toIso8601String().split('T')[0],
-        "indication": indication,
-        "product": productAffected,
-      };
+  Map<String, dynamic> toJson() {
+    final start = startDate ?? DateTime.now();
+    final dur = durationDays ?? 3;
+    final end = endDate ?? start.add(Duration(days: dur));
+    return {
+      if (id != null) "id": id,
+      "animal_id": animalId,
+      "medicine_id": medicineId,
+      if (vetId != null && vetId!.isNotEmpty) "veterinarian_id": vetId,
+      "dose": doseAmount ?? 10.0,
+      "dose_unit": doseUnit ?? 'mg/kg',
+      "route": route ?? 'Injection',
+      "frequency": frequency ?? 'Once daily',
+      "duration": dur,
+      "start_date": start.toIso8601String(),
+      "end_date": end.toIso8601String(),
+      "indication": indication ?? 'Clinical Treatment',
+      "product_affected": productAffected ?? 'milk',
+      if (notes != null) "notes": notes,
+    };
+  }
 }
 
 class PublicPassport {
@@ -282,6 +309,17 @@ class PublicPassport {
   DateTime? safeDate;
   int? remainingWithdrawalHours;
   String? imageUrl;
+  String? farmId;
+  String? farmName;
+  String? farmLocation;
+  bool? isSafeToConsume;
+  bool? activeWithdrawal;
+  String? product;
+  DateTime? withdrawalEndDate;
+  int? remainingHours;
+  double? complianceScore;
+  String? latestLabResult;
+  DateTime? lastVerifiedAt;
 
   PublicPassport({
     this.animalCode,
@@ -296,21 +334,43 @@ class PublicPassport {
     this.safeDate,
     this.remainingWithdrawalHours,
     this.imageUrl,
+    this.farmId,
+    this.farmName,
+    this.farmLocation,
+    this.isSafeToConsume,
+    this.activeWithdrawal,
+    this.product,
+    this.withdrawalEndDate,
+    this.remainingHours,
+    this.complianceScore,
+    this.latestLabResult,
+    this.lastVerifiedAt,
   });
 
   factory PublicPassport.fromJson(Map<String, dynamic> json) => PublicPassport(
-        animalCode: json['animalCode'],
+        animalCode: json['animalCode'] ?? json['animal_code'],
         species: json['species'],
         breed: json['breed'],
-        healthStatus: json['healthStatus'],
-        milkStatus: json['milkStatus'],
-        meatStatus: json['meatStatus'],
-        withdrawalStatus: json['withdrawalStatus'],
-        isMilkSafe: json['isMilkSafe'],
-        isMeatSafe: json['isMeatSafe'],
-        safeDate: json['safeDate'] != null ? DateTime.parse(json['safeDate']) : null,
-        remainingWithdrawalHours: json['remainingWithdrawalHours'],
-        imageUrl: json['imageUrl'],
+        healthStatus: json['healthStatus'] ?? json['health_status'],
+        milkStatus: json['milkStatus'] ?? json['milk_status'],
+        meatStatus: json['meatStatus'] ?? json['meat_status'],
+        withdrawalStatus: json['withdrawalStatus'] ?? json['withdrawal_status'],
+        isMilkSafe: json['isMilkSafe'] ?? json['is_milk_safe'] ?? json['isSafeToConsume'],
+        isMeatSafe: json['isMeatSafe'] ?? json['is_meat_safe'],
+        safeDate: json['safeDate'] != null ? DateTime.parse(json['safeDate']) : (json['withdrawal_end_date'] != null ? DateTime.parse(json['withdrawal_end_date']) : null),
+        remainingWithdrawalHours: json['remainingWithdrawalHours'] ?? json['remaining_hours'],
+        imageUrl: json['imageUrl'] ?? json['image_url'],
+        farmId: json['farmId'] ?? json['farm_id'],
+        farmName: json['farmName'] ?? json['farm_name'],
+        farmLocation: json['farmLocation'] ?? json['farm_location'],
+        isSafeToConsume: json['isSafeToConsume'] ?? json['is_safe_to_consume'] ?? json['isMilkSafe'],
+        activeWithdrawal: json['activeWithdrawal'] ?? json['active_withdrawal'],
+        product: json['product'],
+        withdrawalEndDate: json['withdrawalEndDate'] != null ? DateTime.parse(json['withdrawalEndDate']) : null,
+        remainingHours: json['remainingHours'] ?? json['remainingWithdrawalHours'],
+        complianceScore: (json['complianceScore'] ?? json['compliance_score'])?.toDouble(),
+        latestLabResult: json['latestLabResult'] ?? json['latest_lab_result'],
+        lastVerifiedAt: json['lastVerifiedAt'] != null ? DateTime.parse(json['lastVerifiedAt']) : null,
       );
 }
 

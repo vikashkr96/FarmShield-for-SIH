@@ -22,7 +22,7 @@ class BreedAssetHelper {
       'name': 'Red Sindhi (लाल सिंधी)',
       'species': 'cow',
       'origin': 'North India',
-      'imageUrl': 'https://images.unsplash.com/photo-1527153857715-3908f2ae5e81?w=500',
+      'imageUrl': 'https://images.unsplash.com/photo-1546445317-29f4545e9d53?w=500',
       'tag': 'Resilient Milch',
     },
     'tharparkar': {
