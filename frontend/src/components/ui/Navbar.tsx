@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '../../providers/LanguageProvider';
-import { ShieldCheck, UserCheck, Stethoscope, Building2, LogIn, LogOut, Globe } from 'lucide-react';
+import { ShieldCheck, UserCheck, Stethoscope, Building2, LogIn, LogOut, Globe, Lock } from 'lucide-react';
 import { useAuth } from '../../providers/AuthProvider';
 
 export type UserRoleMode = 'farmer' | 'vet' | 'admin';
@@ -25,9 +25,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   const handleRoleClick = (targetRole: UserRoleMode) => {
     if (!isAuthenticated) {
       router.push(`/login?role=${targetRole}`);
-    } else {
+    } else if (user?.role === targetRole) {
       onRoleChange?.(targetRole);
     }
+  };
+
+  const isRoleDisabled = (targetRole: UserRoleMode): boolean => {
+    return Boolean(isAuthenticated && user && user.role !== targetRole);
   };
 
   return (
@@ -58,45 +62,72 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </Link>
 
-        {/* Center: Clean 3-Role Switcher */}
+        {/* Center: 3-Role Switcher (Locked & Disabled for Non-Active Roles when Logged In) */}
         <div className="flex items-center bg-[#E8F5E9] border-2 border-[#1B5E20]/30 p-1.5 rounded-2xl gap-1 text-xs font-black shadow-inner">
           {/* 1. Farmer Portal */}
           <button
             onClick={() => handleRoleClick('farmer')}
-            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl transition-all cursor-pointer ${
-              isAuthenticated && currentRole === 'farmer'
-                ? 'bg-[#1B5E20] text-white shadow-md'
-                : 'text-[#1B5E20] hover:bg-white'
+            disabled={isRoleDisabled('farmer')}
+            title={
+              isRoleDisabled('farmer')
+                ? `Portal locked for ${user?.role} account. Please logout first.`
+                : 'Farmer Portal'
+            }
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl transition-all ${
+              isAuthenticated && user?.role === 'farmer'
+                ? 'bg-[#1B5E20] text-white shadow-md cursor-pointer'
+                : isRoleDisabled('farmer')
+                ? 'opacity-40 text-gray-400 cursor-not-allowed hover:bg-transparent'
+                : 'text-[#1B5E20] hover:bg-white cursor-pointer'
             }`}
           >
             <UserCheck className="w-4 h-4" />
             <span>{language === 'en' ? 'Farmer Portal' : 'किसान पोर्टल'}</span>
+            {isRoleDisabled('farmer') && <Lock className="w-3 h-3 text-gray-400 ml-0.5" />}
           </button>
 
           {/* 2. Veterinarian */}
           <button
             onClick={() => handleRoleClick('vet')}
-            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl transition-all cursor-pointer ${
-              isAuthenticated && currentRole === 'vet'
-                ? 'bg-[#1B5E20] text-white shadow-md'
-                : 'text-[#1B5E20] hover:bg-white'
+            disabled={isRoleDisabled('vet')}
+            title={
+              isRoleDisabled('vet')
+                ? `Portal locked for ${user?.role} account. Please logout first.`
+                : 'Veterinarian Portal'
+            }
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl transition-all ${
+              isAuthenticated && user?.role === 'vet'
+                ? 'bg-[#1B5E20] text-white shadow-md cursor-pointer'
+                : isRoleDisabled('vet')
+                ? 'opacity-40 text-gray-400 cursor-not-allowed hover:bg-transparent'
+                : 'text-[#1B5E20] hover:bg-white cursor-pointer'
             }`}
           >
             <Stethoscope className="w-4 h-4" />
             <span>{language === 'en' ? 'Veterinarian' : 'पशु चिकित्सक'}</span>
+            {isRoleDisabled('vet') && <Lock className="w-3 h-3 text-gray-400 ml-0.5" />}
           </button>
 
           {/* 3. Admin / Govt. Body */}
           <button
             onClick={() => handleRoleClick('admin')}
-            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl transition-all cursor-pointer ${
-              isAuthenticated && currentRole === 'admin'
-                ? 'bg-[#1B5E20] text-white shadow-md'
-                : 'text-[#1B5E20] hover:bg-white'
+            disabled={isRoleDisabled('admin')}
+            title={
+              isRoleDisabled('admin')
+                ? `Portal locked for ${user?.role} account. Please logout first.`
+                : 'Admin & Govt. Body Portal'
+            }
+            className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl transition-all ${
+              isAuthenticated && user?.role === 'admin'
+                ? 'bg-[#1B5E20] text-white shadow-md cursor-pointer'
+                : isRoleDisabled('admin')
+                ? 'opacity-40 text-gray-400 cursor-not-allowed hover:bg-transparent'
+                : 'text-[#1B5E20] hover:bg-white cursor-pointer'
             }`}
           >
             <Building2 className="w-4 h-4" />
             <span>{language === 'en' ? 'Admin / Govt. Body' : 'प्रशासक / सरकारी विभाग'}</span>
+            {isRoleDisabled('admin') && <Lock className="w-3 h-3 text-gray-400 ml-0.5" />}
           </button>
         </div>
 
@@ -107,6 +138,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className="hidden md:flex items-center space-x-1.5 px-2 text-xs font-bold text-gray-700">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="max-w-[120px] truncate">{user.name}</span>
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#1B5E20] text-white">
+                  {user.role}
+                </span>
               </div>
 
               <button
