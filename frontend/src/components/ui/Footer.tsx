@@ -31,7 +31,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateFarmerView }) => {
   };
 
   return (
-    <footer className="mt-16 bg-[#0E3B14] text-white font-sans border-t-4 border-[#1B5E20] relative overflow-hidden">
+    <footer className="mt-auto bg-[#0E3B14] text-white font-sans border-t-4 border-[#1B5E20] relative overflow-hidden">
       {/* 🇮🇳 National Tricolor Accent Bar */}
       <div className="h-1.5 w-full bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808]" />
 

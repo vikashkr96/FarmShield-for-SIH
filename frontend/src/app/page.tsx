@@ -34,6 +34,11 @@ export default function Home() {
     }
   }, [isAuthenticated, user]);
 
+  // Scroll to top smoothly when switching between views/features
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [farmerView, roleMode]);
+
   // Initial Livestock & Fishery Pond Units State
   const [animals, setAnimals] = useState<AnimalItem[]>([
     {
@@ -143,111 +148,109 @@ export default function Home() {
   const clearedCount = totalAnimals - underWithdrawal;
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] text-gray-900 flex flex-col justify-between selection:bg-[#1B5E20] selection:text-white font-sans">
-      <div>
-        <Navbar
-          currentRole={roleMode}
-          onRoleChange={(newRole) => {
-            setRoleMode(newRole);
-            if (newRole === 'farmer') setFarmerView('home');
-          }}
-        />
+    <div className="min-h-screen bg-[#FDFDFD] text-gray-900 flex flex-col selection:bg-[#1B5E20] selection:text-white font-sans">
+      <Navbar
+        currentRole={roleMode}
+        onRoleChange={(newRole) => {
+          setRoleMode(newRole);
+          if (newRole === 'farmer') setFarmerView('home');
+        }}
+      />
 
-        {/* Global VASUDHA / FarmShield Auth Modal */}
-        <AuthModal
-          onSuccessRoleChange={(authenticatedRole) => {
-            setRoleMode(authenticatedRole);
-            if (authenticatedRole === 'farmer') setFarmerView('home');
-          }}
-        />
+      {/* Global VASUDHA / FarmShield Auth Modal */}
+      <AuthModal
+        onSuccessRoleChange={(authenticatedRole) => {
+          setRoleMode(authenticatedRole);
+          if (authenticatedRole === 'farmer') setFarmerView('home');
+        }}
+      />
 
-        <main className="py-6">
-          {/* ========================================================================= */}
-          {/* PUBLIC LANDING OVERVIEW OR FARMER HOME */}
-          {/* ========================================================================= */}
-          {(!isAuthenticated || roleMode === 'farmer' || roleMode === undefined) && (
-            <>
-              {farmerView === 'home' && (
-                <div className="space-y-12">
-                  <FarmerHome
-                    onNavigate={(view) => {
-                      setAutoOpenRegisterForm(false);
-                      setFarmerView(view);
-                    }}
-                    onOpenRegisterAnimal={() => {
-                      setAutoOpenRegisterForm(true);
-                      setFarmerView('animals');
-                    }}
-                    stats={{
-                      totalAnimals,
-                      underTreatment,
-                      underWithdrawal,
-                      clearedCount,
-                    }}
-                  />
-                </div>
-              )}
-
-              {farmerView === 'animals' && (
-                <AnimalList
-                  animals={animals}
-                  onAddAnimal={handleAddAnimal}
-                  onSelectAnimalForQr={handleSelectAnimalForQr}
-                  onBack={() => {
+      <main className="flex-1 py-6 flex flex-col">
+        {/* ========================================================================= */}
+        {/* PUBLIC LANDING OVERVIEW OR FARMER HOME */}
+        {/* ========================================================================= */}
+        {(!isAuthenticated || roleMode === 'farmer' || roleMode === undefined) && (
+          <>
+            {farmerView === 'home' && (
+              <div className="space-y-12">
+                <FarmerHome
+                  onNavigate={(view) => {
                     setAutoOpenRegisterForm(false);
-                    setFarmerView('home');
+                    setFarmerView(view);
                   }}
-                  autoOpenRegister={autoOpenRegisterForm}
-                />
-              )}
-
-              {farmerView === 'treatment' && (
-                <TreatmentModal
-                  animals={animals}
-                  onBack={() => setFarmerView('home')}
-                  onSuccess={() => {
-                    fetchAnimals();
-                    setFarmerView('milk_safety');
+                  onOpenRegisterAnimal={() => {
+                    setAutoOpenRegisterForm(true);
+                    setFarmerView('animals');
+                  }}
+                  stats={{
+                    totalAnimals,
+                    underTreatment,
+                    underWithdrawal,
+                    clearedCount,
                   }}
                 />
-              )}
+              </div>
+            )}
 
-              {farmerView === 'milk_safety' && (
-                <MilkSafetyCheck onBack={() => setFarmerView('home')} />
-              )}
+            {farmerView === 'animals' && (
+              <AnimalList
+                animals={animals}
+                onAddAnimal={handleAddAnimal}
+                onSelectAnimalForQr={handleSelectAnimalForQr}
+                onBack={() => {
+                  setAutoOpenRegisterForm(false);
+                  setFarmerView('home');
+                }}
+                autoOpenRegister={autoOpenRegisterForm}
+              />
+            )}
 
-              {farmerView === 'alerts' && (
-                <WarningsList onBack={() => setFarmerView('home')} />
-              )}
+            {farmerView === 'treatment' && (
+              <TreatmentModal
+                animals={animals}
+                onBack={() => setFarmerView('home')}
+                onSuccess={() => {
+                  fetchAnimals();
+                  setFarmerView('milk_safety');
+                }}
+              />
+            )}
 
-              {farmerView === 'history' && (
-                <TreatmentModal
-                  animals={animals}
-                  onBack={() => setFarmerView('home')}
-                  onSuccess={() => setFarmerView('home')}
-                />
-              )}
+            {farmerView === 'milk_safety' && (
+              <MilkSafetyCheck onBack={() => setFarmerView('home')} />
+            )}
 
-              {farmerView === 'qr_scan' && (
-                <QRScannerModal
-                  initialToken={selectedQrToken}
-                  onBack={() => setFarmerView('home')}
-                />
-              )}
-            </>
-          )}
+            {farmerView === 'alerts' && (
+              <WarningsList onBack={() => setFarmerView('home')} />
+            )}
 
-          {/* ========================================================================= */}
-          {/* VETERINARIAN ROLE MODE */}
-          {/* ========================================================================= */}
-          {isAuthenticated && roleMode === 'vet' && <VetDashboard />}
+            {farmerView === 'history' && (
+              <TreatmentModal
+                animals={animals}
+                onBack={() => setFarmerView('home')}
+                onSuccess={() => setFarmerView('home')}
+              />
+            )}
 
-          {/* ========================================================================= */}
-          {/* ADMIN / GOVT BODY ROLE MODE */}
-          {/* ========================================================================= */}
-          {isAuthenticated && roleMode === 'admin' && <AdminDashboard />}
-        </main>
-      </div>
+            {farmerView === 'qr_scan' && (
+              <QRScannerModal
+                initialToken={selectedQrToken}
+                onBack={() => setFarmerView('home')}
+              />
+            )}
+          </>
+        )}
+
+        {/* ========================================================================= */}
+        {/* VETERINARIAN ROLE MODE */}
+        {/* ========================================================================= */}
+        {isAuthenticated && roleMode === 'vet' && <VetDashboard />}
+
+        {/* ========================================================================= */}
+        {/* ADMIN / GOVT BODY ROLE MODE */}
+        {/* ========================================================================= */}
+        {isAuthenticated && roleMode === 'admin' && <AdminDashboard />}
+      </main>
 
       <Footer
         onNavigateFarmerView={(view) => {
