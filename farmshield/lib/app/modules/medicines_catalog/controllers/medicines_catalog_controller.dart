@@ -179,22 +179,19 @@ class MedicinesCatalogController extends GetxController {
 
   Future<String?> _uploadToCloudinary(File file) async {
     try {
-      String cloudName = "dvk9n7bnd"; // Example/Placeholder cloud name
-      String uploadPreset = "farmshield_preset";
-      
       final formData = dio.FormData.fromMap({
         "file": await dio.MultipartFile.fromFile(file.path),
-        "upload_preset": uploadPreset,
+        "upload_preset": constants.uploadPreset,
       });
 
       final response = await dio.Dio().post(
-        "https://api.cloudinary.com/v1_1/$cloudName/image/upload",
+        "https://api.cloudinary.com/v1_1/${constants.cloudName}/image/upload",
         data: formData,
       );
 
       return response.data["secure_url"];
     } catch (e) {
-      print("Cloudinary Upload Error: $e");
+      Get.log("Cloudinary Upload Error: $e");
       return null;
     }
   }
