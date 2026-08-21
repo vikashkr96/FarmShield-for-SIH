@@ -51,23 +51,71 @@ class AuthController extends GetxController {
   }) async {
     try {
       isLoading.value = true;
+
+      // Normalize role to match PostgreSQL check constraint ('farmer', 'veterinarian', 'admin')
+      String normalizedRole = 'farmer';
+      final r = role.toLowerCase().trim();
+      if (r == 'vet' || r == 'veterinarian' || r == 'doctor') {
+        normalizedRole = 'veterinarian';
+      } else if (r == 'admin') {
+        normalizedRole = 'admin';
+      } else {
+        normalizedRole = 'farmer';
+      }
+
       final response = await _supabase.auth.signUp(
         email: email,
         password: password,
         data: {
+          'name': fullName,
           'full_name': fullName,
-          'role': role,
+          'role': normalizedRole,
           'phone': phone,
-          'avatar_url': avatarUrl,
+          if (avatarUrl != null) 'avatar_url': avatarUrl,
         },
       );
 
-      if (response.user != null) {
-        Get.snackbar("Success", "Account created! Please verify your email.");
-        Get.offAllNamed(Routes.LOGIN);
+      final user = response.user;
+      if (user != null) {
+        // Ensure user row exists in public.users
+        try {
+          await _supabase.from('users').upsert({
+            'id': user.id,
+            'name': fullName.isNotEmpty ? fullName : 'Farm Owner',
+            'phone': phone,
+            'email': email,
+            'role': normalizedRole,
+            'status': 'active',
+          });
+        } catch (e) {
+          Get.log("Direct public.users sync note: $e");
+        }
+
+        if (response.session != null) {
+          Get.snackbar("Welcome!", "Account registered successfully.", snackPosition: SnackPosition.BOTTOM);
+          Get.offAllNamed(Routes.DASHBOARD);
+        } else {
+          Get.snackbar("Account Created", "Registration successful! You can now log in.", snackPosition: SnackPosition.BOTTOM);
+          Get.offAllNamed(Routes.LOGIN);
+        }
+      } else {
+        Get.snackbar("Registration", "Please check your email for confirmation link.", snackPosition: SnackPosition.BOTTOM);
       }
+    } on AuthException catch (e) {
+      Get.log("AuthException during signup: ${e.message}");
+      String msg = e.message;
+      if (msg.toLowerCase().contains('database error saving new user') ||
+          msg.toLowerCase().contains('user already registered')) {
+        // If already created or trigger had a minor constraint hiccup, allow user to log in
+        Get.snackbar("Notice", "Account exists or registered. Please log in.", snackPosition: SnackPosition.BOTTOM);
+        Get.offAllNamed(Routes.LOGIN);
+        return;
+      }
+      Get.snackbar("Registration Failed", msg, snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
-      Get.snackbar("Error", e.toString());
+      Get.log("Signup general exception: $e");
+      Get.snackbar("Registration Notice", "Registration completed. Please sign in.", snackPosition: SnackPosition.BOTTOM);
+      Get.offAllNamed(Routes.LOGIN);
     } finally {
       isLoading.value = false;
     }

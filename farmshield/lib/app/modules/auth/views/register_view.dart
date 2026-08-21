@@ -87,7 +87,7 @@ class RegisterView extends GetView<AuthController> {
                 children: [
                   _buildRoleOption('farmer', 'Farmer 👨‍🌾'),
                   const SizedBox(width: 8),
-                  _buildRoleOption('vet', 'Vet 🩺'),
+                  _buildRoleOption('veterinarian', 'Vet 🩺'),
                   const SizedBox(width: 8),
                   _buildRoleOption('admin', 'Admin 🏢'),
                 ],
@@ -117,26 +117,49 @@ class RegisterView extends GetView<AuthController> {
 
               Obx(() => SizedBox(
                 width: double.infinity,
-                height: 55,
+                height: 52,
                 child: ElevatedButton(
                   onPressed: controller.isLoading.value
                       ? null
-                      : () => controller.signUpWithEmail(
-                    email: emailController.text.trim(),
-                    password: passwordController.text.trim(),
-                    fullName: nameController.text.trim(),
-                    role: controller.selectedRole.value,
-                    phone: phoneController.text.trim(),
-                  ),
+                      : () {
+                          final email = emailController.text.trim();
+                          final password = passwordController.text.trim();
+                          final name = nameController.text.trim();
+                          final phone = phoneController.text.trim();
+
+                          if (email.isEmpty || !email.contains('@')) {
+                            Get.snackbar('Input Error', 'Please enter a valid email address', snackPosition: SnackPosition.BOTTOM);
+                            return;
+                          }
+                          if (password.length < 6) {
+                            Get.snackbar('Input Error', 'Password must be at least 6 characters', snackPosition: SnackPosition.BOTTOM);
+                            return;
+                          }
+                          if (name.isEmpty) {
+                            Get.snackbar('Input Error', 'Please enter your full name', snackPosition: SnackPosition.BOTTOM);
+                            return;
+                          }
+
+                          controller.signUpWithEmail(
+                            email: email,
+                            password: password,
+                            fullName: name,
+                            role: controller.selectedRole.value,
+                            phone: phone,
+                          );
+                        },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
+                    backgroundColor: const Color(0xFF1B5E20),
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    elevation: 0,
                   ),
                   child: controller.isLoading.value
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : Text("Register Now",
-                      style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold)),
+                      ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : Text(
+                          "CREATE ACCOUNT",
+                          style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                        ),
                 ),
               )),
               const SizedBox(height: 20),
