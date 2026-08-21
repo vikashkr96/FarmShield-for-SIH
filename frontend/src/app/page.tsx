@@ -10,7 +10,7 @@ import { WarningsList } from '../components/farmer/WarningsList';
 import { QRScannerModal } from '../components/farmer/QRScannerModal';
 import { VetDashboard } from '../components/vet/VetDashboard';
 import { AdminDashboard } from '../components/admin/AdminDashboard';
-import { ConnectionStatus } from '../components/ConnectionStatus';
+import { Footer } from '../components/ui/Footer';
 import { AuthModal } from '../components/auth/AuthModal';
 import { useAuth } from '../providers/AuthProvider';
 import { useLanguage } from '../providers/LanguageProvider';
@@ -185,11 +185,6 @@ export default function Home() {
                       clearedCount,
                     }}
                   />
-
-                  {/* Architecture Health Verification Widget */}
-                  <div className="max-w-5xl mx-auto px-4 pt-6">
-                    <ConnectionStatus />
-                  </div>
                 </div>
               )}
 
@@ -254,16 +249,12 @@ export default function Home() {
         </main>
       </div>
 
-      <footer className="border-t-2 border-[#1B5E20]/20 bg-white py-8 text-center text-xs text-gray-700 font-bold mt-12">
-        <div className="max-w-7xl mx-auto px-4 space-y-2">
-          <p className="font-black text-[#1B5E20] text-sm">
-            © 2026 FarmShield Digital Farm Portal • Ministry of Fisheries, Animal Husbandry & Dairying (SIH25007)
-          </p>
-          <p className="text-xs text-gray-600 font-bold">
-            FSSAI Reference Standards • FAO/WHO Codex Alimentarius • WOAH Guidelines on Farm-Level AMU
-          </p>
-        </div>
-      </footer>
+      <Footer
+        onNavigateFarmerView={(view) => {
+          setFarmerView(view);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
     </div>
   );
 }
