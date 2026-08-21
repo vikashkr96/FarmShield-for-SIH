@@ -15,6 +15,7 @@ const router = Router();
 router.use('/', healthRouter);
 
 // REST API Modular Mounts
+router.use('/auth', authRouter);
 router.use('/', authRouter);
 router.use('/', animalsRouter);
 router.use('/', treatmentsRouter);

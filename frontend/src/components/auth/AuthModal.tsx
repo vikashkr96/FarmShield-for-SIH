@@ -101,20 +101,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccessRoleChange }) => 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone }),
       });
-      const data = await res.json();
-      if (data.status === 'success') {
-        setOtpSent(true);
-        setOtpCountdown(30);
-        setOtp('584291');
-        setInfoMessage('✓ Demo OTP 584291 sent and filled.');
-      } else {
-        setError(data.message || 'Failed to send OTP.');
-      }
+      const data = await res.json().catch(() => null);
+      setOtpSent(true);
+      setOtpCountdown(30);
+      setOtp(data?.data?.otp || '584291');
+      setInfoMessage('✓ Demo OTP 584291 sent and filled.');
     } catch {
       setOtpSent(true);
       setOtpCountdown(30);
       setOtp('584291');
-      setInfoMessage('✓ Demo OTP 584291 sent.');
+      setInfoMessage('✓ Demo OTP 584291 sent and filled.');
     } finally {
       setLoading(false);
     }
