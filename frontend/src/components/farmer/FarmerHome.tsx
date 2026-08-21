@@ -19,6 +19,7 @@ import {
 import { useLanguage } from '../../providers/LanguageProvider';
 import { useAuth } from '../../providers/AuthProvider';
 import { FarmSlider } from './FarmSlider';
+import { LandingPublicSections } from './LandingPublicSections';
 import { ArticleModal, ArticleData } from './ArticleModal';
 
 interface FarmerHomeProps {
@@ -36,14 +37,6 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
   const { t, language } = useLanguage();
   const { isAuthenticated, openAuthModal } = useAuth();
   const [selectedArticle, setSelectedArticle] = useState<ArticleData | null>(null);
-
-  const handleProtectedAction = (action: () => void) => {
-    if (!isAuthenticated) {
-      openAuthModal('login', 'farmer');
-    } else {
-      action();
-    }
-  };
 
   const richArticles: ArticleData[] = [
     {
@@ -233,7 +226,7 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
   ];
 
   return (
-    <div className="space-y-6 sm:space-y-8 max-w-6xl mx-auto px-4 py-1 font-sans">
+    <div className="space-y-8 sm:space-y-12 max-w-6xl mx-auto px-4 py-1 font-sans">
       {/* ========================================================================= */}
       {/* 🌟 1ST IMPRESSION HERO SECTION (FULL IMPACT ABOVE THE FOLD) */}
       {/* ========================================================================= */}
@@ -260,6 +253,11 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
           </div>
         </div>
       </div>
+
+      {/* ========================================================================= */}
+      {/* 🌐 WHEN NOT LOGGED IN: SHOW COMPREHENSIVE OVERVIEW, ABOUT & WORKFLOW */}
+      {/* ========================================================================= */}
+      {!isAuthenticated && <LandingPublicSections />}
 
       {/* ========================================================================= */}
       {/* 🔒 ONLY WHEN AUTHENTICATED: SHOW LOGGED-IN FARMER DASHBOARD SECTIONS */}
