@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../../providers/LanguageProvider';
 import { IndiaUsersMapSection } from './IndiaUsersMapSection';
+import { NewsAndArticlesSection } from './NewsAndArticlesSection';
 
 export const LandingPublicSections: React.FC = () => {
   const { language } = useLanguage();
@@ -398,6 +399,11 @@ export const LandingPublicSections: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* ========================================================================= */}
+      {/* SECTION 5: NEWS & ARTICLES (INTERACTIVE EXPANDABLE BLOG & GUIDES) */}
+      {/* ========================================================================= */}
+      <NewsAndArticlesSection />
     </div>
   );
 };
