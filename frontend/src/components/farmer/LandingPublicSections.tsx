@@ -8,7 +8,6 @@ import {
   Users2,
   FileCheck2,
   Globe,
-  CheckCircle2,
   HeartPulse,
   Building2,
   FileText,
@@ -17,9 +16,9 @@ import {
   Truck,
   FlaskConical,
   Shield,
-  ArrowRight,
 } from 'lucide-react';
 import { useLanguage } from '../../providers/LanguageProvider';
+import { IndiaUsersMapSection } from './IndiaUsersMapSection';
 
 export const LandingPublicSections: React.FC = () => {
   const { language } = useLanguage();
@@ -167,7 +166,7 @@ export const LandingPublicSections: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-16 sm:space-y-20 pt-10 pb-6 font-sans text-gray-900">
+    <div className="space-y-20 sm:space-y-28 pt-10 pb-8 font-sans text-gray-900">
       {/* ========================================================================= */}
       {/* SECTION 1: COMPREHENSIVE LIVESTOCK MANAGEMENT (6 FEATURE CARDS) */}
       {/* ========================================================================= */}
@@ -209,7 +208,66 @@ export const LandingPublicSections: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* SECTION 2: ABOUT FARMSHIELD INITIATIVE (OBJECTIVES + IMPACT STATS) */}
+      {/* SECTION 2: HOW FARMSHIELD WORKS (8-STEP WORKFLOW CARDS) */}
+      {/* ========================================================================= */}
+      <section className="space-y-8 max-w-6xl mx-auto">
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 tracking-tight">
+            {language === 'en' ? 'How FarmShield Works' : 'फार्मशील्ड कैसे कार्य करता है'}
+          </h2>
+          <p className="text-xs sm:text-sm md:text-base text-gray-600 font-medium max-w-3xl mx-auto">
+            {language === 'en'
+              ? 'An integrated workflow connecting stakeholders for complete traceability and compliance in livestock management.'
+              : 'पशुधन प्रबंधन में पूर्ण ट्रेसेबिलिटी और अनुपालन के लिए हितधारकों को जोड़ने वाला एक एकीकृत कार्यप्रवाह।'}
+          </p>
+        </div>
+
+        {/* 8-Step Grid (4 in top row, 4 in bottom row) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left">
+          {workflowSteps.map((step) => {
+            const IconComp = step.icon;
+            return (
+              <div
+                key={step.step}
+                className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between space-y-3 relative group"
+              >
+                {/* Step Number Badge */}
+                <div className="flex items-center justify-between">
+                  <div className="w-7 h-7 rounded-full bg-[#1B5E20] text-white flex items-center justify-center font-black text-xs shadow-md">
+                    {step.step}
+                  </div>
+                  <div className={`p-2 rounded-xl ${step.iconBg}`}>
+                    <IconComp className="w-4 h-4 stroke-[2.5]" />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <h3 className="text-sm sm:text-base font-black text-gray-900 group-hover:text-[#1B5E20] transition-colors leading-tight">
+                    {language === 'en' ? step.titleEn : step.titleHi}
+                  </h3>
+
+                  {/* Role Badge */}
+                  <span className="inline-block text-[10px] font-black px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    {language === 'en' ? step.fromToEn : step.fromToHi}
+                  </span>
+
+                  <p className="text-[11px] text-gray-600 font-medium leading-relaxed pt-1">
+                    {language === 'en' ? step.descEn : step.descHi}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* SECTION 3: FARMSHIELD USERS ACROSS INDIA (INTERACTIVE GEOGRAPHIC MAP) */}
+      {/* ========================================================================= */}
+      <IndiaUsersMapSection />
+
+      {/* ========================================================================= */}
+      {/* SECTION 4: ABOUT FARMSHIELD INITIATIVE (OBJECTIVES + IMPACT STATS) */}
       {/* ========================================================================= */}
       <section className="space-y-8 max-w-6xl mx-auto">
         <div className="text-center space-y-2">
@@ -338,60 +396,6 @@ export const LandingPublicSections: React.FC = () => {
               <span>100% Real-time Cloud Sync</span>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* SECTION 3: HOW FARMSHIELD WORKS (8-STEP WORKFLOW CARDS) */}
-      {/* ========================================================================= */}
-      <section className="space-y-8 max-w-6xl mx-auto">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 tracking-tight">
-            {language === 'en' ? 'How FarmShield Works' : 'फार्मशील्ड कैसे कार्य करता है'}
-          </h2>
-          <p className="text-xs sm:text-sm md:text-base text-gray-600 font-medium max-w-3xl mx-auto">
-            {language === 'en'
-              ? 'An integrated workflow connecting stakeholders for complete traceability and compliance in livestock management.'
-              : 'पशुधन प्रबंधन में पूर्ण ट्रेसेबिलिटी और अनुपालन के लिए हितधारकों को जोड़ने वाला एक एकीकृत कार्यप्रवाह।'}
-          </p>
-        </div>
-
-        {/* 8-Step Grid (4 in top row, 4 in bottom row) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left">
-          {workflowSteps.map((step) => {
-            const IconComp = step.icon;
-            return (
-              <div
-                key={step.step}
-                className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between space-y-3 relative group"
-              >
-                {/* Step Number Badge */}
-                <div className="flex items-center justify-between">
-                  <div className="w-7 h-7 rounded-full bg-[#1B5E20] text-white flex items-center justify-center font-black text-xs shadow-md">
-                    {step.step}
-                  </div>
-                  <div className={`p-2 rounded-xl ${step.iconBg}`}>
-                    <IconComp className="w-4 h-4 stroke-[2.5]" />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <h3 className="text-sm sm:text-base font-black text-gray-900 group-hover:text-[#1B5E20] transition-colors leading-tight">
-                    {language === 'en' ? step.titleEn : step.titleHi}
-                  </h3>
-
-                  {/* Role Badge */}
-                  <span className="inline-block text-[10px] font-black px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200">
-                    {language === 'en' ? step.fromToEn : step.fromToHi}
-                  </span>
-
-                  <p className="text-[11px] text-gray-600 font-medium leading-relaxed pt-1">
-                    {language === 'en' ? step.descEn : step.descHi}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
         </div>
       </section>
     </div>
