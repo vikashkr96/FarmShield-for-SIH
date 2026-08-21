@@ -206,12 +206,12 @@ class LivestockView extends GetView<LivestockController> {
 
   Widget _buildSpeciesFilter() {
     final List<Map<String, dynamic>> categories = [
-      {'id': 'all', 'label': 'All', 'icon': Icons.grid_view_rounded},
-      {'id': 'cow', 'label': 'Cows', 'icon': Icons.pets_rounded},
+      {'id': 'all', 'label': 'All Herd', 'icon': Icons.grid_view_rounded},
+      {'id': 'cow', 'label': 'Cattle', 'icon': Icons.pets_rounded},
       {'id': 'buffalo', 'label': 'Buffaloes', 'icon': Icons.pets_outlined},
       {'id': 'goat', 'label': 'Goats', 'icon': Icons.cruelty_free_rounded},
       {'id': 'sheep', 'label': 'Sheep', 'icon': Icons.cruelty_free_outlined},
-      {'id': 'fishery', 'label': 'Fishery', 'icon': Icons.water_rounded},
+      {'id': 'fishery', 'label': 'Aquaculture', 'icon': Icons.water_rounded},
       {'id': 'other', 'label': 'Others', 'icon': Icons.more_horiz_rounded},
     ];
 
@@ -221,20 +221,17 @@ class LivestockView extends GetView<LivestockController> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Obx(() => Row(
             children: categories.map<Widget>((cat) {
+              final isSelected = controller.selectedSpecies.value == cat['id'];
               return CategoryTile(
                 label: cat['label'],
                 icon: cat['icon'],
-                isSelected: controller.selectedSpecies.value == cat['id'],
+                isSelected: isSelected,
                 onTap: () {
                   controller.selectedSpecies.value = cat['id'];
                 },
                 activeColor: Colors.white,
-                textColor: controller.selectedSpecies.value == cat['id'] 
-                  ? Colors.green.shade700 
-                  : Colors.white.withOpacity(0.9),
-                tileColor: controller.selectedSpecies.value == cat['id'] 
-                  ? Colors.white 
-                  : Colors.white.withOpacity(0.15),
+                textColor: isSelected ? const Color(0xFF1B5E20) : Colors.white,
+                tileColor: isSelected ? Colors.white : const Color(0xFF0D472A).withOpacity(0.6),
               );
             }).toList(),
           )),

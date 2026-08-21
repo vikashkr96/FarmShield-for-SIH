@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,9 +9,16 @@ import 'app/core/values/constants.dart';
 import 'app/core/translations/app_translations.dart';
 import 'app/core/services/offline_storage_service.dart';
 import 'app/core/services/fcm_alert_service.dart';
+import 'firebase_options.dart';
+
+import 'app/modules/auth/controllers/auth_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   
   // Initialize Hive and Offline Storage
   await OfflineStorageService().init();
@@ -20,7 +28,8 @@ void main() async {
     anonKey: constants.supabaseKey,
   );
 
-  // Initialize Realtime Push Alert Service
+  // Initialize Global Auth & Push Alert Services
+  Get.put(AuthController(), permanent: true);
   Get.put(FcmAlertService());
 
   final session = Supabase.instance.client.auth.currentSession;

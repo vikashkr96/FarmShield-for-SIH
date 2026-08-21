@@ -45,7 +45,7 @@ class WithdrawalCalendarView extends GetView<WithdrawalCalendarController> {
 
   Widget _buildFilterChips() {
     return Container(
-      height: 60,
+      height: 54,
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Obx(() => ListView(
             scrollDirection: Axis.horizontal,
@@ -55,14 +55,21 @@ class WithdrawalCalendarView extends GetView<WithdrawalCalendarController> {
               return Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: ChoiceChip(
-                  label: Text(filter, style: GoogleFonts.poppins(fontSize: 12)),
+                  label: Text(
+                    filter,
+                    style: GoogleFonts.poppins(fontSize: 12, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500),
+                  ),
                   selected: isSelected,
                   onSelected: (selected) {
                     if (selected) controller.selectedFilter.value = filter;
                   },
-                  selectedColor: Colors.green.shade700,
+                  selectedColor: const Color(0xFF1B5E20),
+                  backgroundColor: Colors.white,
+                  side: BorderSide(
+                    color: isSelected ? const Color(0xFF1B5E20) : Colors.grey.shade300,
+                  ),
                   labelStyle: TextStyle(
-                    color: isSelected ? Colors.white : Colors.black87,
+                    color: isSelected ? Colors.white : Colors.blueGrey.shade800,
                   ),
                 ),
               );

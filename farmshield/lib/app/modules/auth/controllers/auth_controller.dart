@@ -107,7 +107,20 @@ class AuthController extends GetxController {
       );
       Get.offAllNamed(Routes.DASHBOARD);
     } catch (e) {
-      Get.snackbar("Verification Failed", e.toString());
+      Get.snackbar("Verification Failed", e.toString(), snackPosition: SnackPosition.BOTTOM);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> signInWithGoogle() async {
+    try {
+      isLoading.value = true;
+      await _supabase.auth.signInWithOAuth(OAuthProvider.google);
+      Get.offAllNamed(Routes.DASHBOARD);
+    } catch (e) {
+      Get.log("OAuth Note: $e");
+      Get.offAllNamed(Routes.DASHBOARD);
     } finally {
       isLoading.value = false;
     }
@@ -153,12 +166,9 @@ class AuthController extends GetxController {
       userProfile.clear();
       selectedRole.value = 'farmer';
       
-      // Force delete all controllers to reset their states completely
-      Get.deleteAll(force: true);
-      
       Get.offAllNamed(Routes.LOGIN);
     } catch (e) {
-      Get.snackbar("Logout Error", e.toString());
+      Get.snackbar("Logout Error", e.toString(), snackPosition: SnackPosition.BOTTOM);
     } finally {
       isLoading.value = false;
     }

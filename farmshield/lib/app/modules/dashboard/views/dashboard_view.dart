@@ -604,8 +604,10 @@ class DashboardView extends GetView<DashboardController> {
         else greenCount++;
       }
 
+      final avatarSize = (Get.width * 0.105).clamp(36.0, 44.0);
+
       return Container(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
@@ -627,15 +629,15 @@ class DashboardView extends GetView<DashboardController> {
                 _buildHeatmapStatusPill('Withheld', redCount, const Color(0xFFDC2626), const Color(0xFFFEF2F2)),
               ],
             ),
-            const Divider(height: 24),
+            const Divider(height: 20),
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 5,
-                mainAxisSpacing: 14,
-                crossAxisSpacing: 14,
-                childAspectRatio: 0.85,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                childAspectRatio: 0.70,
               ),
               itemCount: animals.length.clamp(0, 20),
               itemBuilder: (context, index) {
@@ -654,18 +656,21 @@ class DashboardView extends GetView<DashboardController> {
 
                 return GestureDetector(
                   onTap: () => _showAnimalTooltip(animal, statusColor),
+                  behavior: HitTestBehavior.opaque,
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        width: 50,
-                        height: 50,
+                        width: avatarSize,
+                        height: avatarSize,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: statusColor, width: 2.5),
+                          border: Border.all(color: statusColor, width: 2.2),
                           boxShadow: [
                             BoxShadow(
                               color: statusColor.withOpacity(0.25),
-                              blurRadius: 8,
+                              blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
                           ],
@@ -674,20 +679,21 @@ class DashboardView extends GetView<DashboardController> {
                           child: Image.network(
                             imageUrl,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Icon(Icons.pets, size: 20, color: statusColor),
+                            errorBuilder: (_, __, ___) => Icon(Icons.pets, size: 18, color: statusColor),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       Text(
                         animal.animalCode ?? 'TAG',
-                        style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blueGrey.shade800),
+                        style: GoogleFonts.poppins(fontSize: 9.5, fontWeight: FontWeight.bold, color: Colors.blueGrey.shade800),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
-                ).animate().scale(delay: Duration(milliseconds: index * 30));
+                ).animate().scale(delay: Duration(milliseconds: index * 25));
               },
             ),
           ],
