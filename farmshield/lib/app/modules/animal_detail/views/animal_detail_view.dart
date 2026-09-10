@@ -15,9 +15,11 @@ import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_empty_state.dart';
 import '../../../core/widgets/app_header_bar.dart';
 import '../../../core/widgets/app_loading_skeleton.dart';
+import '../../../data/models/health_models.dart';
 import '../../../routes/app_pages.dart';
 import '../controllers/animal_detail_controller.dart';
 import '../widgets/edit_animal_bottom_sheet.dart';
+import '../widgets/report_health_issue_sheet.dart';
 
 class AnimalDetailView extends GetView<AnimalDetailController> {
   const AnimalDetailView({super.key});
@@ -251,9 +253,13 @@ class AnimalDetailView extends GetView<AnimalDetailController> {
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
                 child: Column(
                   children: [
+                    _buildHealthIntelligenceBanner(context, data),
+                    const SizedBox(height: AppSpacing.lg),
+                    _buildVaccinationCard(),
+                    const SizedBox(height: AppSpacing.lg),
                     _buildQRCodeSection(data),
                     const SizedBox(height: AppSpacing.xl),
-                    _buildMedicalTimeline(data['treatments'] ?? []),
+                    _buildUnifiedHealthTimeline(),
                     const SizedBox(height: AppSpacing.xxl),
                   ],
                 ),
@@ -558,144 +564,328 @@ class AnimalDetailView extends GetView<AnimalDetailController> {
     );
   }
 
-  Widget _buildMedicalTimeline(List<dynamic> treatments) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildHealthIntelligenceBanner(BuildContext context, Map<String, dynamic> animal) {
+    return Obx(() {
+      final status = controller.healthStatus.value;
+      return AppCard(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        borderColor: status.color.withValues(alpha: 0.35),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(Icons.history_edu_rounded, color: AppColors.primary, size: 20),
-                const SizedBox(width: 8),
-                Text('Medical & Treatment History', style: AppTypography.titleSmall),
+                Row(
+                  children: [
+                    Icon(status.icon, color: status.color, size: 20),
+                    const SizedBox(width: 8),
+                    Text('Health Status & Surveillance', style: AppTypography.titleSmall),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: status.color.withValues(alpha: 0.12),
+                    borderRadius: AppSpacing.roundedFull,
+                    border: Border.all(color: status.color.withValues(alpha: 0.4)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 7,
+                        height: 7,
+                        decoration: BoxDecoration(
+                          color: status.color,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        status.label,
+                        style: TextStyle(
+                          color: status.color,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
+            const SizedBox(height: AppSpacing.sm),
             Text(
-              '${treatments.length} logged',
-              style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
+              status == HealthStatus.healthy
+                  ? 'Animal exhibits healthy physiologic vitals. Routine biosecurity and grazing protocols active.'
+                  : (status == HealthStatus.underObservation
+                      ? 'Animal is under active field observation for syndromic signs. Monitor body temperature twice daily.'
+                      : (status == HealthStatus.affected
+                          ? 'Active clinical health episode registered. Follow isolation advice and veterinarian treatment plan.'
+                          : (status == HealthStatus.critical
+                              ? 'Critical disease state. Immediate strict physical isolation and urgent veterinary response required.'
+                              : 'Animal health records recorded.'))),
+              style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            AppButton(
+              label: 'Report Health Issue / Triage',
+              variant: AppButtonVariant.primary,
+              icon: Icons.healing_rounded,
+              isFullWidth: true,
+              onPressed: () {
+                ReportHealthIssueSheet.show(
+                  context,
+                  animalData: animal,
+                  onSubmit: ({
+                    required symptoms,
+                    required triage,
+                    bodyTemperatureC,
+                    notes,
+                  }) =>
+                      controller.reportHealthIssue(
+                    symptoms: symptoms,
+                    triage: triage,
+                    bodyTemperatureC: bodyTemperatureC,
+                    notes: notes,
+                  ),
+                );
+              },
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.md),
-        if (treatments.isEmpty)
-          AppCard(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Center(
-              child: Column(
-                children: [
-                  const Icon(Icons.shield_outlined, size: 36, color: AppColors.success),
-                  const SizedBox(height: 8),
-                  Text('Clean Health Record', style: AppTypography.titleSmall),
-                  const SizedBox(height: 2),
-                  Text(
-                    'No antimicrobial treatments administered to this animal.',
-                    style: AppTypography.bodySmall,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          )
-        else
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: treatments.length,
-            itemBuilder: (context, index) {
-              final t = treatments[index];
-              final medName = t['medicine']?['name'] ?? t['medicine_name'] ?? 'Antimicrobial';
-              final activeIng = t['medicine']?['active_ingredient'] ?? t['active_ingredient'] ?? 'Active Substance';
-              final dose = '${t['dose'] ?? ""} ${t['dose_unit'] ?? ""}';
-              final startDate = _formatDate(t['start_date']);
+      );
+    });
+  }
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildVaccinationCard() {
+    return Obx(() {
+      final vacs = controller.vaccinations;
+      final hasOverdue = vacs.any((v) => v.isOverdue);
+      return AppCard(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
                   children: [
-                    Column(
+                    const Icon(Icons.vaccines_rounded, color: AppColors.primary, size: 20),
+                    const SizedBox(width: 8),
+                    Text('Vaccination Registry', style: AppTypography.titleSmall),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: hasOverdue ? AppColors.danger.withValues(alpha: 0.1) : AppColors.successBg,
+                    borderRadius: AppSpacing.roundedXs,
+                  ),
+                  child: Text(
+                    hasOverdue ? 'Booster Overdue' : 'Immunization Up-To-Date',
+                    style: TextStyle(
+                      color: hasOverdue ? AppColors.danger : AppColors.success,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const Divider(height: 20),
+            if (vacs.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Center(
+                  child: Text('No immunization records logged yet.', style: AppTypography.bodySmall),
+                ),
+              )
+            else
+              Column(
+                children: vacs.map((v) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          width: 12,
-                          height: 12,
-                          decoration: const BoxDecoration(
-                            color: AppColors.primary,
-                            shape: BoxShape.circle,
+                          margin: const EdgeInsets.only(top: 2),
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppColors.primarySoft,
+                            borderRadius: AppSpacing.roundedXs,
                           ),
+                          child: const Icon(Icons.shield_rounded, size: 14, color: AppColors.primary),
                         ),
-                        if (index < treatments.length - 1)
-                          Container(
-                            width: 2,
-                            height: 64,
-                            color: AppColors.border,
-                          ),
-                      ],
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: Transform.translate(
-                        offset: const Offset(0, -4),
-                        child: AppCard(
-                          padding: const EdgeInsets.all(AppSpacing.md),
+                        const SizedBox(width: 10),
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    medName,
-                                    style: AppTypography.titleSmall.copyWith(fontSize: 13),
-                                  ),
-                                  Text(
-                                    startDate,
-                                    style: AppTypography.labelSmall.copyWith(color: AppColors.slate400),
-                                  ),
-                                ],
+                              Text(
+                                v.vaccineName,
+                                style: AppTypography.labelMedium.copyWith(fontWeight: FontWeight.w700),
                               ),
-                              const SizedBox(height: 2),
-                              Text(activeIng, style: AppTypography.bodySmall),
-                              const SizedBox(height: 8),
-                              Wrap(
-                                spacing: 8,
-                                children: [
-                                  _treatmentTag(Icons.medication_outlined, dose),
-                                  if (t['indication'] != null)
-                                    _treatmentTag(Icons.healing_outlined, t['indication']),
-                                ],
+                              Text(
+                                'Target: ${v.diseaseTargeted}',
+                                style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 11),
                               ),
+                              if (v.boosterDueDate != null)
+                                Text(
+                                  'Next Booster: ${_formatDate(v.boosterDueDate)}',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: v.isOverdue ? AppColors.danger : AppColors.textSecondary,
+                                  ),
+                                ),
                             ],
                           ),
                         ),
-                      ),
+                        Text(
+                          _formatDate(v.administeredDate),
+                          style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted, fontSize: 11),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildUnifiedHealthTimeline() {
+    return Obx(() {
+      final events = controller.healthTimeline;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.timeline_rounded, color: AppColors.primary, size: 20),
+                  const SizedBox(width: 8),
+                  Text('Unified Health Timeline', style: AppTypography.titleSmall),
+                ],
+              ),
+              Text(
+                '${events.length} events logged',
+                style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          if (events.isEmpty)
+            AppCard(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Center(
+                child: Column(
+                  children: [
+                    const Icon(Icons.health_and_safety_outlined, size: 36, color: AppColors.success),
+                    const SizedBox(height: 8),
+                    Text('Clean Health Record', style: AppTypography.titleSmall),
+                    const SizedBox(height: 2),
+                    Text(
+                      'No clinical incidents, treatments, or symptoms recorded.',
+                      style: AppTypography.bodySmall,
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
-              );
-            },
-          ),
-      ],
-    );
-  }
-
-  Widget _treatmentTag(IconData icon, String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceSubtle,
-        borderRadius: AppSpacing.roundedXs,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: AppColors.slate500),
-          const SizedBox(width: 4),
-          Text(text, style: AppTypography.labelSmall.copyWith(fontSize: 10)),
+              ),
+            )
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: events.length,
+              itemBuilder: (context, index) {
+                final e = events[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        children: [
+                          Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: e.type.color.withValues(alpha: 0.15),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: e.type.color, width: 2),
+                            ),
+                            child: Icon(e.type.icon, size: 12, color: e.type.color),
+                          ),
+                          if (index < events.length - 1)
+                            Container(
+                              width: 2,
+                              height: 64,
+                              color: AppColors.border,
+                            ),
+                        ],
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Transform.translate(
+                          offset: const Offset(0, -4),
+                          child: AppCard(
+                            padding: const EdgeInsets.all(AppSpacing.md),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        e.title,
+                                        style: AppTypography.titleSmall.copyWith(fontSize: 13, fontWeight: FontWeight.w700),
+                                      ),
+                                    ),
+                                    Text(
+                                      _formatDate(e.timestamp),
+                                      style: AppTypography.labelSmall.copyWith(color: AppColors.slate400),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(e.description, style: AppTypography.bodySmall.copyWith(fontSize: 12)),
+                                if (e.performedBy != null) ...[
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.person_pin_circle_outlined, size: 12, color: AppColors.textMuted),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        e.performedBy!,
+                                        style: AppTypography.labelSmall.copyWith(fontSize: 10, color: AppColors.textMuted),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
         ],
-      ),
-    );
+      );
+    });
   }
 
   String _formatDate(dynamic date) {

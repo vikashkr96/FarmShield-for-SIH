@@ -338,14 +338,19 @@ class _LoginViewState extends State<LoginView> {
           ),
           const SizedBox(height: AppSpacing.lg),
 
-          // Google Sign-in Button
-          AppButton(
-            label: 'Continue with Google',
-            variant: AppButtonVariant.outline,
-            isFullWidth: true,
-            icon: Icons.g_mobiledata_rounded,
-            onPressed: () => controller.signInWithGoogle(),
-          ),
+          // Google Sign-in Button with Official Google Branding & Loading state
+          Obx(() => AppButton(
+                label: controller.isGoogleSigningIn.value
+                    ? 'Signing in with Google...'
+                    : 'Continue with Google',
+                variant: AppButtonVariant.outline,
+                isFullWidth: true,
+                isLoading: controller.isGoogleSigningIn.value,
+                leadingWidget: const _GoogleLogoWidget(size: 20),
+                onPressed: controller.isGoogleSigningIn.value
+                    ? null
+                    : () => controller.signInWithGoogle(),
+              )),
         ],
       ),
     );
@@ -395,3 +400,85 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 }
+
+/// Official brand-compliant Google 4-color 'G' vector logo
+class _GoogleLogoWidget extends StatelessWidget {
+  final double size;
+  const _GoogleLogoWidget({this.size = 20});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(
+        painter: _GoogleLogoPainter(),
+      ),
+    );
+  }
+}
+
+class _GoogleLogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double w = size.width;
+    final double h = size.height;
+    final Offset center = Offset(w / 2, h / 2);
+    final double radius = w / 2;
+    final double strokeWidth = radius * 0.42;
+    final Rect arcRect = Rect.fromCircle(center: center, radius: radius - strokeWidth / 2);
+
+    final Paint bluePaint = Paint()
+      ..color = const Color(0xFF4285F4)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.butt;
+
+    final Paint greenPaint = Paint()
+      ..color = const Color(0xFF34A853)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.butt;
+
+    final Paint yellowPaint = Paint()
+      ..color = const Color(0xFFFBBC05)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.butt;
+
+    final Paint redPaint = Paint()
+      ..color = const Color(0xFFEA4335)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.butt;
+
+    // Red arc (top-right to top-left)
+    canvas.drawArc(arcRect, -0.6 * 3.14159, -0.65 * 3.14159, false, redPaint);
+
+    // Yellow arc (top-left to bottom-left)
+    canvas.drawArc(arcRect, -1.25 * 3.14159, -0.5 * 3.14159, false, yellowPaint);
+
+    // Green arc (bottom-left to bottom-right)
+    canvas.drawArc(arcRect, 0.25 * 3.14159, 0.65 * 3.14159, false, greenPaint);
+
+    // Blue arc (bottom-right to center bar)
+    canvas.drawArc(arcRect, -0.1 * 3.14159, 0.35 * 3.14159, false, bluePaint);
+
+    // Blue center horizontal bar
+    final Paint blueBarPaint = Paint()
+      ..color = const Color(0xFF4285F4)
+      ..style = PaintingStyle.fill;
+
+    final Rect barRect = Rect.fromLTWH(
+      center.dx - 1,
+      center.dy - strokeWidth / 2,
+      radius + 1,
+      strokeWidth,
+    );
+    canvas.drawRect(barRect, blueBarPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+

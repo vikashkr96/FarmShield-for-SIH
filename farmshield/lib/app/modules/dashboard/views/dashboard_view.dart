@@ -14,6 +14,7 @@ import '../../auth/controllers/auth_controller.dart';
 import '../../calendar/views/withdrawal_calendar_view.dart';
 import '../../livestock/views/livestock_view.dart';
 import '../../reports/views/reports_view.dart';
+import '../../geospatial_risk/views/geospatial_risk_map_view.dart';
 import '../controllers/dashboard_controller.dart';
 import '../widgets/amu_analytics_sheet.dart';
 import '../widgets/dashboard_kpi_card.dart';
@@ -21,6 +22,8 @@ import '../widgets/farmshield_bottom_nav_bar.dart';
 import '../widgets/herd_heatmap_card.dart';
 import '../widgets/quick_actions_grid.dart';
 import '../widgets/withdrawal_countdown_card.dart';
+import '../widgets/weather_risk_card.dart';
+import '../widgets/disease_trend_chart.dart';
 
 class DashboardView extends GetView<DashboardController> {
   const DashboardView({super.key});
@@ -34,20 +37,43 @@ class DashboardView extends GetView<DashboardController> {
 
       return Scaffold(
         backgroundColor: AppColors.background,
-        body: IndexedStack(
-          index: selectedIndex,
-          children: [
-            _buildDashboardBody(context),
-            const LivestockView(),
-            const WithdrawalCalendarView(),
-            const ReportsView(),
-          ],
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 240),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (child, animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+          child: KeyedSubtree(
+            key: ValueKey<int>(selectedIndex),
+            child: _getPage(selectedIndex, context),
+          ),
         ),
-        floatingActionButton: _buildScanQrFab(context),
+        floatingActionButton: selectedIndex == 4 ? null : _buildScanQrFab(context),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         bottomNavigationBar: FarmShieldBottomNavBar(),
       );
     });
+  }
+
+  Widget _getPage(int index, BuildContext context) {
+    switch (index) {
+      case 0:
+        return _buildDashboardBody(context);
+      case 1:
+        return const LivestockView();
+      case 2:
+        return const WithdrawalCalendarView();
+      case 3:
+        return const ReportsView();
+      case 4:
+        return const GeospatialRiskMapView();
+      default:
+        return _buildDashboardBody(context);
+    }
   }
 
   Widget _buildScanQrFab(BuildContext context) {
@@ -210,6 +236,24 @@ class DashboardView extends GetView<DashboardController> {
                 _buildSectionHeader('herd_risk_heatmap'.tr, Icons.grid_view_rounded),
                 const SizedBox(height: AppSpacing.md),
                 HerdHeatmapCard(controller: controller),
+                const SizedBox(height: AppSpacing.xl),
+                _buildSectionHeader('Environmental Risk & Weather', Icons.cloud_outlined),
+                const SizedBox(height: AppSpacing.md),
+                Obx(() => WeatherRiskCard(
+                      weatherData: controller.weatherRisk.value,
+                      isLoading: controller.isWeatherLoading.value,
+                      onRefresh: () => controller.fetchWeatherRisk(),
+                    )),
+                const SizedBox(height: AppSpacing.xl),
+                _buildSectionHeader('Epidemic Disease Intelligence', Icons.stacked_line_chart_rounded),
+                const SizedBox(height: AppSpacing.md),
+                Obx(() => DiseaseTrendChart(
+                      trendPoints: controller.diseaseTrends,
+                      selectedRange: controller.selectedTrendRange.value,
+                      selectedDisease: controller.selectedTrendDisease.value,
+                      onRangeChanged: controller.setTrendRange,
+                      onDiseaseChanged: controller.setTrendDisease,
+                    )),
                 const SizedBox(height: AppSpacing.xl),
                 _buildSectionHeader('quick_actions'.tr, Icons.bolt_rounded),
                 const SizedBox(height: AppSpacing.md),

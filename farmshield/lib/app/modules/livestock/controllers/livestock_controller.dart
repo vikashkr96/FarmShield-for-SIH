@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/services/cloudinary_service.dart';
 import '../../../data/models/farm_models.dart';
+import '../../../data/models/health_models.dart';
 import '../../../data/repositories/farm_repository.dart';
 
 class LivestockController extends GetxController with StateMixin<List<Animal>> {
@@ -11,6 +12,7 @@ class LivestockController extends GetxController with StateMixin<List<Animal>> {
   LivestockController({required this.repository});
 
   final selectedSpecies = 'all'.obs;
+  final herdSummary = Rxn<HerdHealthSummary>();
   final Rx<Uint8List?> selectedImageBytes = Rx<Uint8List?>(null);
   String? selectedImageName;
   final RxBool isUploading = false.obs;
@@ -52,6 +54,14 @@ class LivestockController extends GetxController with StateMixin<List<Animal>> {
       } else {
         change(animals, status: RxStatus.success());
       }
+
+      // Fetch herd health analytics
+      try {
+        final summary = await repository.getHerdHealthSummary(
+          species: selected == 'all' ? null : selected,
+        );
+        herdSummary.value = summary;
+      } catch (_) {}
     } catch (e) {
       Get.log("Fetch Animals Error: $e");
       change(null, status: RxStatus.error(e.toString()));

@@ -37,12 +37,13 @@ class FarmShieldBottomNavBar extends StatelessWidget {
           ],
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _navItem(Icons.dashboard_outlined, Icons.dashboard_rounded, "Home", 0),
             _navItem(Icons.pets_outlined, Icons.pets_rounded, "Livestock", 1),
             _navItem(Icons.calendar_today_outlined, Icons.calendar_month_rounded, "Withdrawals", 2),
             _navItem(Icons.assessment_outlined, Icons.assessment_rounded, "Reports", 3),
+            _navItem(Icons.map_outlined, Icons.map_rounded, "Risk Map", 4),
           ],
         ),
       );
@@ -56,11 +57,11 @@ class FarmShieldBottomNavBar extends StatelessWidget {
       onTap: () => nav.selectedIndex.value = index,
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
+        duration: const Duration(milliseconds: 250),
         curve: Curves.easeOutCubic,
         padding: EdgeInsets.symmetric(
-          horizontal: isSelected ? 16 : 12,
-          vertical: 8,
+          horizontal: isSelected ? 12 : 8,
+          vertical: 6,
         ),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primarySoft : Colors.transparent,
@@ -69,19 +70,26 @@ class FarmShieldBottomNavBar extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              isSelected ? filledIcon : outlineIcon,
-              size: isSelected ? 22 : 21,
-              color: isSelected ? AppColors.primary : AppColors.slate500,
+            AnimatedScale(
+              scale: isSelected ? 1.08 : 1.0,
+              duration: const Duration(milliseconds: 200),
+              child: Icon(
+                isSelected ? filledIcon : outlineIcon,
+                size: isSelected ? 21 : 20,
+                color: isSelected ? AppColors.primary : AppColors.slate500,
+              ),
             ),
             if (isSelected) ...[
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               Text(
                 label,
-                style: AppTypography.labelMedium.copyWith(
+                style: AppTypography.labelSmall.copyWith(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w700,
+                  fontSize: 11.5,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ],

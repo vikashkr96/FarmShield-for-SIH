@@ -25,7 +25,7 @@ void main() async {
 
   await Supabase.initialize(
     url: constants.supabaseUrl,
-    anonKey: constants.supabaseKey,
+    publishableKey: constants.supabaseKey,
   );
 
   // Initialize Global Auth & Push Alert Services

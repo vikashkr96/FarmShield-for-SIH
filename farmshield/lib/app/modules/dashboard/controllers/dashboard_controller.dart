@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/models/farm_models.dart';
+import '../../../data/models/geo_risk_model.dart';
+import '../../../data/models/health_models.dart';
 import '../../../data/repositories/farm_repository.dart';
 
 class DashboardController extends GetxController with StateMixin<AmuSummary> {
@@ -12,6 +14,13 @@ class DashboardController extends GetxController with StateMixin<AmuSummary> {
   final animals = <Animal>[].obs;
   final activeWithdrawals = <Map<String, dynamic>>[].obs;
   final amuTrendData = <Map<String, dynamic>>[].obs;
+  
+  // Meteorological & Epidemiological Intelligence
+  final weatherRisk = Rxn<WeatherRiskData>();
+  final isWeatherLoading = false.obs;
+  final diseaseTrends = <DiseaseTrendPoint>[].obs;
+  final selectedTrendRange = RiskTimeRange.thirtyDays.obs;
+  final selectedTrendDisease = 'All'.obs;
   
   // Locale observer to fix Obx issue
   final Rx<Locale> currentLocale = Locale('en', 'US').obs;
@@ -70,10 +79,48 @@ class DashboardController extends GetxController with StateMixin<AmuSummary> {
         {'month': 'Jun', 'value': 42.0},
       ]);
 
+      // 6. Fetch Weather Risk & Disease Trends in parallel
+      fetchWeatherRisk();
+      fetchDiseaseTrends();
+
       change(summary, status: RxStatus.success());
     } catch (e) {
       change(null, status: RxStatus.error(e.toString()));
     }
+  }
+
+  Future<void> fetchWeatherRisk() async {
+    try {
+      isWeatherLoading.value = true;
+      final data = await repository.getWeatherRisk();
+      weatherRisk.value = data;
+    } catch (e) {
+      Get.log('fetchWeatherRisk notice: $e');
+    } finally {
+      isWeatherLoading.value = false;
+    }
+  }
+
+  Future<void> fetchDiseaseTrends() async {
+    try {
+      final trends = await repository.getHistoricalDiseaseTrends(
+        range: selectedTrendRange.value,
+        diseaseFilter: selectedTrendDisease.value,
+      );
+      diseaseTrends.assignAll(trends);
+    } catch (e) {
+      Get.log('fetchDiseaseTrends notice: $e');
+    }
+  }
+
+  void setTrendRange(RiskTimeRange range) {
+    selectedTrendRange.value = range;
+    fetchDiseaseTrends();
+  }
+
+  void setTrendDisease(String disease) {
+    selectedTrendDisease.value = disease;
+    fetchDiseaseTrends();
   }
 
   void toggleLanguage() {

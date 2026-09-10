@@ -165,4 +165,63 @@ class OfflineStorageService {
       }
     });
   }
+
+  /// Cache latest risk points in Hive for offline map viewing
+  Future<void> cacheRiskPoints(List<Map<String, dynamic>> points) async {
+    try {
+      await offlineReportsBox.put('cached_risk_points', points);
+    } catch (_) {}
+  }
+
+  /// Retrieve cached risk points from Hive
+  List<Map<String, dynamic>> getCachedRiskPoints() {
+    try {
+      final raw = offlineReportsBox.get('cached_risk_points');
+      if (raw is List) {
+        return raw.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  /// Retrieve cached vaccinations for an animal (or all if animalId is empty)
+  List<Map<String, dynamic>> getCachedVaccinations([String? animalId]) {
+    try {
+      final list = <Map<String, dynamic>>[];
+      for (var val in offlineVaccinationsBox.values) {
+        if (val is Map) {
+          final map = Map<String, dynamic>.from(val);
+          if (animalId == null || animalId.isEmpty || map['animal_id'] == animalId) {
+            list.add(map);
+          }
+        }
+      }
+      return list;
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Retrieve cached disease reports for an animal (or all if animalId is empty)
+  List<Map<String, dynamic>> getCachedDiseaseReports([String? animalId]) {
+    try {
+      final list = <Map<String, dynamic>>[];
+      for (var key in offlineReportsBox.keys) {
+        if (key == 'cached_risk_points') continue;
+        final val = offlineReportsBox.get(key);
+        if (val is Map) {
+          final map = Map<String, dynamic>.from(val);
+          if (animalId == null ||
+              animalId.isEmpty ||
+              map['animal_id'] == animalId ||
+              map['animal_code'] == animalId) {
+            list.add(map);
+          }
+        }
+      }
+      return list;
+    } catch (_) {
+      return [];
+    }
+  }
 }

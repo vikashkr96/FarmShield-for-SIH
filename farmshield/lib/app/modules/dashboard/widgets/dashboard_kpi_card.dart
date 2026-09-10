@@ -6,6 +6,7 @@ import '../../../data/models/farm_models.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../auth/controllers/auth_controller.dart';
 
 class DashboardKpiCard extends StatelessWidget {
   final AmuSummary state;
@@ -82,13 +83,33 @@ class DashboardKpiCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.all(7),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.12),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.shield_rounded, color: AppColors.accent, size: 18),
+                    GetBuilder<AuthController>(
+                      builder: (auth) {
+                        final userName = auth.userProfile['name'] ?? auth.currentUser.value?.email?.split('@').first ?? 'Farmer';
+                        final userRole = (auth.userProfile['role'] ?? auth.selectedRole.value ?? 'farmer').toString().capitalizeFirst;
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.12),
+                            borderRadius: AppSpacing.roundedSm,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.account_circle_outlined, color: Colors.white, size: 14),
+                              const SizedBox(width: 5),
+                              Text(
+                                '$userName • $userRole',
+                                style: AppTypography.labelSmall.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),

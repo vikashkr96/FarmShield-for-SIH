@@ -42,4 +42,5 @@ Thumbs.db
 *.keystore
 *.jks
 key.properties
+**/secrets.xml
 **/constants.dart

@@ -16,6 +16,8 @@ import '../../../core/widgets/app_text_field.dart';
 import '../../../data/models/farm_models.dart';
 import '../../../routes/app_pages.dart';
 import '../controllers/livestock_controller.dart';
+import '../widgets/herd_health_card.dart';
+import 'herd_health_view.dart';
 
 class LivestockView extends GetView<LivestockController> {
   const LivestockView({super.key});
@@ -33,6 +35,11 @@ class LivestockView extends GetView<LivestockController> {
         elevation: 0,
         centerTitle: false,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.analytics_outlined, color: Colors.white),
+            tooltip: 'Herd Health Intelligence',
+            onPressed: () => Get.to(() => HerdHealthView(initialSpecies: controller.selectedSpecies.value)),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: Colors.white),
             tooltip: 'Refresh Inventory',
@@ -57,6 +64,14 @@ class LivestockView extends GetView<LivestockController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSpeciesFilterBar(),
+          Obx(() {
+            final summary = controller.herdSummary.value;
+            if (summary == null) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xs),
+              child: HerdHealthCard(summary: summary),
+            );
+          }),
           Padding(
             padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
             child: Obx(() => Row(

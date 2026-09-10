@@ -37,11 +37,13 @@ class AppColors {
   static const Color success = Color(0xFF16A34A);
   static const Color successBg = Color(0xFFDCFCE7);
   static const Color warning = Color(0xFFD97706);
+  static const Color warningDark = Color(0xFFB45309);
   static const Color warningBg = Color(0xFFFEF3C7);
   static const Color danger = Color(0xFFDC2626);
   static const Color dangerBg = Color(0xFFFEE2E2);
   static const Color info = Color(0xFF2563EB);
   static const Color infoBg = Color(0xFFDBEAFE);
+  static const Color secondary = Color(0xFF7C3AED);
 
   // Neutral Scales
   static const Color slate50 = Color(0xFFF8FAFC);

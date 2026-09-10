@@ -27,6 +27,7 @@ import '../modules/reports/views/reports_view.dart';
 import '../modules/syndromic_report/bindings/syndromic_report_binding.dart';
 import '../modules/syndromic_report/views/syndromic_report_view.dart';
 import '../modules/animal_passport/views/qr_scanner_page.dart';
+import '../modules/geospatial_risk/views/geospatial_risk_map_view.dart';
 
 part 'app_routes.dart';
 
@@ -107,6 +108,10 @@ class AppPages {
     GetPage(
       name: _Paths.QR_SCANNER,
       page: () => const QRScannerPage(),
+    ),
+    GetPage(
+      name: _Paths.GEOSPATIAL_RISK_MAP,
+      page: () => const GeospatialRiskMapView(),
     ),
   ];
 }

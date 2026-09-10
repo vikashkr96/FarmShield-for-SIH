@@ -1,9 +1,11 @@
 import 'dart:typed_data';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/services/cloudinary_service.dart';
 import '../../../core/services/offline_storage_service.dart';
 import '../../../data/models/farm_models.dart';
+import '../../../data/models/health_models.dart';
 import '../../../data/repositories/farm_repository.dart';
 
 class AnimalDetailController extends GetxController with StateMixin<Map<String, dynamic>> {
@@ -14,6 +16,10 @@ class AnimalDetailController extends GetxController with StateMixin<Map<String, 
   final CloudinaryService _cloudinary = CloudinaryService();
   
   final RxBool isUploading = false.obs;
+  final RxBool isLoadingHealth = false.obs;
+  final healthStatus = HealthStatus.healthy.obs;
+  final healthTimeline = <HealthEvent>[].obs;
+  final vaccinations = <VaccinationRecord>[].obs;
   String animalId = '';
 
   Map<String, dynamic>? _passedAnimalData;
@@ -55,8 +61,13 @@ class AnimalDetailController extends GetxController with StateMixin<Map<String, 
       animalId = args.trim();
     }
 
+    if (_passedAnimalData != null) {
+      healthStatus.value = HealthStatus.fromString(_passedAnimalData!['health_status']?.toString());
+    }
+
     if (animalId.isNotEmpty) {
       fetchAnimalFullProfile(animalId);
+      fetchHealthIntelligence(animalId);
     } else if (_passedAnimalData == null) {
       change(null, status: RxStatus.error("Invalid Animal ID"));
     }
@@ -286,5 +297,77 @@ class AnimalDetailController extends GetxController with StateMixin<Map<String, 
     }
     if (latestEnd == null || latestEnd.isBefore(now)) return 0;
     return latestEnd.difference(now).inHours;
+  }
+
+  /// Load unified chronological health timeline & vaccination records
+  Future<void> fetchHealthIntelligence(String id) async {
+    isLoadingHealth.value = true;
+    try {
+      final events = await repository.getAnimalHealthTimeline(id);
+      healthTimeline.assignAll(events);
+
+      final vacs = await repository.getAnimalVaccinations(id);
+      vaccinations.assignAll(vacs);
+
+      final curStatus = state?['health_status']?.toString();
+      if (curStatus != null) {
+        healthStatus.value = HealthStatus.fromString(curStatus);
+      }
+    } catch (e) {
+      Get.log('fetchHealthIntelligence notice: $e');
+    } finally {
+      isLoadingHealth.value = false;
+    }
+  }
+
+  /// Submit syndromic report with transparent triage and update reactive UI state
+  Future<void> reportHealthIssue({
+    required Set<String> symptoms,
+    required TriageAssessment triage,
+    double? bodyTemperatureC,
+    String? notes,
+  }) async {
+    final currentId = state?['id']?.toString() ?? animalId;
+    final animalCode = state?['animal_code']?.toString() ?? 'ANIMAL';
+    final species = state?['species']?.toString() ?? 'cow';
+
+    await repository.reportHealthIssue(
+      animalId: currentId,
+      animalCode: animalCode,
+      species: species,
+      symptoms: symptoms,
+      triage: triage,
+      bodyTemperatureC: bodyTemperatureC,
+      notes: notes,
+    );
+
+    // Map triage urgency to health status
+    String newDbStatus = 'under_observation';
+    if (triage.urgency == TriageUrgency.urgent) {
+      newDbStatus = 'critical';
+    } else if (triage.urgency == TriageUrgency.high) {
+      newDbStatus = 'affected';
+    } else if (triage.urgency == TriageUrgency.moderate) {
+      newDbStatus = 'under_observation';
+    } else {
+      newDbStatus = 'healthy';
+    }
+
+    healthStatus.value = HealthStatus.fromString(newDbStatus);
+
+    final current = Map<String, dynamic>.from(state ?? {});
+    current['health_status'] = newDbStatus;
+    change(current, status: RxStatus.success());
+
+    // Refresh timeline with new event
+    await fetchHealthIntelligence(currentId);
+
+    Get.snackbar(
+      'Health Report Logged',
+      'Triage status set to ${triage.urgency.label.toUpperCase()}. Health record persisted.',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: triage.urgency.color.withValues(alpha: 0.95),
+      colorText: Colors.white,
+    );
   }
 }
