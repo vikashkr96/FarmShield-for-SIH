@@ -69,36 +69,36 @@ By combining **offline-first field capability (Hive)**, **instant QR animal iden
 
 ### 1. 🔐 Google Authentication & Persistent Sessions (Supabase Auth)
 - **Zero-Friction Single Sign-On (SSO)**: Seamless Google OAuth integrated directly with Supabase Authentication.
-- **Deep Linking Protocol**: Custom URI callback io.supabase.farmshield://login-callback for immediate app resumption on Android/iOS/Web without webview traps.
+- **Deep Linking Protocol**: Custom URI callback `io.supabase.farmshield://login-callback` for immediate app resumption on Android/iOS/Web without webview traps.
 - **Persistent State Gate**: Re-opening the app securely checks existing cached sessions, booting authenticated users directly to the command dashboard with zero login-screen flicker.
-- **Automatic Profile Upsert**: Onboards Google user metadata (full name, email, avatar) into the PostgreSQL public.users table while retaining existing roles and data integrity.
+- **Automatic Profile Upsert**: Onboards Google user metadata (full name, email, avatar) into the PostgreSQL `public.users` table while retaining existing roles and data integrity.
 
 ### 2. 🔍 Dynamic QR Animal Passport & Cloudinary Media Pipeline
-- **Instant Optical Identification**: High-performance camera scanner with fallback manual tag input. Resolves URLs (https://farmshield.in/qr/COW-101), raw tokens, and UUIDs.
+- **Instant Optical Identification**: High-performance camera scanner with fallback manual tag input. Resolves URLs (`https://farmshield.in/qr/COW-101`), raw tokens, and UUIDs.
 - **Optimized Image Ingestion**: Multi-part image picking (Camera / Gallery) with automatic size capping (10MB), extension validation, and upload to Cloudinary.
 - **Clean Media Lifecycle**: Deletes orphaned previous cloud images upon update to conserve storage quotas and persists direct HTTPS URLs to Supabase.
 - **Digital Passport**: Generates verifiable QR digital passports and exportable, tamper-proof veterinary medical health certificates in PDF format.
 
 ### 3. 🧠 Clinical Decision Support & Explainable Triage
 - **Rule-Based Triage Engine**: Transparent clinical logic (100% deterministic, zero opaque AI hallucination) evaluating multi-system syndromic signs:
-  - **FMD (Foot-and-Mouth Disease)**: Oral vesicles, drooling, coronary lesions $\rightarrow$ Urgent Biosecurity Alert.
-  - **LSD (Lumpy Skin Disease)**: Cutaneous nodular eruptive lesions, limb edema $\rightarrow$ High Priority Vector Containment.
-  - **HS (Hemorrhagic Septicemia)**: Submandibular throat edema, acute respiratory distress $\rightarrow$ Critical Emergency.
-  - **Anthrax**: Sudden death, orifice non-clotting hemorrhage $\rightarrow$ Immediate Carcass Handling Precaution (**DO NOT OPEN CARCASS**).
-  - **Clinical Mastitis**: Hard swollen quarters, clot/flake milk $\rightarrow$ Strict milk withholding protocol.
-  - **Bovine Babesiosis (Tick Fever)**: Red urine (hemoglobinuria), high fever $\rightarrow$ Tick acaricide protocol.
+  - **FMD (Foot-and-Mouth Disease)**: Oral vesicles, drooling, coronary lesions &rarr; Urgent Biosecurity Alert.
+  - **LSD (Lumpy Skin Disease)**: Cutaneous nodular eruptive lesions, limb edema &rarr; High Priority Vector Containment.
+  - **HS (Hemorrhagic Septicemia)**: Submandibular throat edema, acute respiratory distress &rarr; Critical Emergency.
+  - **Anthrax**: Sudden death, orifice non-clotting hemorrhage &rarr; Immediate Carcass Handling Precaution (**DO NOT OPEN CARCASS**).
+  - **Clinical Mastitis**: Hard swollen quarters, clot/flake milk &rarr; Strict milk withholding protocol.
+  - **Bovine Babesiosis (Tick Fever)**: Red urine (hemoglobinuria), high fever &rarr; Tick acaricide protocol.
 - **Interactive Triage Sheet**: Live symptom chips, rectal temperature slider, reactive urgency badges, and step-by-step containment checklists.
 
 ### 4. 📊 Herd Health Intelligence & Surveillance
-- **Herd Analytics Dashboard**: Aggregated herd metrics tracking total head count, proportion distributions across health states (Healthy, Under Observation, Affected, Critical, Recovered, Deceased).
+- **Herd Analytics Dashboard**: Aggregated herd metrics tracking total head count, proportion distributions across health states (`Healthy`, `Under Observation`, `Affected`, `Critical`, `Recovered`, `Deceased`).
 - **Vaccination Compliance Index**: Tracks mandatory booster schedules, overdue immunizations, and herd-wide coverage percentages.
-- **Explainable Herd Risk Score (-100$)**: Multi-factor algorithm weighing disease severity, recent clinical velocity (72-hour clusters), and vaccination vulnerabilities.
+- **Explainable Herd Risk Score (0-100)**: Multi-factor algorithm weighing disease severity, recent clinical velocity (72-hour clusters), and vaccination vulnerabilities.
 
 ### 5. ⛅ Meteorological Hazard & THI Heat Stress Modeling
 - **Zero-Key Weather Ingestion**: Integrated with the Open-Meteo REST API (zero cost, zero API keys exposed) with 1-hour local coordinate caching.
-- **Temperature-Humidity Index (THI)** calculation:
-  \text{THI} = (1.8 \times T + 32) - (0.55 - 0.0055 \times RH) \times (1.8 \times T - 26)
-- **Heat Stress Classification**: Normal ($<72$), Alert (-78$), Danger (-88$), Emergency ($\ge 89$).
+- **Temperature-Humidity Index (THI)**:
+  $$\text{THI} = (1.8 \times T + 32) - (0.55 - 0.0055 \times RH) \times (1.8 \times T - 26)$$
+- **Heat Stress Classification**: Normal (&lt; 72), Alert (72-78), Danger (79-88), Emergency (&ge; 89).
 - **Vector-Borne Proliferation Multiplier**: Real-time surge warning for *Culicoides* midges, *Stomoxys* biting flies, and ticks linked directly to LSD and Babesiosis outbreaks.
 
 ### 6. 🗺️ Geospatial Risk Map & Epidemic Heatmaps
@@ -107,7 +107,7 @@ By combining **offline-first field capability (Hive)**, **instant QR animal iden
   - **Hybrid**: Risk heat halos alongside animal and incident markers.
   - **Heatmap**: Weighted semi-transparent gradient circles indicating disease severity.
   - **Markers**: Color-coded pins with interactive bottom sheets detailing clinical findings.
-- **Epidemiological Filtering**: Real-time filtering by pathogen (All, FMD, LSD, HS, Mastitis, Anthrax) and live meteorological risk overlay.
+- **Epidemiological Filtering**: Real-time filtering by pathogen (`All`, `FMD`, `LSD`, `HS`, `Mastitis`, `Anthrax`) and live meteorological risk overlay.
 
 ### 7. 💊 Maximum Residue Limit (MRL) & AMU Governance
 - **AMU Tracker**: Logs antimicrobial usage by active ingredient and class (Highest Priority Critically Important Antimicrobials).
@@ -118,37 +118,35 @@ By combining **offline-first field capability (Hive)**, **instant QR animal iden
 
 ## 🏗️ System Architecture
 
-`
-                               ┌────────────────────────┐
-                               │   Flutter Client App   │
-                               │ (Android, Web, iOS)    │
-                               └───────────┬────────────┘
-                                           │
-         ┌─────────────────────────────────┼────────────────────────────────┐
-         │                                 │                                │
-         ▼                                 ▼                                ▼
-┌──────────────────┐             ┌──────────────────┐             ┌──────────────────┐
-│  Supabase Cloud  │             │ Cloudinary Media │             │  Open-Meteo API  │
-│  - Auth (OAuth)  │             │  - Animal Photos │             │  - Realtime Temp │
-│  - PostgreSQL    │             │  - Evidence Docs │             │  - Rel. Humidity │
-│  - Row Security  │             │  - Auto Resizing │             │  - Vector Hazard │
-│  - Realtime Sync │             └──────────────────┘             └──────────────────┘
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│ Offline Storage  │
-│  - Hive Box      │
-│  - Pending Queue │
-│  - Auto Reconnect│
-└──────────────────┘
-`
+```mermaid
+graph TD
+    subgraph ClientLayer [Client Application Layer]
+        App[Flutter Client App<br/>Android / iOS / Web]
+    end
+
+    subgraph AuthAndCloud [Cloud Backend Services]
+        SupaAuth[Supabase Auth<br/>Google OAuth & Deep Linking]
+        SupaDB[(Supabase PostgreSQL<br/>Animal, Treatments & Users)]
+        Cloudinary[Cloudinary Media CDN<br/>Optimized Images & Documents]
+        OpenMeteo[Open-Meteo REST API<br/>Live Biometeorology & THI]
+    end
+
+    subgraph OfflineCache [Edge Persistence]
+        HiveDB[(Hive Local Cache<br/>Offline Storage & Sync Queue)]
+    end
+
+    App -->|OAuth Token & Profile| SupaAuth
+    App -->|PostgREST Realtime Sync| SupaDB
+    App -->|Upload & Manage Photos| Cloudinary
+    App -->|Weather Queries Cached 1h| OpenMeteo
+    App <-->|Store & Replay Mutex| HiveDB
+```
 
 ---
 
 ## 📁 Repository Structure
 
-`	ext
+```text
 FarmShield-for-SIH/
 ├── farmshield/                      # Main Flutter Application
 │   ├── android/                     # Android Native Config & Deep Link Intents
@@ -178,54 +176,54 @@ FarmShield-for-SIH/
 ├── backend/                         # Node.js / Express Helper Services
 ├── ml_service/                      # Python ML Predictive Services
 └── outputs/                         # Application UI Screenshots
-`
+```
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- **Flutter SDK**: ^3.10.4 or higher
-- **Dart SDK**: ^3.10.4
-- **Android SDK**: API Level 26+ (Android 8.0+)
+- **Flutter SDK**: `^3.10.4` or higher
+- **Dart SDK**: `^3.10.4`
+- **Android SDK**: `API Level 26+` (Android 8.0+)
 - **Supabase Account**: Project configured with Google Auth Provider
 
 ### Installation
 
 1. **Clone the Repository**:
-   `ash
+   ```bash
    git clone https://github.com/vikashkr96/FarmShield-for-SIH.git
    cd FarmShield-for-SIH/farmshield
-   `
+   ```
 
 2. **Install Flutter Dependencies**:
-   `ash
+   ```bash
    flutter pub get
-   `
+   ```
 
 3. **Configure Environment Secrets**:
-   Create or verify armshield/android/app/src/main/res/values/secrets.xml:
-   `xml
+   Create or verify `farmshield/android/app/src/main/res/values/secrets.xml`:
+   ```xml
    <?xml version="1.0" encoding="utf-8"?>
    <resources>
        <string name="google_maps_api_key">YOUR_GOOGLE_MAPS_API_KEY</string>
    </resources>
-   `
+   ```
 
 4. **Run Unit & Integration Tests**:
-   `ash
+   ```bash
    flutter test
-   `
+   ```
    *Expected result: All 35 tests pass with 0 errors.*
 
 5. **Launch Application**:
-   `ash
+   ```bash
    # Launch on connected Android device / emulator
    flutter run
 
    # Launch on Web with Chrome
    flutter run -d chrome
-   `
+   ```
 
 ---
 
@@ -235,24 +233,24 @@ To configure Google OAuth with Supabase in your own instance:
 
 ### 1. Google Cloud Console
 1. Navigate to [Google Cloud Console](https://console.cloud.google.com/).
-2. Under **APIs & Services $\rightarrow$ OAuth consent screen**, set up your app name and contact email.
-3. Under **Credentials $\rightarrow$ Create Credentials $\rightarrow$ OAuth client ID**:
+2. Under **APIs & Services &rarr; OAuth consent screen**, set up your app name and contact email.
+3. Under **Credentials &rarr; Create Credentials &rarr; OAuth client ID**:
    - Application Type: **Web application**.
    - Authorized Redirect URIs:
-     `	ext
+     ```text
      https://<YOUR-SUPABASE-PROJECT-ID>.supabase.co/auth/v1/callback
-     `
+     ```
 4. Copy the **Client ID** and **Client Secret**.
 
 ### 2. Supabase Dashboard
-1. Go to **Authentication $\rightarrow$ Providers $\rightarrow$ Google**:
+1. Go to **Authentication &rarr; Providers &rarr; Google**:
    - Turn **ON** Google provider.
    - Paste your **Client ID** and **Client Secret**.
-2. Go to **Authentication $\rightarrow$ URL Configuration**:
+2. Go to **Authentication &rarr; URL Configuration**:
    - Add to Redirect URLs:
-     `	ext
+     ```text
      io.supabase.farmshield://login-callback
-     `
+     ```
 
 ---
 
@@ -262,16 +260,16 @@ The codebase includes an automated test suite covering all mission-critical algo
 
 | Test Suite | Focus Area | Status |
 |---|---|:---:|
-| health_intelligence_test.dart | Clinical Triage Rules, THI Equations, Herd Health Ratios | ✅ PASS |
-| geospatial_risk_test.dart | Coordinate validation, risk weighting, cluster calculations | ✅ PASS |
-| qr_and_animal_workflow_test.dart | QR URL parsing, Cloudinary Public ID extraction, Animal models | ✅ PASS |
-| uth_flow_test.dart | Role normalization, deep link callback URI formatting | ✅ PASS |
-| widget_test.dart | Design tokens, color palettes, responsive typography | ✅ PASS |
+| `health_intelligence_test.dart` | Clinical Triage Rules, THI Equations, Herd Health Ratios | ✅ PASS |
+| `geospatial_risk_test.dart` | Coordinate validation, risk weighting, cluster calculations | ✅ PASS |
+| `qr_and_animal_workflow_test.dart` | QR URL parsing, Cloudinary Public ID extraction, Animal models | ✅ PASS |
+| `auth_flow_test.dart` | Role normalization, deep link callback URI formatting | ✅ PASS |
+| `widget_test.dart` | Design tokens, color palettes, responsive typography | ✅ PASS |
 
-`ash
+```bash
 flutter test
 # Result: 35/35 passed in ~2.8s
-`
+```
 
 ---
 
