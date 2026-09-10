@@ -1,23 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:printing/printing.dart';
 import 'package:intl/intl.dart';
+import 'package:printing/printing.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_empty_state.dart';
 import '../controllers/reports_controller.dart';
 
 class ReportsView extends GetView<ReportsController> {
-  const ReportsView({Key? key}) : super(key: key);
+  const ReportsView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
           'Compliance & Audit Reports',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
+          style: AppTypography.titleMedium.copyWith(color: Colors.white),
         ),
-        backgroundColor: const Color(0xFF1B5E20),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         actions: [
           IconButton(
@@ -30,7 +34,7 @@ class ReportsView extends GetView<ReportsController> {
             tooltip: 'Export CSV',
             onPressed: () => controller.exportCsv(),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: AppSpacing.sm),
         ],
       ),
       body: Column(
@@ -39,38 +43,27 @@ class ReportsView extends GetView<ReportsController> {
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value) {
-                return const Center(child: CircularProgressIndicator(color: Color(0xFF1B5E20)));
+                return const Center(child: CircularProgressIndicator(color: AppColors.primary));
               }
               if (controller.pdfBytes.value == null) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.picture_as_pdf_outlined, size: 64, color: Colors.blueGrey.shade200),
-                      const SizedBox(height: 12),
-                      Text(
-                        "No data available for this report criteria.",
-                        style: GoogleFonts.poppins(color: Colors.blueGrey.shade500, fontSize: 14),
-                      ),
-                    ],
-                  ),
+                return AppEmptyState(
+                  icon: Icons.picture_as_pdf_outlined,
+                  title: 'No Report Generated',
+                  description: 'No data found matching the selected report criteria and timeframe.',
+                  actionLabel: 'Generate Audit Report',
+                  onAction: () => controller.generatePreview(),
                 );
               }
               return Container(
-                margin: const EdgeInsets.fromLTRB(16, 0, 16, 80),
+                margin: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, 80),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 16,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                  borderRadius: AppSpacing.roundedLg,
+                  boxShadow: AppSpacing.shadowCard,
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: AppSpacing.roundedLg,
                   child: PdfPreview(
                     build: (format) => controller.pdfBytes.value!,
                     useActions: false,
@@ -86,135 +79,112 @@ class ReportsView extends GetView<ReportsController> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => controller.shareReport(),
         label: Text(
-          'Download / Share PDF',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 13),
+          'Export / Share PDF',
+          style: AppTypography.labelMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        icon: const Icon(Icons.file_download_outlined, size: 20),
-        backgroundColor: const Color(0xFF1B5E20),
-        foregroundColor: Colors.white,
+        icon: const Icon(Icons.file_download_outlined, size: 20, color: Colors.white),
+        backgroundColor: AppColors.primary,
       ),
     );
   }
 
   Widget _buildSelectors(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: (Get.width * 0.04).clamp(12.0, 20.0), vertical: 14),
-      margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          )
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Report Configuration',
-            style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFF1B5E20)),
-          ),
-          const SizedBox(height: 10),
-          Obx(() => DropdownButtonFormField<ReportType>(
-                value: controller.selectedReportType.value,
-                isExpanded: true,
-                decoration: InputDecoration(
-                  labelText: 'Report Type',
-                  labelStyle: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade600),
-                  filled: true,
-                  fillColor: const Color(0xFFF8FAFC),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: Colors.grey.shade300)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: Colors.grey.shade200)),
-                  prefixIcon: const Icon(Icons.description_outlined, color: Color(0xFF1B5E20)),
-                ),
-                items: [
-                  DropdownMenuItem(
-                    value: ReportType.passport,
-                    child: Text(
-                      '📄 Official Animal Food Safety Passport',
-                      style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w500),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: AppCard(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Report Configuration & Range',
+              style: AppTypography.titleSmall.copyWith(color: AppColors.primary, fontSize: 13),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Obx(() => DropdownButtonFormField<ReportType>(
+                  initialValue: controller.selectedReportType.value,
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                    labelText: 'Report Type',
+                    prefixIcon: const Icon(Icons.description_outlined, color: AppColors.primary, size: 20),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   ),
-                  DropdownMenuItem(
-                    value: ReportType.amuAudit,
-                    child: Text(
-                      '📊 Monthly Farm AMU Compliance Audit',
-                      style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w500),
-                      overflow: TextOverflow.ellipsis,
+                  items: [
+                    DropdownMenuItem(
+                      value: ReportType.passport,
+                      child: Text('Official Animal Food Safety Passport', style: AppTypography.bodySmall),
                     ),
-                  ),
-                  DropdownMenuItem(
-                    value: ReportType.labResidue,
-                    child: Text(
-                      '📜 Analytical Lab Residue Report',
-                      style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w500),
-                      overflow: TextOverflow.ellipsis,
+                    DropdownMenuItem(
+                      value: ReportType.amuAudit,
+                      child: Text('Monthly Farm AMU Compliance Audit', style: AppTypography.bodySmall),
                     ),
-                  ),
-                ],
-                onChanged: (val) {
-                  if (val != null) {
-                    controller.selectedReportType.value = val;
-                    controller.generatePreview();
-                  }
-                },
-              )),
-          const SizedBox(height: 10),
-          Obx(() => InkWell(
-                borderRadius: BorderRadius.circular(14),
-                onTap: () async {
-                  final range = await showDateRangePicker(
-                    context: context,
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime.now(),
-                    initialDateRange: controller.dateRange.value,
-                    builder: (context, child) {
-                      return Theme(
-                        data: Theme.of(context).copyWith(
-                          colorScheme: const ColorScheme.light(
-                            primary: Color(0xFF1B5E20),
-                            onPrimary: Colors.white,
+                    DropdownMenuItem(
+                      value: ReportType.labResidue,
+                      child: Text('Analytical Lab Residue Report', style: AppTypography.bodySmall),
+                    ),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) {
+                      controller.selectedReportType.value = val;
+                      controller.generatePreview();
+                    }
+                  },
+                )),
+            const SizedBox(height: AppSpacing.sm),
+            Obx(() => InkWell(
+                  borderRadius: AppSpacing.roundedMd,
+                  onTap: () async {
+                    final range = await showDateRangePicker(
+                      context: context,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime.now(),
+                      initialDateRange: controller.dateRange.value,
+                      builder: (context, child) {
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: const ColorScheme.light(
+                              primary: AppColors.primary,
+                              onPrimary: Colors.white,
+                            ),
+                          ),
+                          child: child!,
+                        );
+                      },
+                    );
+                    if (range != null) {
+                      controller.updateDateRange(range);
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceSubtle,
+                      border: Border.all(color: AppColors.border),
+                      borderRadius: AppSpacing.roundedMd,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.date_range_rounded, color: AppColors.primary, size: 18),
+                            const SizedBox(width: 8),
+                            Text('Audit Period', style: AppTypography.bodySmall),
+                          ],
+                        ),
+                        Text(
+                          '${DateFormat('dd MMM yy').format(controller.dateRange.value.start)} - ${DateFormat('dd MMM yy').format(controller.dateRange.value.end)}',
+                          style: AppTypography.labelSmall.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        child: child!,
-                      );
-                    },
-                  );
-                  if (range != null) {
-                    controller.updateDateRange(range);
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
-                    border: Border.all(color: Colors.grey.shade200),
-                    borderRadius: BorderRadius.circular(14),
+                      ],
+                    ),
                   ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.date_range_outlined, color: Color(0xFF1B5E20), size: 20),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          "${DateFormat('dd MMM yyyy').format(controller.dateRange.value.start)} - ${DateFormat('dd MMM yyyy').format(controller.dateRange.value.end)}",
-                          style: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade800, fontWeight: FontWeight.w500),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const Icon(Icons.edit_calendar_outlined, size: 18, color: Colors.blueGrey),
-                    ],
-                  ),
-                ),
-              )),
-        ],
+                )),
+          ],
+        ),
       ),
     );
   }

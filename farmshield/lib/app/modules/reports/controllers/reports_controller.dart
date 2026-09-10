@@ -4,7 +4,6 @@ import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:image_picker/image_picker.dart'; // To get XFile
 import '../../../data/repositories/farm_repository.dart';
 import '../services/pdf_generator_service.dart';
 

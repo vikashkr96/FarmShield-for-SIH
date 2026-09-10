@@ -1,385 +1,397 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:get/get.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_text_field.dart';
 import '../../../data/models/risk_models.dart';
 import '../controllers/risk_assessment_controller.dart';
 
-class RiskAssessmentView extends GetView<RiskAssessmentController> {
-  const RiskAssessmentView({Key? key}) : super(key: key);
+class RiskAssessmentView extends StatefulWidget {
+  const RiskAssessmentView({super.key});
+
+  @override
+  State<RiskAssessmentView> createState() => _RiskAssessmentViewState();
+}
+
+class _RiskAssessmentViewState extends State<RiskAssessmentView> with SingleTickerProviderStateMixin {
+  final RiskAssessmentController controller = Get.find<RiskAssessmentController>();
+
+  late final TabController _tabController;
+
+  // Model A Form Controllers
+  late final TextEditingController _treatments7dCtrl;
+  late final TextEditingController _treatments30dCtrl;
+  late final TextEditingController _amuMg30dCtrl;
+  late final TextEditingController _durationCtrl;
+  final RxString _speciesA = 'cow'.obs;
+  final RxString _drugClassA = 'Fluoroquinolones (CIA)'.obs;
+
+  // Model B Form Controllers
+  late final TextEditingController _drugNameBCtrl;
+  late final TextEditingController _weightBCtrl;
+  late final TextEditingController _doseBCtrl;
+  late final TextEditingController _officialWdBCtrl;
+  late final TextEditingController _daysElapsedBCtrl;
+  final RxString _speciesB = 'cow'.obs;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+
+    _treatments7dCtrl = TextEditingController(text: '2');
+    _treatments30dCtrl = TextEditingController(text: '4');
+    _amuMg30dCtrl = TextEditingController(text: '240');
+    _durationCtrl = TextEditingController(text: '6');
+
+    _drugNameBCtrl = TextEditingController(text: 'Enrofloxacin 10%');
+    _weightBCtrl = TextEditingController(text: '420');
+    _doseBCtrl = TextEditingController(text: '5.0');
+    _officialWdBCtrl = TextEditingController(text: '7');
+    _daysElapsedBCtrl = TextEditingController(text: '3');
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _treatments7dCtrl.dispose();
+    _treatments30dCtrl.dispose();
+    _amuMg30dCtrl.dispose();
+    _durationCtrl.dispose();
+    _drugNameBCtrl.dispose();
+    _weightBCtrl.dispose();
+    _doseBCtrl.dispose();
+    _officialWdBCtrl.dispose();
+    _daysElapsedBCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF8FAFC),
-        appBar: AppBar(
-          title: Text(
-            'ML Diagnostic Risk Engine',
-            style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
-          ),
-          backgroundColor: const Color(0xFF0F172A),
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Get.back(),
-          ),
-          bottom: TabBar(
-            labelColor: Colors.greenAccent,
-            unselectedLabelColor: Colors.white60,
-            indicatorColor: Colors.greenAccent,
-            indicatorWeight: 3,
-            labelStyle: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 13),
-            unselectedLabelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w500, fontSize: 13),
-            tabs: const [
-              Tab(icon: Icon(Icons.analytics_outlined), text: 'Model A: AMU Overuse'),
-              Tab(icon: Icon(Icons.verified_outlined), text: 'Model B: MRL Compliance'),
-            ],
-          ),
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: Text(
+          'ML Diagnostic Risk Engine',
+          style: AppTypography.titleMedium.copyWith(color: Colors.white),
         ),
-        body: TabBarView(
-          children: [
-            _buildOveruseForm(),
-            _buildComplianceForm(),
+        backgroundColor: AppColors.primary,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Colors.white),
+          onPressed: () => Get.back(),
+        ),
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: AppColors.accent,
+          unselectedLabelColor: Colors.white70,
+          indicatorColor: AppColors.accent,
+          indicatorWeight: 3,
+          labelStyle: AppTypography.labelSmall.copyWith(fontWeight: FontWeight.bold),
+          unselectedLabelStyle: AppTypography.labelSmall,
+          tabs: const [
+            Tab(icon: Icon(Icons.analytics_outlined, size: 18), text: 'Model A: AMU Overuse'),
+            Tab(icon: Icon(Icons.verified_outlined, size: 18), text: 'Model B: MRL Compliance'),
           ],
         ),
       ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildOveruseTab(),
+          _buildComplianceTab(),
+        ],
+      ),
     );
   }
 
-  Widget _buildOveruseForm() {
-    final species = 'cow'.obs;
-    final treatments7d = TextEditingController(text: '2');
-    final treatments30d = TextEditingController(text: '4');
-    final amuMg30d = TextEditingController(text: '240');
-    final duration = TextEditingController(text: '6');
-    final drugClass = 'Fluoroquinolones (CIA)'.obs;
-    
+  Widget _buildOveruseTab() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCockpitCard(
-            title: 'Animal & Farm Parameters',
-            icon: Icons.pets,
-            children: [
-              _buildDropdown('Species Category', species, ['cow', 'buffalo', 'goat', 'sheep', 'fishery']),
-              const SizedBox(height: 12),
-              _buildDropdown('Antimicrobial Class', drugClass, [
-                'Fluoroquinolones (CIA)',
-                '3rd Gen Cephalosporins (CIA)',
-                'Tetracyclines',
-                'Penicillins',
-                'Aminoglycosides',
-              ]),
-            ],
+          AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _formHeader('Animal & Drug Category', Icons.pets_rounded),
+                const SizedBox(height: AppSpacing.md),
+                _dropdown('Species Category', _speciesA, ['cow', 'buffalo', 'goat', 'sheep', 'fishery']),
+                const SizedBox(height: AppSpacing.md),
+                _dropdown('Antimicrobial Class', _drugClassA, [
+                  'Fluoroquinolones (CIA)',
+                  '3rd Gen Cephalosporins (CIA)',
+                  'Tetracyclines',
+                  'Penicillins',
+                  'Aminoglycosides',
+                ]),
+              ],
+            ),
           ),
-          const SizedBox(height: 16),
-          _buildCockpitCard(
-            title: 'Clinical Exposure History',
-            icon: Icons.history_edu,
-            children: [
-              Row(
-                children: [
-                  Expanded(child: _buildTextField('Treatments (7d)', treatments7d)),
-                  const SizedBox(width: 12),
-                  Expanded(child: _buildTextField('Treatments (30d)', treatments30d)),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(child: _buildTextField('Total AMU (mg in 30d)', amuMg30d)),
-                  const SizedBox(width: 12),
-                  Expanded(child: _buildTextField('Duration (Days)', duration)),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Obx(() => controller.isLoading.value 
-            ? const Center(child: CircularProgressIndicator(color: Color(0xFF1B5E20)))
-            : Container(
-                width: double.infinity,
-                height: 54,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF1B5E20), Color(0xFF2E7D32)],
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF1B5E20).withOpacity(0.35),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
+          const SizedBox(height: AppSpacing.md),
+          AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _formHeader('Clinical Exposure History', Icons.history_edu_rounded),
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppTextField(
+                        controller: _treatments7dCtrl,
+                        label: 'Treatments (7d)',
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: AppTextField(
+                        controller: _treatments30dCtrl,
+                        label: 'Treatments (30d)',
+                        keyboardType: TextInputType.number,
+                      ),
                     ),
                   ],
                 ),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  onPressed: () {
-                    controller.checkOveruseRisk(OveruseRiskRequest(
-                      species: species.value,
-                      primaryAntimicrobialClass: drugClass.value,
-                      treatmentsLast7d: int.tryParse(treatments7d.text) ?? 2,
-                      treatmentsLast30d: int.tryParse(treatments30d.text) ?? 4,
-                      totalAmuMgLast30d: double.tryParse(amuMg30d.text) ?? 240,
-                      treatmentDurationDays: int.tryParse(duration.text) ?? 6,
-                    ));
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.bolt, color: Colors.greenAccent),
-                      const SizedBox(width: 8),
-                      Text('RUN OVERUSE INFERENCE', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
-                    ],
-                  ),
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppTextField(
+                        controller: _amuMg30dCtrl,
+                        label: 'Total AMU (mg 30d)',
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: AppTextField(
+                        controller: _durationCtrl,
+                        label: 'Duration (Days)',
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ],
                 ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          Obx(() => AppButton(
+                label: 'Run Overuse Risk Inference',
+                icon: Icons.auto_awesome_rounded,
+                isLoading: controller.isLoading.value,
+                isFullWidth: true,
+                height: 52,
+                onPressed: () {
+                  controller.checkOveruseRisk(OveruseRiskRequest(
+                    species: _speciesA.value,
+                    primaryAntimicrobialClass: _drugClassA.value,
+                    treatmentsLast7d: int.tryParse(_treatments7dCtrl.text) ?? 2,
+                    treatmentsLast30d: int.tryParse(_treatments30dCtrl.text) ?? 4,
+                    totalAmuMgLast30d: double.tryParse(_amuMg30dCtrl.text) ?? 240,
+                    treatmentDurationDays: int.tryParse(_durationCtrl.text) ?? 6,
+                  ));
+                },
               )),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xl),
           Obx(() => _buildDiagnosticResult(controller.overuseRisk.value, 'Model A • AMU Risk Analysis')),
-          const SizedBox(height: 40),
+          const SizedBox(height: AppSpacing.xxl),
         ],
       ),
     );
   }
 
-  Widget _buildComplianceForm() {
-    final species = 'cow'.obs;
-    final drugName = TextEditingController(text: 'Enrofloxacin 10%');
-    final weight = TextEditingController(text: '420');
-    final dose = TextEditingController(text: '5.0');
-    final officialWd = TextEditingController(text: '7');
-    final daysElapsed = TextEditingController(text: '3');
-
+  Widget _buildComplianceTab() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCockpitCard(
-            title: 'Subject & Drug Profile',
-            icon: Icons.medication,
-            children: [
-              _buildDropdown('Animal Species', species, ['cow', 'buffalo', 'goat', 'sheep', 'fishery']),
-              const SizedBox(height: 12),
-              _buildTextField('Antimicrobial Drug Name', drugName, isNumeric: false),
-            ],
+          AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _formHeader('Subject & Drug Profile', Icons.medication_rounded),
+                const SizedBox(height: AppSpacing.md),
+                _dropdown('Animal Species', _speciesB, ['cow', 'buffalo', 'goat', 'sheep', 'fishery']),
+                const SizedBox(height: AppSpacing.md),
+                AppTextField(
+                  controller: _drugNameBCtrl,
+                  label: 'Antimicrobial Drug Name',
+                  hint: 'e.g. Enrofloxacin 10%',
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 16),
-          _buildCockpitCard(
-            title: 'Dosage & Withdrawal Metrics',
-            icon: Icons.timer_outlined,
-            children: [
-              Row(
-                children: [
-                  Expanded(child: _buildTextField('Animal Weight (kg)', weight)),
-                  const SizedBox(width: 12),
-                  Expanded(child: _buildTextField('Actual Dose (mg/kg)', dose)),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(child: _buildTextField('Required W/D (Days)', officialWd)),
-                  const SizedBox(width: 12),
-                  Expanded(child: _buildTextField('Days Elapsed', daysElapsed)),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Obx(() => controller.isLoading.value 
-            ? const Center(child: CircularProgressIndicator(color: Color(0xFF0F172A)))
-            : Container(
-                width: double.infinity,
-                height: 54,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF0F172A).withOpacity(0.35),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
+          const SizedBox(height: AppSpacing.md),
+          AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _formHeader('Dosage & Withdrawal Metrics', Icons.timer_outlined),
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppTextField(
+                        controller: _weightBCtrl,
+                        label: 'Weight (kg)',
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: AppTextField(
+                        controller: _doseBCtrl,
+                        label: 'Dose (mg/kg)',
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      ),
                     ),
                   ],
                 ),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  onPressed: () {
-                    controller.checkComplianceRisk(ComplianceRiskRequest(
-                      species: species.value,
-                      drugName: drugName.text,
-                      weightKg: double.tryParse(weight.text) ?? 420.0,
-                      actualDoseMgPerKg: double.tryParse(dose.text) ?? 5.0,
-                      officialWithdrawalPeriodDays: double.tryParse(officialWd.text) ?? 7.0,
-                      daysElapsedSinceTreatment: double.tryParse(daysElapsed.text) ?? 3.0,
-                    ));
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.security, color: Colors.cyanAccent),
-                      const SizedBox(width: 8),
-                      Text('RUN COMPLIANCE INFERENCE', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
-                    ],
-                  ),
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppTextField(
+                        controller: _officialWdBCtrl,
+                        label: 'Official W/D (Days)',
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: AppTextField(
+                        controller: _daysElapsedBCtrl,
+                        label: 'Days Elapsed',
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ],
                 ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          Obx(() => AppButton(
+                label: 'Run MRL Compliance Inference',
+                icon: Icons.security_rounded,
+                isLoading: controller.isLoading.value,
+                isFullWidth: true,
+                height: 52,
+                onPressed: () {
+                  controller.checkComplianceRisk(ComplianceRiskRequest(
+                    species: _speciesB.value,
+                    drugName: _drugNameBCtrl.text,
+                    weightKg: double.tryParse(_weightBCtrl.text) ?? 420.0,
+                    actualDoseMgPerKg: double.tryParse(_doseBCtrl.text) ?? 5.0,
+                    officialWithdrawalPeriodDays: double.tryParse(_officialWdBCtrl.text) ?? 7.0,
+                    daysElapsedSinceTreatment: double.tryParse(_daysElapsedBCtrl.text) ?? 3.0,
+                  ));
+                },
               )),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xl),
           Obx(() => _buildDiagnosticResult(controller.complianceRisk.value, 'Model B • MRL Residue Risk')),
-          const SizedBox(height: 40),
+          const SizedBox(height: AppSpacing.xxl),
         ],
       ),
     );
   }
 
-  Widget _buildCockpitCard({required String title, required IconData icon, required List<Widget> children}) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+  Widget _formHeader(String title, IconData icon) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: AppColors.primarySoft,
+            borderRadius: AppSpacing.roundedSm,
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0F172A).withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(10),
+          child: Icon(icon, size: 16, color: AppColors.primary),
+        ),
+        const SizedBox(width: 8),
+        Text(title, style: AppTypography.titleSmall),
+      ],
+    );
+  }
+
+  Widget _dropdown(String label, RxString value, List<String> items) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: AppTypography.labelSmall),
+        const SizedBox(height: 6),
+        Obx(() => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: AppSpacing.roundedMd,
+                border: Border.all(color: AppColors.border),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: value.value,
+                  isExpanded: true,
+                  items: items
+                      .map((e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(
+                              e.contains('_')
+                                  ? e.split('_').map((w) => w.capitalizeFirst ?? w).join(' ')
+                                  : (e.capitalizeFirst ?? e),
+                              style: AppTypography.bodySmall,
+                            ),
+                          ))
+                      .toList(),
+                  onChanged: (val) {
+                    if (val != null) value.value = val;
+                  },
                 ),
-                child: Icon(icon, size: 18, color: const Color(0xFF0F172A)),
               ),
-              const SizedBox(width: 10),
-              Text(
-                title,
-                style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 14, color: const Color(0xFF0F172A)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          ...children,
-        ],
-      ),
+            )),
+      ],
     );
-  }
-
-  Widget _buildTextField(String label, TextEditingController ctrl, {bool isNumeric = true}) {
-    return TextField(
-      controller: ctrl,
-      keyboardType: isNumeric ? const TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade600),
-        filled: true,
-        fillColor: const Color(0xFFF8FAFC),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade200),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF1B5E20), width: 1.5),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDropdown(String label, RxString value, List<String> items) {
-    return Obx(() => DropdownButtonFormField<String>(
-      value: value.value,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade600),
-        filled: true,
-        fillColor: const Color(0xFFF8FAFC),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade200),
-        ),
-      ),
-      items: items.map((e) => DropdownMenuItem(value: e, child: Text(e, style: GoogleFonts.poppins(fontSize: 13)))).toList(),
-      onChanged: (val) {
-        if (val != null) value.value = val;
-      },
-    ));
   }
 
   Widget _buildDiagnosticResult(RiskResponse? risk, String engineHeader) {
     if (risk == null) return const SizedBox.shrink();
-    
+
     final level = risk.riskLevel?.toUpperCase() ?? 'LOW';
     Color themeColor;
     Color bgColor;
     if (level == 'HIGH') {
-      themeColor = const Color(0xFFDC2626);
-      bgColor = const Color(0xFFFEF2F2);
+      themeColor = AppColors.danger;
+      bgColor = AppColors.dangerBg;
     } else if (level == 'MEDIUM') {
-      themeColor = const Color(0xFFD97706);
-      bgColor = const Color(0xFFFFFBEB);
+      themeColor = AppColors.warning;
+      bgColor = AppColors.warningBg;
     } else {
-      themeColor = const Color(0xFF16A34A);
-      bgColor = const Color(0xFFF0FDF4);
+      themeColor = AppColors.success;
+      bgColor = AppColors.successBg;
     }
 
     final score = risk.riskScore ?? (level == 'HIGH' ? 0.85 : (level == 'MEDIUM' ? 0.45 : 0.12));
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: themeColor.withOpacity(0.3), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: themeColor.withOpacity(0.12),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
+    return AppCard(
+      padding: EdgeInsets.zero,
+      borderColor: themeColor.withValues(alpha: 0.35),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
             decoration: BoxDecoration(
               color: bgColor,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusLg)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -390,26 +402,26 @@ class RiskAssessmentView extends GetView<RiskAssessmentController> {
                     const SizedBox(width: 8),
                     Text(
                       engineHeader,
-                      style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 12, color: themeColor),
+                      style: AppTypography.labelSmall.copyWith(color: themeColor, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(
                     color: themeColor,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: AppSpacing.roundedFull,
                   ),
                   child: Text(
                     '$level RISK',
-                    style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                    style: AppTypography.labelSmall.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -419,88 +431,74 @@ class RiskAssessmentView extends GetView<RiskAssessmentController> {
                       alignment: Alignment.center,
                       children: [
                         SizedBox(
-                          width: 80,
-                          height: 80,
+                          width: 72,
+                          height: 72,
                           child: CircularProgressIndicator(
                             value: score.clamp(0.0, 1.0),
-                            backgroundColor: Colors.grey.shade100,
+                            backgroundColor: AppColors.slate200,
                             valueColor: AlwaysStoppedAnimation<Color>(themeColor),
-                            strokeWidth: 8,
+                            strokeWidth: 7,
                           ),
                         ),
                         Text(
                           '${(score * 100).toInt()}%',
-                          style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: themeColor),
+                          style: AppTypography.titleMedium.copyWith(color: themeColor, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
-                    const SizedBox(width: 20),
+                    const SizedBox(width: AppSpacing.lg),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             risk.clearanceBadge ?? (level == 'HIGH' ? 'WITHHOLD ALL PRODUCTS' : 'CLEARED FOR USE'),
-                            style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.bold, color: themeColor),
+                            style: AppTypography.titleSmall.copyWith(color: themeColor, fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 2),
                           Text(
-                            'Risk Metric: ${score.toStringAsFixed(4)} (Threshold: 0.500)',
-                            style: GoogleFonts.poppins(fontSize: 11, color: Colors.blueGrey.shade600),
+                            'Confidence Metric: ${score.toStringAsFixed(4)} (Threshold: 0.500)',
+                            style: AppTypography.bodySmall,
                           ),
                         ],
                       ),
                     ),
                   ],
                 ),
-                const Divider(height: 32),
-                Text('Diagnostic Reason Codes:', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 13)),
-                const SizedBox(height: 8),
+                const Divider(height: 28),
+                Text('Diagnostic Reason Codes:', style: AppTypography.labelSmall.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 6),
                 ...(risk.reasonCodes ?? ['Normal clinical parameters within therapeutic tolerances']).map((code) => Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Icon(Icons.check_circle, size: 14, color: themeColor),
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.check_circle_rounded, size: 14, color: themeColor),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(code, style: AppTypography.bodySmall)),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          code,
-                          style: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade800),
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
-                const SizedBox(height: 16),
+                    )),
+                const SizedBox(height: AppSpacing.md),
                 Container(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.grey.shade200),
+                    color: AppColors.surfaceSubtle,
+                    borderRadius: AppSpacing.roundedMd,
+                    border: Border.all(color: AppColors.border),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.medical_services_outlined, size: 20, color: Color(0xFF1B5E20)),
-                      const SizedBox(width: 10),
+                      const Icon(Icons.shield_outlined, size: 18, color: AppColors.primary),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Action Protocol',
-                              style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 12, color: const Color(0xFF1B5E20)),
-                            ),
+                            Text('Action Protocol', style: AppTypography.labelSmall.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
                             const SizedBox(height: 2),
-                            Text(
-                              risk.recommendedAction ?? 'Follow standard withdrawal periods.',
-                              style: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade700),
-                            ),
+                            Text(risk.recommendedAction ?? 'Follow standard withdrawal periods.', style: AppTypography.bodySmall),
                           ],
                         ),
                       ),
@@ -512,6 +510,6 @@ class RiskAssessmentView extends GetView<RiskAssessmentController> {
           ),
         ],
       ),
-    ).animate().fadeIn(duration: const Duration(milliseconds: 350)).scale(begin: const Offset(0.95, 0.95));
+    ).animate().fadeIn(duration: const Duration(milliseconds: 300)).scale(begin: const Offset(0.96, 0.96));
   }
 }

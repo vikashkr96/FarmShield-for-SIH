@@ -63,7 +63,7 @@ class FcmAlertService extends GetxService {
       ),
       messageText: Text(
         alert.message ?? '',
-        style: GoogleFonts.poppins(color: Colors.white.withOpacity(0.9), fontSize: 12),
+        style: GoogleFonts.poppins(color: Colors.white.withValues(alpha: 0.9), fontSize: 12),
       ),
       backgroundColor: bannerColor,
       snackPosition: SnackPosition.TOP,
@@ -72,7 +72,7 @@ class FcmAlertService extends GetxService {
       duration: const Duration(seconds: 5),
       boxShadows: [
         BoxShadow(
-          color: bannerColor.withOpacity(0.4),
+          color: bannerColor.withValues(alpha: 0.4),
           blurRadius: 16,
           offset: const Offset(0, 4),
         ),

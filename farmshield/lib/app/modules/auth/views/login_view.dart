@@ -1,409 +1,196 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../controllers/auth_controller.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_text_field.dart';
 import '../../../routes/app_pages.dart';
+import '../controllers/auth_controller.dart';
 
-class LoginView extends GetView<AuthController> {
-  const LoginView({Key? key}) : super(key: key);
+class LoginView extends StatefulWidget {
+  const LoginView({super.key});
+
+  @override
+  State<LoginView> createState() => _LoginViewState();
+}
+
+class _LoginViewState extends State<LoginView> {
+  final AuthController controller = Get.find<AuthController>();
+
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _otpController;
+
+  bool _isPasswordHidden = true;
+  bool _otpSent = false;
+  int _activeTabIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+    _phoneController = TextEditingController();
+    _otpController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _phoneController.dispose();
+    _otpController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
-    final phoneController = TextEditingController();
-    final otpController = TextEditingController();
-    final RxBool otpSent = false.obs;
-    final RxBool isPasswordHidden = true.obs;
-    final RxInt activeTabIndex = 0.obs;
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: (Get.width * 0.06).clamp(18.0, 26.0),
-                    vertical: 12.0,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 8),
-                      // 1. Lowered & Refined Brand Header
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF1B5E20),
-                              borderRadius: BorderRadius.circular(14),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(0xFF1B5E20).withOpacity(0.25),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(Icons.shield_rounded, color: Colors.greenAccent, size: 40),
-                          ),
-                          const SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "FarmShield",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 35,
-                                  fontWeight: FontWeight.w800,
-                                  color: const Color(0xFF0F172A),
-                                  letterSpacing: 0.2,
-                                ),
-                              ),
-                              Text(
-                                "Livestock Safety & AMU Portal",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  color: Colors.blueGrey.shade600,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 50),
+        child: Center(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl, vertical: AppSpacing.lg),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 440),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: AppSpacing.xxl),
+                  _buildRoleSelector(),
+                  const SizedBox(height: AppSpacing.lg),
+                  _buildAuthCard(),
+                  const SizedBox(height: AppSpacing.xl),
+                  _buildRegisterPrompt(),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-                      // 2. Role Selection Section
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 4, bottom: 6),
-                          child: Text(
-                            "Select Your Role",
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 12.5,
-                              color: Colors.blueGrey.shade800,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Obx(() => Row(
-                            children: [
-                              Expanded(child: _buildRoleCard('farmer', 'Farmer', '👨‍🌾')),
-                              const SizedBox(width: 8),
-                              Expanded(child: _buildRoleCard('veterinarian', 'Vet', '🩺')),
-                              const SizedBox(width: 8),
-                              Expanded(child: _buildRoleCard('admin', 'Admin', '🏢')),
-                            ],
-                          )),
-                      const SizedBox(height: 14),
+  Widget _buildHeader() {
+    return Column(
+      children: [
+        Container(
+          width: 72,
+          height: 72,
+          decoration: BoxDecoration(
+            gradient: AppColors.primaryGradient,
+            shape: BoxShape.circle,
+            boxShadow: AppSpacing.shadowPrimary,
+          ),
+          child: const Center(
+            child: Icon(Icons.shield_rounded, color: AppColors.accent, size: 38),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Text(
+          'FarmShield',
+          style: AppTypography.displayLarge.copyWith(
+            color: AppColors.primary,
+            letterSpacing: -0.5,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          'Livestock Health & MRL Regulatory Portal',
+          style: AppTypography.bodySmall.copyWith(
+            color: AppColors.textSecondary,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
 
-                      // 3. Main Auth Card
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(22),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
-                              blurRadius: 18,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Segmented Switcher
-                            Obx(() => Container(
-                                  height: 38,
-                                  padding: const EdgeInsets.all(3),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFF1F5F9),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: _buildTabButton(
-                                          title: "Email & Password",
-                                          isSelected: activeTabIndex.value == 0,
-                                          onTap: () => activeTabIndex.value = 0,
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: _buildTabButton(
-                                          title: "Mobile OTP",
-                                          isSelected: activeTabIndex.value == 1,
-                                          onTap: () => activeTabIndex.value = 1,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )),
-                            const SizedBox(height: 12),
-
-                            // Tab Form Content
-                            Obx(() {
-                              if (activeTabIndex.value == 0) {
-                                return Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    _buildInputField(
-                                      controller: emailController,
-                                      label: "Email Address",
-                                      hint: "e.g. farmer.ramesh@farmshield.gov.in",
-                                      icon: Icons.email_outlined,
-                                      keyboardType: TextInputType.emailAddress,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Obx(() => _buildInputField(
-                                          controller: passwordController,
-                                          label: "Password",
-                                          hint: "••••••••",
-                                          icon: Icons.lock_outline_rounded,
-                                          isPassword: isPasswordHidden.value,
-                                          suffixIcon: IconButton(
-                                            icon: Icon(
-                                              isPasswordHidden.value ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                              size: 18,
-                                              color: Colors.blueGrey,
-                                            ),
-                                            onPressed: () => isPasswordHidden.toggle(),
-                                          ),
-                                        )),
-                                    const SizedBox(height: 12),
-                                    Obx(() => _buildPrimaryButton(
-                                          context,
-                                          label: "Sign In",
-                                          isLoading: controller.isLoading.value,
-                                          onPressed: () => controller.signInWithEmail(
-                                            emailController.text.trim(),
-                                            passwordController.text.trim(),
-                                          ),
-                                        )),
-                                  ],
-                                );
-                              } else {
-                                return Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    _buildInputField(
-                                      controller: phoneController,
-                                      label: "Mobile Number",
-                                      hint: "+91 9876543210",
-                                      icon: Icons.phone_android_rounded,
-                                      keyboardType: TextInputType.phone,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Obx(() => otpSent.value
-                                        ? _buildInputField(
-                                            controller: otpController,
-                                            label: "6-digit OTP",
-                                            hint: "123456",
-                                            icon: Icons.verified_user_outlined,
-                                            keyboardType: TextInputType.number,
-                                          )
-                                        : const SizedBox.shrink()),
-                                    if (otpSent.value) const SizedBox(height: 8),
-                                    Obx(() => _buildPrimaryButton(
-                                          context,
-                                          label: otpSent.value ? "Verify & Sign In" : "Send Login OTP",
-                                          isLoading: controller.isLoading.value,
-                                          onPressed: () async {
-                                            if (!otpSent.value) {
-                                              await controller.signInWithPhoneOTP(phoneController.text.trim());
-                                              otpSent.value = true;
-                                            } else {
-                                              await controller.verifyPhoneOTP(
-                                                phoneController.text.trim(),
-                                                otpController.text.trim(),
-                                              );
-                                            }
-                                          },
-                                        )),
-                                  ],
-                                );
-                              }
-                            }),
-
-                            const SizedBox(height: 12),
-
-                            // Divider
-                            Row(
-                              children: [
-                                Expanded(child: Divider(color: Colors.grey.shade200, thickness: 1)),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                                  child: Text(
-                                    "OR",
-                                    style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.blueGrey.shade400),
-                                  ),
-                                ),
-                                Expanded(child: Divider(color: Colors.grey.shade200, thickness: 1)),
-                              ],
-                            ),
-
-                            const SizedBox(height: 12),
-
-                            // Google Sign In Button
-                            _buildGoogleSignInButton(
-                              onPressed: () => controller.signInWithGoogle(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-
-                      // 4. Fixed Bottom Registration Link
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "New to FarmShield? ",
-                            style: GoogleFonts.poppins(color: Colors.blueGrey.shade600, fontSize: 13),
-                          ),
-                          GestureDetector(
-                            onTap: () => Get.toNamed(Routes.REGISTER),
-                            child: Text(
-                              "Register Now",
-                              style: GoogleFonts.poppins(
-                                color: const Color(0xFF1B5E20),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                    ],
+  Widget _buildRoleSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            'SELECT ACCOUNT ROLE',
+            style: AppTypography.labelSmall.copyWith(
+              color: AppColors.textSecondary,
+              letterSpacing: 0.8,
+            ),
+          ),
+        ),
+        Obx(() => Row(
+              children: [
+                Expanded(
+                  child: _roleOption(
+                    role: 'farmer',
+                    label: 'Farmer',
+                    icon: Icons.agriculture_rounded,
                   ),
                 ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTabButton({required String title, required bool isSelected, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
-                    blurRadius: 4,
-                    offset: const Offset(0, 1),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: _roleOption(
+                    role: 'veterinarian',
+                    label: 'Veterinarian',
+                    icon: Icons.medical_services_rounded,
                   ),
-                ]
-              : null,
-        ),
-        child: Text(
-          title,
-          style: GoogleFonts.poppins(
-            fontSize: 11.5,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            color: isSelected ? const Color(0xFF1B5E20) : Colors.blueGrey.shade600,
-          ),
-        ),
-      ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: _roleOption(
+                    role: 'admin',
+                    label: 'Authority',
+                    icon: Icons.admin_panel_settings_rounded,
+                  ),
+                ),
+              ],
+            )),
+      ],
     );
   }
 
-  Widget _buildInputField({
-    required TextEditingController controller,
+  Widget _roleOption({
+    required String role,
     required String label,
-    required String hint,
     required IconData icon,
-    bool isPassword = false,
-    Widget? suffixIcon,
-    TextInputType keyboardType = TextInputType.text,
   }) {
-    return TextField(
-      controller: controller,
-      obscureText: isPassword,
-      keyboardType: keyboardType,
-      style: GoogleFonts.poppins(fontSize: 13, color: Colors.blueGrey.shade900),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: GoogleFonts.poppins(fontSize: 11.5, color: Colors.blueGrey.shade500),
-        hintText: hint,
-        hintStyle: GoogleFonts.poppins(fontSize: 11.5, color: Colors.blueGrey.shade300),
-        filled: true,
-        fillColor: const Color(0xFFF8FAFC),
-        prefixIcon: Icon(icon, color: const Color(0xFF1B5E20), size: 18),
-        suffixIcon: suffixIcon,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        isDense: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade200),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF1B5E20), width: 1.5),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRoleCard(String role, String label, String emoji) {
     final isSelected = controller.selectedRole.value == role;
+
     return GestureDetector(
       onTap: () => controller.selectedRole.value = role,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF1B5E20).withOpacity(0.08) : Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          color: isSelected ? AppColors.primarySoft : AppColors.surface,
+          borderRadius: AppSpacing.roundedMd,
           border: Border.all(
-            color: isSelected ? const Color(0xFF1B5E20) : Colors.grey.shade200,
-            width: isSelected ? 2 : 1,
+            color: isSelected ? AppColors.primary : AppColors.border,
+            width: isSelected ? 1.6 : 1.0,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: const Color(0xFF1B5E20).withOpacity(0.1),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
+          boxShadow: isSelected ? AppSpacing.shadowSubtle : null,
         ),
         child: Column(
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 20)),
-            const SizedBox(height: 2),
+            Icon(
+              icon,
+              size: 22,
+              color: isSelected ? AppColors.primary : AppColors.slate400,
+            ),
+            const SizedBox(height: 6),
             Text(
               label,
-              style: GoogleFonts.poppins(
-                fontSize: 11.5,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                color: isSelected ? const Color(0xFF1B5E20) : Colors.blueGrey.shade700,
+              style: AppTypography.labelSmall.copyWith(
+                color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
           ],
@@ -412,67 +199,199 @@ class LoginView extends GetView<AuthController> {
     );
   }
 
-  Widget _buildPrimaryButton(
-    BuildContext context, {
-    required String label,
-    required bool isLoading,
-    required VoidCallback onPressed,
-  }) {
-    return SizedBox(
-      width: double.infinity,
-      height: 44,
-      child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF1B5E20),
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-        child: isLoading
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.2),
-              )
-            : Text(label, style: GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.bold)),
+  Widget _buildAuthCard() {
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Segmented Tab Switcher
+          Container(
+            height: 42,
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              color: AppColors.slate100,
+              borderRadius: AppSpacing.roundedSm,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _tabButton('Email & Password', _activeTabIndex == 0, () {
+                    setState(() => _activeTabIndex = 0);
+                  }),
+                ),
+                Expanded(
+                  child: _tabButton('Mobile OTP', _activeTabIndex == 1, () {
+                    setState(() => _activeTabIndex = 1);
+                  }),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+
+          if (_activeTabIndex == 0) ...[
+            AppTextField(
+              controller: _emailController,
+              label: 'Email Address',
+              hint: 'e.g. farmer@farmshield.gov.in',
+              prefixIcon: Icons.email_outlined,
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            AppTextField(
+              controller: _passwordController,
+              label: 'Password',
+              hint: '••••••••',
+              prefixIcon: Icons.lock_outline_rounded,
+              obscureText: _isPasswordHidden,
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _isPasswordHidden ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                  size: 20,
+                  color: AppColors.slate400,
+                ),
+                onPressed: () => setState(() => _isPasswordHidden = !_isPasswordHidden),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Obx(() => AppButton(
+                  label: 'Sign In to Portal',
+                  icon: Icons.login_rounded,
+                  isLoading: controller.isLoading.value,
+                  isFullWidth: true,
+                  onPressed: () {
+                    final email = _emailController.text.trim();
+                    final password = _passwordController.text.trim();
+                    if (email.isEmpty || password.isEmpty) {
+                      Get.snackbar('Validation', 'Please enter email and password',
+                          snackPosition: SnackPosition.BOTTOM);
+                      return;
+                    }
+                    controller.signInWithEmail(email, password);
+                  },
+                )),
+          ] else ...[
+            AppTextField(
+              controller: _phoneController,
+              label: 'Mobile Number',
+              hint: '+91 9876543210',
+              prefixIcon: Icons.phone_iphone_rounded,
+              keyboardType: TextInputType.phone,
+            ),
+            if (_otpSent) ...[
+              const SizedBox(height: AppSpacing.md),
+              AppTextField(
+                controller: _otpController,
+                label: 'Enter 6-Digit OTP',
+                hint: '123456',
+                prefixIcon: Icons.verified_user_outlined,
+                keyboardType: TextInputType.number,
+              ),
+            ],
+            const SizedBox(height: AppSpacing.lg),
+            Obx(() => AppButton(
+                  label: _otpSent ? 'Verify & Continue' : 'Send Verification OTP',
+                  icon: _otpSent ? Icons.check_circle_outline_rounded : Icons.send_rounded,
+                  isLoading: controller.isLoading.value,
+                  isFullWidth: true,
+                  onPressed: () async {
+                    final phone = _phoneController.text.trim();
+                    if (phone.isEmpty) {
+                      Get.snackbar('Validation', 'Please enter mobile number',
+                          snackPosition: SnackPosition.BOTTOM);
+                      return;
+                    }
+                    if (!_otpSent) {
+                      await controller.signInWithPhoneOTP(phone);
+                      setState(() => _otpSent = true);
+                    } else {
+                      final otp = _otpController.text.trim();
+                      if (otp.length < 4) {
+                        Get.snackbar('Validation', 'Please enter valid OTP',
+                            snackPosition: SnackPosition.BOTTOM);
+                        return;
+                      }
+                      await controller.verifyPhoneOTP(phone, otp);
+                    }
+                  },
+                )),
+          ],
+
+          const SizedBox(height: AppSpacing.lg),
+
+          // Divider
+          Row(
+            children: [
+              const Expanded(child: Divider(color: AppColors.border)),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                child: Text(
+                  'OR',
+                  style: AppTypography.labelSmall.copyWith(
+                    color: AppColors.slate400,
+                  ),
+                ),
+              ),
+              const Expanded(child: Divider(color: AppColors.border)),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.lg),
+
+          // Google Sign-in Button
+          AppButton(
+            label: 'Continue with Google',
+            variant: AppButtonVariant.outline,
+            isFullWidth: true,
+            icon: Icons.g_mobiledata_rounded,
+            onPressed: () => controller.signInWithGoogle(),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildGoogleSignInButton({required VoidCallback onPressed}) {
-    return SizedBox(
-      width: double.infinity,
-      height: 44,
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          backgroundColor: Colors.white,
-          side: BorderSide(color: Colors.grey.shade300),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          padding: const EdgeInsets.symmetric(horizontal: 14),
+  Widget _tabButton(String title, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
+          boxShadow: isSelected ? AppSpacing.shadowSubtle : null,
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.network(
-              'https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png',
-              width: 20,
-              height: 20,
-              errorBuilder: (_, __, ___) => const Icon(Icons.g_mobiledata, size: 24, color: Colors.red),
-            ),
-            const SizedBox(width: 10),
-            Text(
-              "Continue with Google",
-              style: GoogleFonts.poppins(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Colors.blueGrey.shade900,
-              ),
-            ),
-          ],
+        child: Text(
+          title,
+          style: AppTypography.labelSmall.copyWith(
+            color: isSelected ? AppColors.primary : AppColors.textSecondary,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildRegisterPrompt() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          "Don't have an account? ",
+          style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+        ),
+        GestureDetector(
+          onTap: () => Get.toNamed(Routes.REGISTER),
+          child: Text(
+            'Register Now',
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.primary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

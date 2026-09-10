@@ -46,6 +46,8 @@ class Animal {
       );
 
   Map<String, dynamic> toJson() => {
+        "id": id,
+        "farm_id": farmId,
         "animal_code": animalCode,
         "species": species,
         "breed": breed,
@@ -53,7 +55,26 @@ class Animal {
         "sex": sex,
         "weight": weightKg,
         "purpose": purpose,
+        "health_status": healthStatus,
+        "qr_token": qrToken,
         "image_url": imageUrl,
+        "fishery_details": fisheryDetails,
+      };
+
+  Map<String, dynamic> toMap() => {
+        "id": id,
+        "farm_id": farmId,
+        "animal_code": animalCode,
+        "species": species,
+        "breed": breed,
+        "dob": dob?.toIso8601String().split('T')[0],
+        "sex": sex,
+        "weight": weightKg,
+        "purpose": purpose,
+        "health_status": healthStatus,
+        "qr_token": qrToken,
+        "image_url": imageUrl,
+        "fishery_details": fisheryDetails,
       };
 }
 

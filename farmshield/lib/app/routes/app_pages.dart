@@ -24,6 +24,8 @@ import '../modules/medicines_catalog/bindings/medicines_catalog_binding.dart';
 import '../modules/medicines_catalog/views/medicines_catalog_view.dart';
 import '../modules/reports/bindings/reports_binding.dart';
 import '../modules/reports/views/reports_view.dart';
+import '../modules/syndromic_report/bindings/syndromic_report_binding.dart';
+import '../modules/syndromic_report/views/syndromic_report_view.dart';
 
 part 'app_routes.dart';
 
@@ -50,7 +52,7 @@ class AppPages {
       name: _Paths.RISK_ASSESSMENT,
       page: () => const RiskAssessmentView(),
       binding: RiskAssessmentBinding(),
-      ),
+    ),
     GetPage(
       name: _Paths.ANIMAL_PASSPORT,
       page: () => const AnimalPassportView(),
@@ -95,6 +97,11 @@ class AppPages {
       name: _Paths.REPORTS,
       page: () => const ReportsView(),
       binding: ReportsBinding(),
+    ),
+    GetPage(
+      name: _Paths.SYNDROMIC_REPORT,
+      page: () => const SyndromicReportView(),
+      binding: SyndromicReportBinding(),
     ),
   ];
 }

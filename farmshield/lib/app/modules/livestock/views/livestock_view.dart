@@ -1,72 +1,122 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../core/values/breed_assets.dart';
+import '../../../core/widgets/app_badge.dart';
+import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_empty_state.dart';
+import '../../../core/widgets/app_loading_skeleton.dart';
+import '../../../core/widgets/app_text_field.dart';
 import '../../../data/models/farm_models.dart';
 import '../../../routes/app_pages.dart';
-import '../../../core/values/breed_assets.dart';
 import '../controllers/livestock_controller.dart';
-import 'widgets/category_tile.dart';
 
 class LivestockView extends GetView<LivestockController> {
-  const LivestockView({Key? key}) : super(key: key);
+  const LivestockView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Livestock Inventory', 
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.white)),
-        backgroundColor: Colors.green.shade700,
+        title: Text(
+          'Livestock Registry',
+          style: AppTypography.titleMedium.copyWith(color: Colors.white),
+        ),
+        backgroundColor: AppColors.primary,
         elevation: 0,
-        centerTitle: true,
+        centerTitle: false,
         actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 8),
-            child: IconButton(
-              icon: const Icon(Icons.add_circle_outline, color: Colors.white, size: 28),
-              onPressed: () => _showAddAnimalDialog(context),
-            ),
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: Colors.white),
+            tooltip: 'Refresh Inventory',
+            onPressed: () => controller.fetchAnimals(),
           ),
+          IconButton(
+            icon: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: AppColors.accent,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.add_rounded, color: AppColors.primaryDark, size: 20),
+            ),
+            tooltip: 'Register Animal',
+            onPressed: () => _showAddAnimalDialog(context),
+          ),
+          const SizedBox(width: AppSpacing.sm),
         ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.only(top: 16, bottom: 8),
-            color: Colors.green.shade700,
-            child: _buildSpeciesFilter(),
-          ),
-          const SizedBox(height: 16),
+          _buildSpeciesFilterBar(),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Obx(() => Text(
-              '${controller.selectedSpecies.value.capitalizeFirst} Herd',
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.blueGrey.shade900,
-              ),
-            )),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+            child: Obx(() => Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${controller.selectedSpecies.value.capitalizeFirst} Herd',
+                      style: AppTypography.titleMedium.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      '${controller.state?.length ?? 0} animals',
+                      style: AppTypography.labelSmall.copyWith(
+                        color: AppColors.textMuted,
+                      ),
+                    ),
+                  ],
+                )),
           ),
-          const SizedBox(height: 12),
           Expanded(
             child: controller.obx(
-              (animals) => ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                itemCount: animals?.length ?? 0,
-                physics: const BouncingScrollPhysics(),
-                itemBuilder: (context, index) {
-                  final animal = animals![index];
-                  return _buildAnimalCard(animal);
-                },
+              (animals) {
+                if (animals == null || animals.isEmpty) {
+                  return AppEmptyState(
+                    icon: Icons.pets_rounded,
+                    title: 'No Livestock Found',
+                    description: 'No animals registered in this category yet. Tap below to register your first animal.',
+                    actionLabel: 'Register Animal',
+                    onAction: () => _showAddAnimalDialog(context),
+                  );
+                }
+
+                return RefreshIndicator(
+                  color: AppColors.primary,
+                  onRefresh: () => controller.fetchAnimals(),
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+                    itemCount: animals.length,
+                    physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                    itemBuilder: (context, index) {
+                      final animal = animals[index];
+                      return _buildAnimalCard(animal, index);
+                    },
+                  ),
+                );
+              },
+              onLoading: ListView.builder(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                itemCount: 4,
+                itemBuilder: (context, index) => Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                  child: AppLoadingSkeleton.card(height: 100),
+                ),
               ),
-              onLoading: const Center(child: CircularProgressIndicator()),
-              onEmpty: _buildEmptyState(),
-              onError: (err) => Center(child: Text('Error: $err')),
+              onError: (err) => AppEmptyState.error(
+                message: err,
+                onRetry: () => controller.fetchAnimals(),
+              ),
             ),
           ),
         ],
@@ -74,171 +124,171 @@ class LivestockView extends GetView<LivestockController> {
     );
   }
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.pets_outlined, size: 80, color: Colors.grey.shade300),
-          const SizedBox(height: 16),
-          Text(
-            'No animals found in this category',
-            style: GoogleFonts.poppins(color: Colors.grey.shade600, fontSize: 16),
-          ),
-        ],
+  Widget _buildSpeciesFilterBar() {
+    final List<Map<String, dynamic>> categories = [
+      {'id': 'all', 'label': 'All Herd', 'icon': Icons.grid_view_rounded},
+      {'id': 'cow', 'label': 'Cattle', 'icon': Icons.pets_rounded},
+      {'id': 'buffalo', 'label': 'Buffalo', 'icon': Icons.pets_outlined},
+      {'id': 'goat', 'label': 'Goat', 'icon': Icons.cruelty_free_rounded},
+      {'id': 'sheep', 'label': 'Sheep', 'icon': Icons.cruelty_free_outlined},
+      {'id': 'fishery', 'label': 'Fishery', 'icon': Icons.water_rounded},
+    ];
+
+    return Container(
+      color: AppColors.surface,
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        child: Obx(() => Row(
+              children: categories.map<Widget>((cat) {
+                final isSelected = controller.selectedSpecies.value == cat['id'];
+                return Padding(
+                  padding: const EdgeInsets.only(right: AppSpacing.sm),
+                  child: GestureDetector(
+                    onTap: () => controller.selectedSpecies.value = cat['id'],
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected ? AppColors.primary : AppColors.surfaceSubtle,
+                        borderRadius: AppSpacing.roundedFull,
+                        border: Border.all(
+                          color: isSelected ? AppColors.primary : AppColors.border,
+                          width: 1.0,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            cat['icon'] as IconData,
+                            size: 16,
+                            color: isSelected ? Colors.white : AppColors.textSecondary,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            cat['label'] as String,
+                            style: AppTypography.labelSmall.copyWith(
+                              color: isSelected ? Colors.white : AppColors.textSecondary,
+                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            )),
       ),
     );
   }
 
-  Widget _buildAnimalCard(Animal animal) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(24),
-          onTap: () => Get.toNamed(Routes.ANIMAL_DETAIL, arguments: animal.id),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Hero(
-                  tag: 'animal_image_${animal.id}',
-                  child: Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(18),
-                      image: DecorationImage(
-                        image: NetworkImage(animal.imageUrl ?? BreedAssetHelper.getBreedImage(animal.breed, animal.species)),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+  Widget _buildAnimalCard(Animal animal, int index) {
+    final breed = animal.breed ?? 'Indigenous Breed';
+    final species = animal.species ?? 'cow';
+    final imageUrl = animal.imageUrl ?? BreedAssetHelper.getBreedImage(breed, species);
+
+    return AppCard(
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      onTap: () => Get.toNamed(Routes.ANIMAL_DETAIL, arguments: animal),
+      child: Row(
+        children: [
+          Hero(
+            tag: 'animal_image_${animal.id ?? animal.animalCode}',
+            child: Container(
+              width: 74,
+              height: 74,
+              decoration: BoxDecoration(
+                color: AppColors.slate100,
+                borderRadius: AppSpacing.roundedMd,
+                border: Border.all(color: AppColors.border, width: 1.0),
+              ),
+              child: ClipRRect(
+                borderRadius: AppSpacing.roundedMd,
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => const Center(
+                    child: Icon(Icons.pets, size: 28, color: AppColors.slate400),
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(animal.animalCode ?? 'TAG-000',
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Colors.blueGrey.shade900,
-                              )),
-                          _buildStatusBadge(animal.healthStatus),
-                        ],
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      animal.animalCode ?? 'TAG-000',
+                      style: AppTypography.codeTag.copyWith(
+                        fontSize: 14,
+                        color: AppColors.textPrimary,
                       ),
-                      const SizedBox(height: 4),
-                      Text('${animal.species?.capitalizeFirst} • ${animal.breed}',
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: Colors.blueGrey.shade600,
-                          )),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Icon(Icons.monitor_weight_outlined, size: 14, color: Colors.blueGrey.shade400),
-                          const SizedBox(width: 4),
-                          Text('${animal.weightKg ?? "N/A"} kg',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                color: Colors.blueGrey.shade400,
-                              )),
-                          const SizedBox(width: 12),
-                          Icon(Icons.calendar_today_outlined, size: 14, color: Colors.blueGrey.shade400),
-                          const SizedBox(width: 4),
-                          Text(animal.dob != null 
-                            ? DateFormat('MMM yyyy').format(animal.dob!) 
-                            : 'N/A',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                color: Colors.blueGrey.shade400,
-                              )),
-                        ],
-                      ),
-                    ],
+                    ),
+                    AppBadge.fromStatus(animal.healthStatus ?? 'Healthy'),
+                  ],
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  '${species.capitalizeFirst} • $breed',
+                  style: AppTypography.bodySmall.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondary,
                   ),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    _metricPill(Icons.scale_rounded, '${animal.weightKg ?? "N/A"} kg'),
+                    const SizedBox(width: AppSpacing.sm),
+                    _metricPill(
+                      Icons.calendar_today_rounded,
+                      animal.dob != null ? DateFormat('MMM yyyy').format(animal.dob!) : 'Age N/A',
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-        ),
+          const Icon(Icons.chevron_right_rounded, color: AppColors.slate400, size: 20),
+        ],
       ),
-    );
+    ).animate().fadeIn(delay: Duration(milliseconds: index * 30)).slideX(begin: 0.1);
   }
 
-  Widget _buildStatusBadge(String? status) {
-    bool isHealthy = status?.toLowerCase() == 'healthy';
+  Widget _metricPill(IconData icon, String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
-        color: isHealthy ? Colors.green.shade50 : Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isHealthy ? Colors.green.shade100 : Colors.orange.shade100),
+        color: AppColors.surfaceSubtle,
+        borderRadius: AppSpacing.roundedXs,
+        border: Border.all(color: AppColors.border, width: 0.8),
       ),
-      child: Text(
-        status?.toUpperCase() ?? 'UNKNOWN',
-        style: GoogleFonts.poppins(
-          fontSize: 10,
-          color: isHealthy ? Colors.green.shade700 : Colors.orange.shade800,
-          fontWeight: FontWeight.bold,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: AppColors.slate500),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: AppTypography.labelSmall.copyWith(
+              fontSize: 10,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
       ),
     );
   }
-
-  Widget _buildSpeciesFilter() {
-    final List<Map<String, dynamic>> categories = [
-      {'id': 'all', 'label': 'All Herd', 'icon': Icons.grid_view_rounded},
-      {'id': 'cow', 'label': 'Cattle', 'icon': Icons.pets_rounded},
-      {'id': 'buffalo', 'label': 'Buffaloes', 'icon': Icons.pets_outlined},
-      {'id': 'goat', 'label': 'Goats', 'icon': Icons.cruelty_free_rounded},
-      {'id': 'sheep', 'label': 'Sheep', 'icon': Icons.cruelty_free_outlined},
-      {'id': 'fishery', 'label': 'Aquaculture', 'icon': Icons.water_rounded},
-      {'id': 'other', 'label': 'Others', 'icon': Icons.more_horiz_rounded},
-    ];
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Obx(() => Row(
-            children: categories.map<Widget>((cat) {
-              final isSelected = controller.selectedSpecies.value == cat['id'];
-              return CategoryTile(
-                label: cat['label'],
-                icon: cat['icon'],
-                isSelected: isSelected,
-                onTap: () {
-                  controller.selectedSpecies.value = cat['id'];
-                },
-                activeColor: Colors.white,
-                textColor: isSelected ? const Color(0xFF1B5E20) : Colors.white,
-                tileColor: isSelected ? Colors.white : const Color(0xFF0D472A).withOpacity(0.6),
-              );
-            }).toList(),
-          )),
-    );
-  }
-
-
 
   void _showAddAnimalDialog(BuildContext context) {
     final codeCtrl = TextEditingController();
@@ -249,208 +299,206 @@ class LivestockView extends GetView<LivestockController> {
 
     Get.bottomSheet(
       Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        constraints: BoxConstraints(maxHeight: Get.height * 0.85),
         decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusXl)),
         ),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Register Animal', style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Register New Livestock', style: AppTypography.titleMedium),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: () => Get.back(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
               GestureDetector(
                 onTap: () => _showImageSourceSheet(context),
                 child: Obx(() => Container(
-                  height: 120,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.grey.shade200, width: 2),
-                  ),
-                  child: controller.selectedImage.value != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Image.file(controller.selectedImage.value!, fit: BoxFit.cover),
-                        )
-                      : Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.add_a_photo_outlined, size: 32, color: Colors.green.shade700),
-                            const SizedBox(height: 8),
-                            Text('Upload Image', style: GoogleFonts.poppins(color: Colors.green.shade700, fontWeight: FontWeight.w500)),
-                          ],
-                        ),
-                )),
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceSubtle,
+                        borderRadius: AppSpacing.roundedLg,
+                        border: Border.all(color: AppColors.border, width: 1.5),
+                      ),
+                      child: controller.selectedImage.value != null
+                          ? ClipRRect(
+                              borderRadius: AppSpacing.roundedLg,
+                              child: Image.file(controller.selectedImage.value!, fit: BoxFit.cover),
+                            )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.add_a_photo_rounded, size: 32, color: AppColors.primary),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Attach Animal Photo',
+                                  style: AppTypography.labelSmall.copyWith(color: AppColors.primary),
+                                ),
+                              ],
+                            ),
+                    )),
               ),
-              const SizedBox(height: 20),
-              _buildFieldLabel('Species'),
+              const SizedBox(height: AppSpacing.md),
+              Text('Species Category', style: AppTypography.labelSmall),
+              const SizedBox(height: 6),
               Obx(() => Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: species.value,
-                    isExpanded: true,
-                    items: ['cow', 'buffalo', 'goat', 'sheep', 'fishery', 'other']
-                        .map((e) => DropdownMenuItem(value: e, child: Text(e.capitalizeFirst!)))
-                        .toList(),
-                    onChanged: (val) => species.value = val!,
-                  ),
-                ),
-              )),
-              const SizedBox(height: 16),
-              _buildModernTextField(codeCtrl, 'Animal Code (Tag #)', Icons.tag),
-              const SizedBox(height: 16),
-              _buildModernTextField(breedCtrl, 'Breed', Icons.category_outlined),
-              const SizedBox(height: 16),
-              _buildModernTextField(weightCtrl, 'Weight (kg)', Icons.monitor_weight_outlined, isNumber: true),
-              const SizedBox(height: 16),
-              _buildFieldLabel('Purpose'),
-              Obx(() => Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: purpose.value,
-                    isExpanded: true,
-                    items: ['milk', 'draught', 'breeding', 'aquaculture', 'other']
-                        .map((e) => DropdownMenuItem(value: e, child: Text(e.capitalizeFirst!)))
-                        .toList(),
-                    onChanged: (val) => purpose.value = val!,
-                  ),
-                ),
-              )),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: Obx(() => ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green.shade700,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                    elevation: 0,
-                  ),
-                  onPressed: controller.isUploading.value ? null : () {
-                    controller.registerAnimal(Animal(
-                      animalCode: codeCtrl.text,
-                      species: species.value,
-                      breed: breedCtrl.text,
-                      weightKg: double.tryParse(weightCtrl.text),
-                      purpose: purpose.value,
-                      healthStatus: 'Healthy',
-                      dob: DateTime.now(),
-                    ));
-                  },
-                  child: controller.isUploading.value 
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : Text('Register Animal', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold)),
-                )),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: AppSpacing.roundedMd,
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: species.value,
+                        isExpanded: true,
+                        items: ['cow', 'buffalo', 'goat', 'sheep', 'fishery', 'other']
+                            .map((e) => DropdownMenuItem(value: e, child: Text(e.capitalizeFirst!)))
+                            .toList(),
+                        onChanged: (val) {
+                          if (val != null) species.value = val;
+                        },
+                      ),
+                    ),
+                  )),
+              const SizedBox(height: AppSpacing.md),
+              AppTextField(
+                controller: codeCtrl,
+                label: 'Animal Code / Ear Tag ID',
+                hint: 'e.g. COW-GIR-09',
+                prefixIcon: Icons.tag_rounded,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.md),
+              AppTextField(
+                controller: breedCtrl,
+                label: 'Breed Name',
+                hint: 'e.g. Gir / Sahiwal / Murrah',
+                prefixIcon: Icons.category_rounded,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              AppTextField(
+                controller: weightCtrl,
+                label: 'Live Weight (kg)',
+                hint: '350',
+                prefixIcon: Icons.scale_rounded,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Text('Production Purpose', style: AppTypography.labelSmall),
+              const SizedBox(height: 6),
+              Obx(() => Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: AppSpacing.roundedMd,
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: purpose.value,
+                        isExpanded: true,
+                        items: ['milk', 'draught', 'breeding', 'aquaculture', 'other']
+                            .map((e) => DropdownMenuItem(value: e, child: Text(e.capitalizeFirst!)))
+                            .toList(),
+                        onChanged: (val) {
+                          if (val != null) purpose.value = val;
+                        },
+                      ),
+                    ),
+                  )),
+              const SizedBox(height: AppSpacing.xl),
+              Obx(() => AppButton(
+                    label: 'Register Animal',
+                    icon: Icons.check_circle_outline_rounded,
+                    isLoading: controller.isUploading.value,
+                    isFullWidth: true,
+                    onPressed: () {
+                      final code = codeCtrl.text.trim();
+                      if (code.isEmpty) {
+                        Get.snackbar('Input Error', 'Please enter an ear tag or animal code',
+                            snackPosition: SnackPosition.BOTTOM);
+                        return;
+                      }
+
+                      controller.registerAnimal(Animal(
+                        animalCode: code,
+                        species: species.value,
+                        breed: breedCtrl.text.trim().isEmpty ? 'Indigenous' : breedCtrl.text.trim(),
+                        weightKg: double.tryParse(weightCtrl.text.trim()),
+                        purpose: purpose.value,
+                        healthStatus: 'Healthy',
+                        dob: DateTime.now(),
+                      ));
+                    },
+                  )),
+              const SizedBox(height: AppSpacing.lg),
             ],
           ),
         ),
       ),
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-    );
-  }
-
-  Widget _buildFieldLabel(String label) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8),
-      child: Text(label, style: GoogleFonts.poppins(fontWeight: FontWeight.w500, color: Colors.blueGrey.shade700)),
-    );
-  }
-
-  Widget _buildModernTextField(TextEditingController ctrl, String hint, IconData icon, {bool isNumber = false}) {
-    return TextField(
-      controller: ctrl,
-      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-      decoration: InputDecoration(
-        hintText: hint,
-        prefixIcon: Icon(icon, color: Colors.green.shade700),
-        filled: true,
-        fillColor: Colors.grey.shade50,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.grey.shade200),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.grey.shade200),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.green.shade700, width: 2),
-        ),
-      ),
     );
   }
 
   void _showImageSourceSheet(BuildContext context) {
     Get.bottomSheet(
       Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSpacing.xl),
         decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusXl)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Select Image Source', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 24),
+            Text('Select Image Source', style: AppTypography.titleMedium),
+            const SizedBox(height: AppSpacing.lg),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildSourceOption(Icons.camera_alt_rounded, 'Camera', () {
+                _sourceButton(Icons.camera_alt_rounded, 'Camera', () {
                   Get.back();
                   controller.pickImage(ImageSource.camera);
                 }),
-                _buildSourceOption(Icons.photo_library_rounded, 'Gallery', () {
+                _sourceButton(Icons.photo_library_rounded, 'Gallery', () {
                   Get.back();
                   controller.pickImage(ImageSource.gallery);
                 }),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSourceOption(IconData icon, String label, VoidCallback onTap) {
+  Widget _sourceButton(IconData icon, String label, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: AppSpacing.roundedLg,
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             decoration: BoxDecoration(
-              color: Colors.green.shade50,
+              color: AppColors.primarySoft,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: Colors.green.shade700, size: 32),
+            child: Icon(icon, color: AppColors.primary, size: 28),
           ),
-          const SizedBox(height: 8),
-          Text(label, style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+          const SizedBox(height: 6),
+          Text(label, style: AppTypography.labelMedium),
         ],
       ),
     );

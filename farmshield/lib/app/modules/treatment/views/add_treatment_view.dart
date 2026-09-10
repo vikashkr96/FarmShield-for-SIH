@@ -1,316 +1,280 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_header_bar.dart';
+import '../../../core/widgets/app_text_field.dart';
 import '../../../data/models/farm_models.dart';
 import '../controllers/treatment_controller.dart';
 
-class AddTreatmentView extends GetView<TreatmentController> {
-  const AddTreatmentView({Key? key}) : super(key: key);
+class AddTreatmentView extends StatefulWidget {
+  const AddTreatmentView({super.key});
+
+  @override
+  State<AddTreatmentView> createState() => _AddTreatmentViewState();
+}
+
+class _AddTreatmentViewState extends State<AddTreatmentView> {
+  final TreatmentController controller = Get.find<TreatmentController>();
+
+  late final TextEditingController _doseController;
+  late final TextEditingController _indicationController;
+  late final TextEditingController _notesController;
+  final RxString _doseUnit = 'mg/kg'.obs;
+
+  @override
+  void initState() {
+    super.initState();
+    _doseController = TextEditingController(text: '10.0');
+    _indicationController = TextEditingController(text: 'Clinical Mastitis');
+    _notesController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _doseController.dispose();
+    _indicationController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final doseController = TextEditingController(text: '10.0');
-    final indicationController = TextEditingController(text: 'Clinical Mastitis');
-    final notesController = TextEditingController();
-    final doseUnit = 'mg/kg'.obs;
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Record Clinical Treatment',
-              style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 17, color: Colors.white),
-            ),
-            Text(
-              'Live AMU Logging & ML Compliance Check',
-              style: GoogleFonts.poppins(fontSize: 11, color: Colors.white.withOpacity(0.85)),
-            ),
-          ],
-        ),
-        backgroundColor: const Color(0xFF1B5E20),
-        elevation: 0,
+      backgroundColor: AppColors.background,
+      appBar: const AppHeaderBar(
+        title: 'Record Clinical Treatment',
+        subtitle: 'AMU Logging & ML Compliance Check',
       ),
-      body: Obx(() => controller.isLoading.value && controller.medicines.isEmpty
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF1B5E20)))
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
+      body: Obx(() {
+        if (controller.isLoading.value && controller.medicines.isEmpty) {
+          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+        }
+
+        return SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. Livestock & Medication
+              _buildSectionHeader('1. Patient & Medication', Icons.pets_rounded),
+              const SizedBox(height: AppSpacing.sm),
+              _buildAnimalDropdown(),
+              const SizedBox(height: AppSpacing.md),
+              _buildMedicineDropdown(),
+              const SizedBox(height: AppSpacing.sm),
+              _buildLiveDrugBadge(),
+
+              const SizedBox(height: AppSpacing.xl),
+
+              // 2. Dosage & Administration
+              _buildSectionHeader('2. Dosage & Administration', Icons.vaccines_rounded),
+              const SizedBox(height: AppSpacing.sm),
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 1. Livestock & Medicine Section
-                  _buildSectionHeader('1. Patient & Medication', Icons.pets_rounded),
-                  const SizedBox(height: 10),
-                  _buildAnimalDropdown(),
-                  const SizedBox(height: 12),
-                  _buildMedicineDropdown(),
-                  const SizedBox(height: 8),
-                  _buildLiveDrugDetailsBadge(),
-
-                  const SizedBox(height: 20),
-
-                  // 2. Dosage & Administration
-                  _buildSectionHeader('2. Dosage & Administration', Icons.vaccines_rounded),
-                  const SizedBox(height: 10),
-                  
-                  // Dose & Unit Row
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: _buildInputField(
-                          controller: doseController,
-                          label: 'Dose Amount',
-                          hint: '10.0',
-                          icon: Icons.scale_rounded,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        flex: 2,
-                        child: Obx(() => DropdownButtonFormField<String>(
-                              value: doseUnit.value,
-                              decoration: InputDecoration(
-                                labelText: 'Unit',
-                                labelStyle: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade600),
-                                filled: true,
-                                fillColor: Colors.white,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: Colors.grey.shade300)),
-                                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: Colors.grey.shade200)),
-                              ),
-                              items: ['mg/kg', 'ml', 'g', 'IU']
-                                  .map((e) => DropdownMenuItem(value: e, child: Text(e, style: GoogleFonts.poppins(fontSize: 12.5))))
-                                  .toList(),
-                              onChanged: (val) {
-                                if (val != null) doseUnit.value = val;
-                              },
-                            )),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Route Selector
-                  _buildRouteSelector(),
-                  const SizedBox(height: 12),
-
-                  // Duration Selector Chips
-                  _buildDurationSelector(),
-                  const SizedBox(height: 12),
-
-                  // Indication & Notes
-                  _buildInputField(
-                    controller: indicationController,
-                    label: 'Diagnosis / Indication',
-                    hint: 'e.g. Acute Mastitis in Right Quarter',
-                    icon: Icons.medical_services_outlined,
-                  ),
-                  const SizedBox(height: 12),
-
-                  _buildInputField(
-                    controller: notesController,
-                    label: 'Veterinary Notes / Instructions (Optional)',
-                    hint: 'e.g. Administer after morning milking cycle',
-                    icon: Icons.note_alt_outlined,
-                    maxLines: 2,
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // 3. Product Affected & Regulatory Withhold Preview
-                  _buildSectionHeader('3. Product Affected & Safety Preview', Icons.verified_user_rounded),
-                  const SizedBox(height: 10),
-                  _buildProductAffectedSelector(),
-                  const SizedBox(height: 12),
-
-                  // Start Date Picker
-                  Obx(() => InkWell(
-                        onTap: () async {
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate: controller.selectedStartDate.value,
-                            firstDate: DateTime(2022),
-                            lastDate: DateTime.now().add(const Duration(days: 14)),
-                          );
-                          if (date != null) controller.selectedStartDate.value = date;
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: Colors.grey.shade200),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.calendar_month_rounded, color: Color(0xFF1B5E20), size: 20),
-                                  const SizedBox(width: 10),
-                                  Text('Treatment Start Date', style: GoogleFonts.poppins(fontSize: 12.5, color: Colors.blueGrey.shade800)),
-                                ],
-                              ),
-                              Text(
-                                DateFormat('MMM dd, yyyy').format(controller.selectedStartDate.value),
-                                style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 13, color: const Color(0xFF1B5E20)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )),
-
-                  const SizedBox(height: 12),
-
-                  // Live Calculated Safety Card
-                  _buildLiveSafetyCalculationCard(),
-
-                  const SizedBox(height: 24),
-
-                  // 4. Submit Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1B5E20),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                        elevation: 0,
-                      ),
-                      onPressed: () {
-                        if (controller.selectedAnimalId.value.isEmpty || controller.selectedMedicineId.value.isEmpty) {
-                          Get.snackbar('Selection Required', 'Please select an animal and medication', snackPosition: SnackPosition.BOTTOM);
-                          return;
-                        }
-
-                        final dose = double.tryParse(doseController.text.trim()) ?? 10.0;
-                        final duration = controller.selectedDuration.value;
-                        final start = controller.selectedStartDate.value;
-                        final end = start.add(Duration(days: duration));
-
-                        controller.submitTreatment(Treatment(
-                          animalId: controller.selectedAnimalId.value,
-                          medicineId: controller.selectedMedicineId.value,
-                          doseAmount: dose,
-                          doseUnit: doseUnit.value,
-                          route: controller.selectedRoute.value,
-                          frequency: controller.selectedFrequency.value,
-                          durationDays: duration,
-                          startDate: start,
-                          endDate: end,
-                          indication: indicationController.text.trim(),
-                          productAffected: controller.selectedProduct.value,
-                          notes: notesController.text.trim(),
-                        ));
-                      },
-                      child: Obx(() => controller.isLoading.value
-                          ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.shield_rounded, size: 20, color: Colors.greenAccent),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'SAVE TREATMENT & START WITHHOLD',
-                                  style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 13, letterSpacing: 0.3),
-                                ),
-                              ],
-                            )),
+                  Expanded(
+                    flex: 3,
+                    child: AppTextField(
+                      controller: _doseController,
+                      label: 'Dose Amount',
+                      hint: '10.0',
+                      prefixIcon: Icons.scale_rounded,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     ),
                   ),
-
-                  const SizedBox(height: 24),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Unit', style: AppTypography.labelSmall),
+                        const SizedBox(height: 6),
+                        Obx(() => Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: AppSpacing.roundedMd,
+                                border: Border.all(color: AppColors.border),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  value: _doseUnit.value,
+                                  isExpanded: true,
+                                  items: ['mg/kg', 'ml', 'g', 'IU']
+                                      .map((e) => DropdownMenuItem(value: e, child: Text(e, style: AppTypography.bodySmall)))
+                                      .toList(),
+                                  onChanged: (val) {
+                                    if (val != null) _doseUnit.value = val;
+                                  },
+                                ),
+                              ),
+                            )),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-            )),
+              const SizedBox(height: AppSpacing.md),
+              _buildRouteSelector(),
+              const SizedBox(height: AppSpacing.md),
+              _buildDurationSelector(),
+              const SizedBox(height: AppSpacing.md),
+              AppTextField(
+                controller: _indicationController,
+                label: 'Clinical Diagnosis / Indication',
+                hint: 'e.g. Acute Mastitis in Right Quarter',
+                prefixIcon: Icons.medical_services_outlined,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              AppTextField(
+                controller: _notesController,
+                label: 'Veterinary Notes (Optional)',
+                hint: 'e.g. Administer after morning milking cycle',
+                prefixIcon: Icons.notes_rounded,
+                maxLines: 2,
+              ),
+
+              const SizedBox(height: AppSpacing.xl),
+
+              // 3. Product Affected & Safety Preview
+              _buildSectionHeader('3. Product Affected & Safety Preview', Icons.verified_user_rounded),
+              const SizedBox(height: AppSpacing.sm),
+              _buildProductSelector(),
+              const SizedBox(height: AppSpacing.md),
+              _buildDatePicker(context),
+              const SizedBox(height: AppSpacing.md),
+              _buildSafetyCalculationCard(),
+
+              const SizedBox(height: AppSpacing.xxl),
+
+              // Submit Action
+              Obx(() => AppButton(
+                    label: 'Save Treatment & Trigger Withhold',
+                    icon: Icons.shield_rounded,
+                    isLoading: controller.isLoading.value,
+                    isFullWidth: true,
+                    height: 52,
+                    onPressed: () {
+                      if (controller.selectedAnimalId.value.isEmpty || controller.selectedMedicineId.value.isEmpty) {
+                        Get.snackbar('Input Required', 'Please select an animal and medication',
+                            snackPosition: SnackPosition.BOTTOM);
+                        return;
+                      }
+
+                      final dose = double.tryParse(_doseController.text.trim()) ?? 10.0;
+                      final duration = controller.selectedDuration.value;
+                      final start = controller.selectedStartDate.value;
+                      final end = start.add(Duration(days: duration));
+
+                      controller.submitTreatment(Treatment(
+                        animalId: controller.selectedAnimalId.value,
+                        medicineId: controller.selectedMedicineId.value,
+                        doseAmount: dose,
+                        doseUnit: _doseUnit.value,
+                        route: controller.selectedRoute.value,
+                        frequency: controller.selectedFrequency.value,
+                        durationDays: duration,
+                        startDate: start,
+                        endDate: end,
+                        indication: _indicationController.text.trim(),
+                        productAffected: controller.selectedProduct.value,
+                        notes: _notesController.text.trim(),
+                      ));
+                    },
+                  )),
+              const SizedBox(height: AppSpacing.xl),
+            ],
+          ),
+        );
+      }),
     );
   }
 
   Widget _buildSectionHeader(String title, IconData icon) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: const Color(0xFF1B5E20)),
+        Icon(icon, size: 18, color: AppColors.primary),
         const SizedBox(width: 8),
-        Text(
-          title,
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 13.5, color: const Color(0xFF0F172A)),
-        ),
+        Text(title, style: AppTypography.titleSmall),
       ],
     );
   }
 
   Widget _buildAnimalDropdown() {
     return Obx(() => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.grey.shade200),
+            borderRadius: AppSpacing.roundedMd,
+            border: Border.all(color: AppColors.border),
           ),
-          child: DropdownButtonFormField<String>(
-            value: controller.selectedAnimalId.value.isEmpty ? null : controller.selectedAnimalId.value,
-            decoration: InputDecoration(
-              labelText: 'Select Animal (Tag / Breed)',
-              labelStyle: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade600),
-              prefixIcon: const Icon(Icons.pets_rounded, color: Color(0xFF1B5E20), size: 20),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: controller.selectedAnimalId.value.isEmpty ? null : controller.selectedAnimalId.value,
+              hint: Text('Select Animal (Tag / Breed)', style: AppTypography.bodySmall),
+              isExpanded: true,
+              items: controller.animals
+                  .map((a) => DropdownMenuItem(
+                        value: a.id ?? a.animalCode ?? '',
+                        child: Text(
+                          '${a.animalCode ?? "Tag"} • ${a.breed ?? a.species?.capitalizeFirst ?? "Cattle"}',
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ))
+                  .toList(),
+              onChanged: (val) {
+                if (val != null) controller.selectedAnimalId.value = val;
+              },
             ),
-            items: controller.animals
-                .map((a) => DropdownMenuItem(
-                      value: a.id ?? a.animalCode ?? '',
-                      child: Text(
-                        '${a.animalCode ?? "Tag"} • ${a.breed ?? a.species?.capitalizeFirst ?? "Cattle"}',
-                        style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
-                      ),
-                    ))
-                .toList(),
-            onChanged: (val) {
-              if (val != null) controller.selectedAnimalId.value = val;
-            },
           ),
         ));
   }
 
   Widget _buildMedicineDropdown() {
     return Obx(() => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.grey.shade200),
+            borderRadius: AppSpacing.roundedMd,
+            border: Border.all(color: AppColors.border),
           ),
-          child: DropdownButtonFormField<String>(
-            value: controller.selectedMedicineId.value.isEmpty ? null : controller.selectedMedicineId.value,
-            decoration: InputDecoration(
-              labelText: 'Select Prescribed Medicine',
-              labelStyle: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade600),
-              prefixIcon: const Icon(Icons.medication_liquid_rounded, color: Color(0xFF1B5E20), size: 20),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: controller.selectedMedicineId.value.isEmpty ? null : controller.selectedMedicineId.value,
+              hint: Text('Select Prescribed Medication', style: AppTypography.bodySmall),
+              isExpanded: true,
+              items: controller.medicines
+                  .map((m) => DropdownMenuItem(
+                        value: m.id ?? m.name ?? '',
+                        child: Text(
+                          '${m.name ?? "Drug"} (${m.activeIngredient ?? ""})',
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ))
+                  .toList(),
+              onChanged: (val) {
+                if (val != null) controller.selectedMedicineId.value = val;
+              },
             ),
-            items: controller.medicines
-                .map((m) => DropdownMenuItem(
-                      value: m.id ?? m.name ?? '',
-                      child: Text(
-                        '${m.name ?? "Drug"} (${m.activeIngredient ?? ""})',
-                        style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ))
-                .toList(),
-            onChanged: (val) {
-              if (val != null) controller.selectedMedicineId.value = val;
-            },
           ),
         ));
   }
 
-  Widget _buildLiveDrugDetailsBadge() {
+  Widget _buildLiveDrugBadge() {
     return Obx(() {
       final med = controller.selectedMedicine.value;
       if (med == null) return const SizedBox.shrink();
@@ -318,27 +282,21 @@ class AddTreatmentView extends GetView<TreatmentController> {
       return Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: const Color(0xFFF0FDF4),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.green.shade200),
+          color: AppColors.primarySoft,
+          borderRadius: AppSpacing.roundedSm,
+          border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
-            const Icon(Icons.info_outline_rounded, color: Color(0xFF1B5E20), size: 18),
+            const Icon(Icons.info_outline_rounded, color: AppColors.primary, size: 16),
             const SizedBox(width: 8),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Class: ${med.antimicrobialClass ?? "Beta-lactam"} • Strength: ${med.strength ?? "150mg/ml"}',
-                    style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF1B5E20)),
-                  ),
-                  Text(
-                    'Regulatory standard withhold duration applies.',
-                    style: GoogleFonts.poppins(fontSize: 10, color: Colors.blueGrey.shade600),
-                  ),
-                ],
+              child: Text(
+                'Class: ${med.antimicrobialClass ?? "Beta-lactam"} • Strength: ${med.strength ?? "150mg/ml"}',
+                style: AppTypography.labelSmall.copyWith(
+                  color: AppColors.primaryDark,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
@@ -352,7 +310,7 @@ class AddTreatmentView extends GetView<TreatmentController> {
     return Obx(() => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Administration Route', style: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade700, fontWeight: FontWeight.w600)),
+            Text('Administration Route', style: AppTypography.labelSmall),
             const SizedBox(height: 6),
             Wrap(
               spacing: 8,
@@ -360,15 +318,22 @@ class AddTreatmentView extends GetView<TreatmentController> {
               children: routes.map((r) {
                 final isSelected = controller.selectedRoute.value == r;
                 return ChoiceChip(
-                  label: Text(r, style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500)),
+                  label: Text(
+                    r,
+                    style: AppTypography.labelSmall.copyWith(
+                      color: isSelected ? Colors.white : AppColors.textSecondary,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    ),
+                  ),
                   selected: isSelected,
                   onSelected: (selected) {
                     if (selected) controller.selectedRoute.value = r;
                   },
-                  selectedColor: const Color(0xFF1B5E20),
-                  backgroundColor: Colors.white,
-                  side: BorderSide(color: isSelected ? const Color(0xFF1B5E20) : Colors.grey.shade300),
-                  labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.blueGrey.shade800),
+                  selectedColor: AppColors.primary,
+                  backgroundColor: AppColors.surface,
+                  side: BorderSide(
+                    color: isSelected ? AppColors.primary : AppColors.border,
+                  ),
                 );
               }).toList(),
             ),
@@ -381,7 +346,7 @@ class AddTreatmentView extends GetView<TreatmentController> {
     return Obx(() => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Course Duration (Days)', style: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade700, fontWeight: FontWeight.w600)),
+            Text('Course Duration (Days)', style: AppTypography.labelSmall),
             const SizedBox(height: 6),
             Row(
               children: durations.map((d) {
@@ -390,15 +355,23 @@ class AddTreatmentView extends GetView<TreatmentController> {
                   child: Padding(
                     padding: const EdgeInsets.only(right: 6),
                     child: ChoiceChip(
-                      label: Text('$d Day${d > 1 ? "s" : ""}', style: GoogleFonts.poppins(fontSize: 11, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500)),
+                      label: Text(
+                        '$d Day${d > 1 ? "s" : ""}',
+                        style: AppTypography.labelSmall.copyWith(
+                          fontSize: 10.5,
+                          color: isSelected ? Colors.white : AppColors.textSecondary,
+                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        ),
+                      ),
                       selected: isSelected,
                       onSelected: (selected) {
                         if (selected) controller.selectedDuration.value = d;
                       },
-                      selectedColor: const Color(0xFF1B5E20),
-                      backgroundColor: Colors.white,
-                      side: BorderSide(color: isSelected ? const Color(0xFF1B5E20) : Colors.grey.shade300),
-                      labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.blueGrey.shade800),
+                      selectedColor: AppColors.primary,
+                      backgroundColor: AppColors.surface,
+                      side: BorderSide(
+                        color: isSelected ? AppColors.primary : AppColors.border,
+                      ),
                     ),
                   ),
                 );
@@ -408,11 +381,11 @@ class AddTreatmentView extends GetView<TreatmentController> {
         ));
   }
 
-  Widget _buildProductAffectedSelector() {
+  Widget _buildProductSelector() {
     final products = [
-      {'key': 'milk', 'label': 'Milk (दूध)', 'icon': '🥛'},
-      {'key': 'meat', 'label': 'Meat (मांस)', 'icon': '🥩'},
-      {'key': 'all', 'label': 'All Produce', 'icon': '📦'},
+      {'key': 'milk', 'label': 'Milk', 'icon': Icons.local_drink_rounded},
+      {'key': 'meat', 'label': 'Meat', 'icon': Icons.restaurant_rounded},
+      {'key': 'all', 'label': 'All Produce', 'icon': Icons.all_inbox_rounded},
     ];
 
     return Obx(() => Row(
@@ -420,28 +393,31 @@ class AddTreatmentView extends GetView<TreatmentController> {
             final isSelected = controller.selectedProduct.value == p['key'];
             return Expanded(
               child: GestureDetector(
-                onTap: () => controller.selectedProduct.value = p['key']!,
+                onTap: () => controller.selectedProduct.value = p['key'] as String,
                 child: Container(
                   margin: const EdgeInsets.only(right: 8),
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF1B5E20).withOpacity(0.08) : Colors.white,
-                    borderRadius: BorderRadius.circular(12),
+                    color: isSelected ? AppColors.primarySoft : AppColors.surface,
+                    borderRadius: AppSpacing.roundedMd,
                     border: Border.all(
-                      color: isSelected ? const Color(0xFF1B5E20) : Colors.grey.shade200,
-                      width: isSelected ? 1.8 : 1,
+                      color: isSelected ? AppColors.primary : AppColors.border,
+                      width: isSelected ? 1.5 : 1.0,
                     ),
                   ),
                   child: Column(
                     children: [
-                      Text(p['icon']!, style: const TextStyle(fontSize: 18)),
-                      const SizedBox(height: 2),
+                      Icon(
+                        p['icon'] as IconData,
+                        size: 20,
+                        color: isSelected ? AppColors.primary : AppColors.slate400,
+                      ),
+                      const SizedBox(height: 4),
                       Text(
-                        p['label']!,
-                        style: GoogleFonts.poppins(
-                          fontSize: 10.5,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                          color: isSelected ? const Color(0xFF1B5E20) : Colors.blueGrey.shade700,
+                        p['label'] as String,
+                        style: AppTypography.labelSmall.copyWith(
+                          color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                         ),
                       ),
                     ],
@@ -453,19 +429,53 @@ class AddTreatmentView extends GetView<TreatmentController> {
         ));
   }
 
-  Widget _buildLiveSafetyCalculationCard() {
+  Widget _buildDatePicker(BuildContext context) {
+    return Obx(() => InkWell(
+          onTap: () async {
+            final date = await showDatePicker(
+              context: context,
+              initialDate: controller.selectedStartDate.value,
+              firstDate: DateTime(2022),
+              lastDate: DateTime.now().add(const Duration(days: 14)),
+            );
+            if (date != null) controller.selectedStartDate.value = date;
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: AppSpacing.roundedMd,
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_month_rounded, color: AppColors.primary, size: 18),
+                    const SizedBox(width: 8),
+                    Text('Start Date', style: AppTypography.bodySmall),
+                  ],
+                ),
+                Text(
+                  DateFormat('EEE, dd MMM yyyy').format(controller.selectedStartDate.value),
+                  style: AppTypography.labelSmall.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+        ));
+  }
+
+  Widget _buildSafetyCalculationCard() {
     return Obx(() {
       final days = controller.estimatedWithdrawalDays;
       final clearanceDate = controller.estimatedClearanceDate;
-      final formattedClearance = DateFormat('EEE, MMM dd, yyyy').format(clearanceDate);
+      final formattedClearance = DateFormat('EEE, dd MMM yyyy').format(clearanceDate);
 
-      return Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFFBEB),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.amber.shade300, width: 1.2),
-        ),
+      return AppCard(
+        color: AppColors.warningBg,
+        borderColor: AppColors.warning.withValues(alpha: 0.3),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -474,23 +484,30 @@ class AddTreatmentView extends GetView<TreatmentController> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.lock_clock_rounded, color: Colors.amber.shade900, size: 18),
+                    const Icon(Icons.lock_clock_rounded, color: AppColors.warning, size: 18),
                     const SizedBox(width: 6),
                     Text(
-                      'AI Withhold Calculator',
-                      style: GoogleFonts.poppins(fontSize: 12.5, fontWeight: FontWeight.bold, color: Colors.amber.shade900),
+                      'AI MRL Withhold Calculator',
+                      style: AppTypography.labelMedium.copyWith(
+                        color: AppColors.warning,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ],
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.amber.shade100,
-                    borderRadius: BorderRadius.circular(6),
+                    color: Colors.white,
+                    borderRadius: AppSpacing.roundedXs,
                   ),
                   child: Text(
-                    'FSSAI / Codex MRL',
-                    style: GoogleFonts.poppins(fontSize: 9.5, fontWeight: FontWeight.bold, color: Colors.amber.shade900),
+                    'FSSAI / Codex',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: AppColors.warning,
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -498,44 +515,18 @@ class AddTreatmentView extends GetView<TreatmentController> {
             const SizedBox(height: 8),
             Text(
               'Required Withhold: $days Days post-course completion.',
-              style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
+              style: AppTypography.bodySmall.copyWith(color: AppColors.textPrimary),
             ),
             Text(
               'Projected Safe Harvest Date: $formattedClearance',
-              style: GoogleFonts.poppins(fontSize: 11.5, fontWeight: FontWeight.bold, color: const Color(0xFF1B5E20)),
+              style: AppTypography.labelSmall.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
       );
     });
-  }
-
-  Widget _buildInputField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    int maxLines = 1,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      keyboardType: keyboardType,
-      style: GoogleFonts.poppins(fontSize: 13, color: Colors.blueGrey.shade900),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade600),
-        hintText: hint,
-        hintStyle: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade300),
-        filled: true,
-        fillColor: Colors.white,
-        prefixIcon: Icon(icon, color: const Color(0xFF1B5E20), size: 18),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: Colors.grey.shade300)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: Colors.grey.shade200)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF1B5E20), width: 1.5)),
-      ),
-    );
   }
 }

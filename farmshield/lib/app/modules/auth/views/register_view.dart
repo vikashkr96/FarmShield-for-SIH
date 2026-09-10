@@ -1,241 +1,272 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_header_bar.dart';
+import '../../../core/widgets/app_text_field.dart';
 import '../controllers/auth_controller.dart';
-import '../../../routes/app_pages.dart';
 
-class RegisterView extends GetView<AuthController> {
-  const RegisterView({Key? key}) : super(key: key);
+class RegisterView extends StatefulWidget {
+  const RegisterView({super.key});
+
+  @override
+  State<RegisterView> createState() => _RegisterViewState();
+}
+
+class _RegisterViewState extends State<RegisterView> {
+  final AuthController controller = Get.find<AuthController>();
+
+  late final TextEditingController _nameController;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+  late final TextEditingController _stateController;
+  late final TextEditingController _districtController;
+
+  bool _isPasswordHidden = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+    _phoneController = TextEditingController();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+    _stateController = TextEditingController();
+    _districtController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _stateController.dispose();
+    _districtController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final nameController = TextEditingController();
-    final phoneController = TextEditingController();
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
-    final stateController = TextEditingController();
-    final districtController = TextEditingController();
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Create Account", style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.black,
+      backgroundColor: AppColors.background,
+      appBar: const AppHeaderBar(
+        title: 'Create Account',
+        subtitle: 'Join the National Livestock Safety Network',
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Join FarmShield 🛡️",
-                style: GoogleFonts.poppins(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "Enter your details to register as a partner in livestock safety.",
-                style: GoogleFonts.poppins(color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 32),
-
-              _buildTextField(
-                controller: nameController,
-                label: "Full Name",
-                icon: Icons.person_outline,
-              ),
-              const SizedBox(height: 16),
-
-              _buildTextField(
-                controller: phoneController,
-                label: "Phone Number",
-                icon: Icons.phone_android,
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 16),
-
-              _buildTextField(
-                controller: emailController,
-                label: "Email Address",
-                icon: Icons.email_outlined,
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 16),
-
-              _buildTextField(
-                controller: passwordController,
-                label: "Password",
-                icon: Icons.lock_outline,
-                isPassword: true,
-              ),
-              const SizedBox(height: 24),
-
-              Text(
-                "Your Role",
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 16),
-              ),
-              const SizedBox(height: 12),
-              // Correct usage: The outer Obx listens to controller.selectedRole.value
-              // accessed within the _buildRoleOption calls.
-              Obx(() => Row(
-                children: [
-                  _buildRoleOption('farmer', 'Farmer 👨‍🌾'),
-                  const SizedBox(width: 8),
-                  _buildRoleOption('veterinarian', 'Vet 🩺'),
-                  const SizedBox(width: 8),
-                  _buildRoleOption('admin', 'Admin 🏢'),
-                ],
-              )),
-              const SizedBox(height: 24),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildTextField(
-                      controller: stateController,
-                      label: "State",
-                      icon: Icons.map_outlined,
+        child: Center(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl, vertical: AppSpacing.lg),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 460),
+              child: AppCard(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Account Credentials',
+                      style: AppTypography.titleMedium.copyWith(color: AppColors.primary),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildTextField(
-                      controller: districtController,
-                      label: "District",
-                      icon: Icons.location_city_outlined,
+                    const SizedBox(height: AppSpacing.md),
+                    AppTextField(
+                      controller: _nameController,
+                      label: 'Full Name',
+                      hint: 'e.g. Ramesh Kumar',
+                      prefixIcon: Icons.person_outline_rounded,
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-
-              Obx(() => SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: controller.isLoading.value
-                      ? null
-                      : () {
-                          final email = emailController.text.trim();
-                          final password = passwordController.text.trim();
-                          final name = nameController.text.trim();
-                          final phone = phoneController.text.trim();
-
-                          if (email.isEmpty || !email.contains('@')) {
-                            Get.snackbar('Input Error', 'Please enter a valid email address', snackPosition: SnackPosition.BOTTOM);
-                            return;
-                          }
-                          if (password.length < 6) {
-                            Get.snackbar('Input Error', 'Password must be at least 6 characters', snackPosition: SnackPosition.BOTTOM);
-                            return;
-                          }
-                          if (name.isEmpty) {
-                            Get.snackbar('Input Error', 'Please enter your full name', snackPosition: SnackPosition.BOTTOM);
-                            return;
-                          }
-
-                          controller.signUpWithEmail(
-                            email: email,
-                            password: password,
-                            fullName: name,
-                            role: controller.selectedRole.value,
-                            phone: phone,
-                          );
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1B5E20),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    elevation: 0,
-                  ),
-                  child: controller.isLoading.value
-                      ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : Text(
-                          "CREATE ACCOUNT",
-                          style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                    const SizedBox(height: AppSpacing.md),
+                    AppTextField(
+                      controller: _phoneController,
+                      label: 'Phone Number',
+                      hint: '+91 9876543210',
+                      prefixIcon: Icons.phone_android_rounded,
+                      keyboardType: TextInputType.phone,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    AppTextField(
+                      controller: _emailController,
+                      label: 'Email Address',
+                      hint: 'ramesh@farmshield.gov.in',
+                      prefixIcon: Icons.email_outlined,
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    AppTextField(
+                      controller: _passwordController,
+                      label: 'Password',
+                      hint: 'Minimum 6 characters',
+                      prefixIcon: Icons.lock_outline_rounded,
+                      obscureText: _isPasswordHidden,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isPasswordHidden ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                          size: 20,
+                          color: AppColors.slate400,
                         ),
-                ),
-              )),
-              const SizedBox(height: 20),
-              Center(
-                child: GestureDetector(
-                  onTap: () => Get.back(),
-                  child: RichText(
-                    text: TextSpan(
-                      text: "Already have an account? ",
-                      style: GoogleFonts.poppins(color: Colors.black),
+                        onPressed: () => setState(() => _isPasswordHidden = !_isPasswordHidden),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    Text(
+                      'Account Role',
+                      style: AppTypography.titleMedium.copyWith(color: AppColors.primary),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Obx(() => Row(
+                          children: [
+                            Expanded(
+                              child: _roleTile('farmer', 'Farmer', Icons.agriculture_rounded),
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Expanded(
+                              child: _roleTile('veterinarian', 'Vet', Icons.medical_services_rounded),
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Expanded(
+                              child: _roleTile('admin', 'Authority', Icons.admin_panel_settings_rounded),
+                            ),
+                          ],
+                        )),
+                    const SizedBox(height: AppSpacing.lg),
+                    Text(
+                      'Jurisdiction / Location',
+                      style: AppTypography.titleMedium.copyWith(color: AppColors.primary),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Row(
                       children: [
-                        TextSpan(
-                          text: "Login",
-                          style: GoogleFonts.poppins(
-                            color: Theme.of(context).primaryColor,
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: AppTextField(
+                            controller: _stateController,
+                            label: 'State',
+                            hint: 'e.g. Gujarat',
+                            prefixIcon: Icons.map_outlined,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: AppTextField(
+                            controller: _districtController,
+                            label: 'District',
+                            hint: 'e.g. Anand',
+                            prefixIcon: Icons.location_city_outlined,
                           ),
                         ),
                       ],
                     ),
-                  ),
+                    const SizedBox(height: AppSpacing.xl),
+                    Obx(() => AppButton(
+                          label: 'Register & Launch Portal',
+                          icon: Icons.check_circle_outline_rounded,
+                          isLoading: controller.isLoading.value,
+                          isFullWidth: true,
+                          onPressed: () {
+                            final email = _emailController.text.trim();
+                            final password = _passwordController.text.trim();
+                            final name = _nameController.text.trim();
+                            final phone = _phoneController.text.trim();
+
+                            if (name.isEmpty) {
+                              Get.snackbar('Input Required', 'Please enter your full name',
+                                  snackPosition: SnackPosition.BOTTOM);
+                              return;
+                            }
+                            if (phone.isEmpty) {
+                              Get.snackbar('Input Required', 'Please enter your phone number',
+                                  snackPosition: SnackPosition.BOTTOM);
+                              return;
+                            }
+                            if (email.isEmpty || !email.contains('@')) {
+                              Get.snackbar('Input Required', 'Please enter a valid email address',
+                                  snackPosition: SnackPosition.BOTTOM);
+                              return;
+                            }
+                            if (password.length < 6) {
+                              Get.snackbar('Input Required', 'Password must be at least 6 characters',
+                                  snackPosition: SnackPosition.BOTTOM);
+                              return;
+                            }
+
+                            controller.signUpWithEmail(
+                              email: email,
+                              password: password,
+                              fullName: name,
+                              role: controller.selectedRole.value,
+                              phone: phone,
+                            );
+                          },
+                        )),
+                    const SizedBox(height: AppSpacing.lg),
+                    Center(
+                      child: GestureDetector(
+                        onTap: () => Get.back(),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Already registered? ',
+                              style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+                            ),
+                            Text(
+                              'Sign In',
+                              style: AppTypography.bodySmall.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    bool isPassword = false,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return TextField(
-      controller: controller,
-      obscureText: isPassword,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      ),
-    );
-  }
-
-  Widget _buildRoleOption(String role, String label) {
+  Widget _roleTile(String role, String label, IconData icon) {
     final isSelected = controller.selectedRole.value == role;
-    final primaryColor = Theme.of(Get.context!).primaryColor;
 
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => controller.selectedRole.value = role,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected ? primaryColor.withOpacity(0.1) : Colors.grey[100],
-            border: Border.all(
-              color: isSelected ? primaryColor : Colors.transparent,
-            ),
-            borderRadius: BorderRadius.circular(12),
+    return GestureDetector(
+      onTap: () => controller.selectedRole.value = role,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primarySoft : AppColors.surfaceSubtle,
+          borderRadius: AppSpacing.roundedSm,
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.border,
+            width: isSelected ? 1.5 : 1.0,
           ),
-          child: Center(
-            child: Text(
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: isSelected ? AppColors.primary : AppColors.slate400,
+            ),
+            const SizedBox(height: 4),
+            Text(
               label,
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? primaryColor : Colors.black,
+              style: AppTypography.labelSmall.copyWith(
+                color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
-          ),
+          ],
         ),
       ),
     );

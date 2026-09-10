@@ -1,52 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../controllers/medicines_catalog_controller.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_empty_state.dart';
 import '../../../data/models/farm_models.dart';
+import '../controllers/medicines_catalog_controller.dart';
 
 class MedicinesCatalogView extends GetView<MedicinesCatalogController> {
-  const MedicinesCatalogView({Key? key}) : super(key: key);
+  const MedicinesCatalogView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
-          'Veterinary Drug Formulary',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
+          'Veterinary Formulary & MRLs',
+          style: AppTypography.titleMedium.copyWith(color: Colors.white),
         ),
-        backgroundColor: const Color(0xFF1B5E20),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(68),
+          preferredSize: const Size.fromHeight(64),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.sm),
             child: Container(
+              height: 46,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                borderRadius: AppSpacing.roundedMd,
+                boxShadow: AppSpacing.shadowSubtle,
               ),
               child: TextField(
                 onChanged: (value) => controller.searchQuery.value = value,
+                style: AppTypography.bodyMedium,
                 decoration: InputDecoration(
-                  hintText: 'Search brand, molecule, or class...',
-                  hintStyle: GoogleFonts.poppins(fontSize: 13, color: Colors.blueGrey.shade300),
-                  prefixIcon: const Icon(Icons.search, color: Color(0xFF1B5E20)),
-                  filled: true,
-                  fillColor: Colors.white,
+                  isDense: true,
+                  hintText: 'Search medication brand, active compound, class...',
+                  hintStyle: AppTypography.bodySmall,
+                  prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primary, size: 20),
                   contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide.none,
-                  ),
+                  border: InputBorder.none,
+                  filled: false,
                 ),
               ),
             ),
@@ -59,27 +56,22 @@ class MedicinesCatalogView extends GetView<MedicinesCatalogController> {
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value) {
-                return const Center(child: CircularProgressIndicator(color: Color(0xFF1B5E20)));
+                return const Center(child: CircularProgressIndicator(color: AppColors.primary));
               }
               final list = controller.filteredMedicines;
               if (list.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.medication_liquid_outlined, size: 64, color: Colors.grey.shade400),
-                      const SizedBox(height: 12),
-                      Text(
-                        'No medicines found',
-                        style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.blueGrey.shade600),
-                      ),
-                    ],
-                  ),
+                return AppEmptyState(
+                  icon: Icons.medication_liquid_rounded,
+                  title: 'No Medications Found',
+                  description: 'No veterinary drugs matched your search criteria.',
+                  actionLabel: 'Add New Drug',
+                  onAction: () => controller.showAddMedicineSheet(),
                 );
               }
               return ListView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, 80),
                 itemCount: list.length,
+                physics: const BouncingScrollPhysics(),
                 itemBuilder: (context, index) => _buildMedicineCard(list[index]),
               );
             }),
@@ -88,36 +80,42 @@ class MedicinesCatalogView extends GetView<MedicinesCatalogController> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => controller.showAddMedicineSheet(),
-        backgroundColor: const Color(0xFF1B5E20),
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        icon: const Icon(Icons.add_circle_outline),
-        label: Text('Add Drug & MRL', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+        icon: const Icon(Icons.add_rounded, size: 20),
+        label: Text('Add Drug & MRL', style: AppTypography.labelMedium.copyWith(color: Colors.white)),
       ),
     );
   }
 
   Widget _buildFilterChips() {
     return Container(
-      height: 54,
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      height: 50,
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: ListView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         children: controller.antimicrobialClasses.map((c) {
           return Obx(() {
             final isSelected = controller.selectedClass.value == c;
             return Padding(
-              padding: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.only(right: AppSpacing.sm),
               child: ChoiceChip(
-                label: Text(c, style: GoogleFonts.poppins(fontSize: 12, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500)),
-                selected: isSelected,
-                onSelected: (val) => controller.selectedClass.value = c,
-                selectedColor: const Color(0xFF1B5E20),
-                backgroundColor: Colors.white,
-                side: BorderSide(
-                  color: isSelected ? const Color(0xFF1B5E20) : Colors.grey.shade300,
+                label: Text(
+                  c,
+                  style: AppTypography.labelSmall.copyWith(
+                    color: isSelected ? Colors.white : AppColors.textSecondary,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  ),
                 ),
-                labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.blueGrey.shade700),
+                selected: isSelected,
+                onSelected: (_) => controller.selectedClass.value = c,
+                selectedColor: AppColors.primary,
+                backgroundColor: AppColors.surface,
+                side: BorderSide(
+                  color: isSelected ? AppColors.primary : AppColors.border,
+                ),
               ),
             );
           });
@@ -133,128 +131,119 @@ class MedicinesCatalogView extends GetView<MedicinesCatalogController> {
     final milkRule = rules.firstWhereOrNull((r) => r.product?.toLowerCase() == 'milk');
     final aquaRule = rules.firstWhereOrNull((r) => r.product?.toLowerCase() == 'aquaculture' || r.product?.toLowerCase() == 'fish');
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        border: Border.all(
-          color: isCia ? Colors.redAccent.withOpacity(0.3) : Colors.grey.shade100,
-          width: isCia ? 1.5 : 1.0,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: const Color(0xFFE8F5E9),
-                image: medicine.imageUrl != null
-                    ? DecorationImage(image: NetworkImage(medicine.imageUrl!), fit: BoxFit.cover)
-                    : null,
-              ),
-              child: medicine.imageUrl == null
-                  ? const Icon(Icons.medication, size: 36, color: Color(0xFF2E7D32))
+    return AppCard(
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      borderColor: isCia ? AppColors.danger.withValues(alpha: 0.35) : AppColors.border,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 68,
+            height: 68,
+            decoration: BoxDecoration(
+              borderRadius: AppSpacing.roundedMd,
+              color: AppColors.primarySoft,
+              image: medicine.imageUrl != null
+                  ? DecorationImage(image: NetworkImage(medicine.imageUrl!), fit: BoxFit.cover)
                   : null,
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          medicine.name ?? 'Unknown Medicine',
-                          style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.blueGrey.shade900),
+            child: medicine.imageUrl == null
+                ? const Icon(Icons.medication_liquid_rounded, size: 30, color: AppColors.primary)
+                : null,
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        medicine.name ?? 'Unknown Medicine',
+                        style: AppTypography.titleSmall.copyWith(fontSize: 14),
+                      ),
+                    ),
+                    if (isCia)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.dangerBg,
+                          borderRadius: AppSpacing.roundedXs,
+                          border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.warning_amber_rounded, size: 12, color: AppColors.danger),
+                            const SizedBox(width: 4),
+                            Text(
+                              'WHO CIA',
+                              style: AppTypography.labelSmall.copyWith(
+                                color: AppColors.danger,
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      if (isCia)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade50,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.redAccent.withOpacity(0.5)),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.warning_amber_rounded, size: 12, color: Colors.red),
-                              const SizedBox(width: 4),
-                              Text(
-                                'WHO CIA',
-                                style: GoogleFonts.poppins(color: Colors.red.shade700, fontSize: 10, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${medicine.activeIngredient ?? "Active Ingredient"} • ${medicine.strength ?? ""}',
+                  style: AppTypography.bodySmall,
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceSubtle,
+                    borderRadius: AppSpacing.roundedXs,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${medicine.activeIngredient ?? "Active Ingredient"} • ${medicine.strength ?? ""}',
-                    style: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade600, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1B5E20).withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      medicine.antimicrobialClass ?? 'Veterinary Therapeutic',
-                      style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF1B5E20)),
+                  child: Text(
+                    medicine.antimicrobialClass ?? 'Veterinary Therapeutic',
+                    style: AppTypography.labelSmall.copyWith(
+                      fontSize: 10,
+                      color: AppColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      if (milkRule != null && milkRule.withdrawalDays != null)
-                        _buildInfoTag('🥛 Milk W/D: ${milkRule.withdrawalDays}d', Colors.amber.shade800, Colors.amber.shade50),
-                      if (aquaRule != null && aquaRule.withdrawalDays != null)
-                        _buildInfoTag('🐟 Aqua W/D: ${aquaRule.withdrawalDays}d', Colors.blue.shade800, Colors.blue.shade50),
-                      if (milkRule != null && milkRule.mrl != null)
-                        _buildInfoTag('⚖️ MRL: ${milkRule.mrl} µg/kg', const Color(0xFF1B5E20), const Color(0xFFE8F5E9)),
-                    ],
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    if (milkRule != null && milkRule.withdrawalDays != null)
+                      _mrlTag('Milk W/D: ${milkRule.withdrawalDays}d', AppColors.warning, AppColors.warningBg),
+                    if (aquaRule != null && aquaRule.withdrawalDays != null)
+                      _mrlTag('Aqua W/D: ${aquaRule.withdrawalDays}d', AppColors.info, AppColors.infoBg),
+                    if (milkRule != null && milkRule.mrl != null)
+                      _mrlTag('MRL: ${milkRule.mrl} µg/kg', AppColors.success, AppColors.successBg),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildInfoTag(String text, Color textColor, Color bgColor) {
+  Widget _mrlTag(String text, Color color, Color bgColor) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: textColor.withOpacity(0.25)),
+        borderRadius: AppSpacing.roundedXs,
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Text(
         text,
-        style: GoogleFonts.poppins(color: textColor, fontSize: 10, fontWeight: FontWeight.w600),
+        style: AppTypography.labelSmall.copyWith(color: color, fontSize: 10),
       ),
     );
   }

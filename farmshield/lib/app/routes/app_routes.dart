@@ -14,6 +14,7 @@ abstract class Routes {
   static const CALENDAR = _Paths.CALENDAR;
   static const MEDICINES_CATALOG = _Paths.MEDICINES_CATALOG;
   static const REPORTS = _Paths.REPORTS;
+  static const SYNDROMIC_REPORT = _Paths.SYNDROMIC_REPORT;
 }
 
 abstract class _Paths {
@@ -30,4 +31,5 @@ abstract class _Paths {
   static const CALENDAR = '/calendar';
   static const MEDICINES_CATALOG = '/medicines-catalog';
   static const REPORTS = '/reports';
+  static const SYNDROMIC_REPORT = '/syndromic-report';
 }

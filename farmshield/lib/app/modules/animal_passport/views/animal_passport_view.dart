@@ -1,45 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_empty_state.dart';
+import '../../../core/widgets/app_header_bar.dart';
+import '../../../data/models/farm_models.dart';
 import '../controllers/animal_passport_controller.dart';
 import 'qr_scanner_view.dart';
-import '../../../data/models/farm_models.dart';
 
-class AnimalPassportView extends GetView<AnimalPassportController> {
-  const AnimalPassportView({Key? key}) : super(key: key);
+class AnimalPassportView extends StatefulWidget {
+  const AnimalPassportView({super.key});
+
+  @override
+  State<AnimalPassportView> createState() => _AnimalPassportViewState();
+}
+
+class _AnimalPassportViewState extends State<AnimalPassportView> {
+  final AnimalPassportController controller = Get.find<AnimalPassportController>();
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(text: controller.qrToken.value);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final searchController = TextEditingController(text: controller.qrToken.value);
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Safety & Traceability Verification',
-              style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 17, color: Colors.white),
-            ),
-            Text(
-              'Public Consumer & MRL Regulatory Passport',
-              style: GoogleFonts.poppins(fontSize: 11, color: Colors.white.withOpacity(0.85)),
-            ),
-          ],
-        ),
-        backgroundColor: const Color(0xFF1B5E20),
-        elevation: 0,
+      backgroundColor: AppColors.background,
+      appBar: const AppHeaderBar(
+        title: 'Livestock Safety Passport',
+        subtitle: 'Public MRL Regulatory & Traceability Verification',
       ),
       body: Column(
         children: [
-          // 1. Search / Scanner Header
+          // Search & Scanner Header
           Container(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.md),
             decoration: const BoxDecoration(
-              color: Color(0xFF1B5E20),
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+              color: AppColors.primary,
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(AppSpacing.radiusXl)),
             ),
             child: Column(
               children: [
@@ -47,54 +58,41 @@ class AnimalPassportView extends GetView<AnimalPassportController> {
                   children: [
                     Expanded(
                       child: Container(
-                        height: 52,
-                        padding: const EdgeInsets.only(left: 14, right: 6),
+                        height: 48,
+                        padding: const EdgeInsets.only(left: 12, right: 4),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 10,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
+                          borderRadius: AppSpacing.roundedMd,
+                          boxShadow: AppSpacing.shadowSubtle,
                         ),
                         child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Icon(Icons.search_rounded, color: Color(0xFF1B5E20), size: 22),
-                            const SizedBox(width: 10),
+                            const Icon(Icons.search_rounded, color: AppColors.primary, size: 20),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: TextField(
-                                controller: searchController,
-                                textAlignVertical: TextAlignVertical.center,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 13.5,
-                                  fontWeight: FontWeight.w500,
-                                  color: const Color(0xFF0F172A),
-                                ),
+                                controller: _searchController,
+                                style: AppTypography.bodyMedium,
                                 decoration: InputDecoration(
-                                  isCollapsed: true,
-                                  hintText: 'Search Tag, QR Token, or ID...',
-                                  hintStyle: GoogleFonts.poppins(fontSize: 13, color: Colors.blueGrey.shade400),
+                                  isDense: true,
+                                  hintText: 'Search Ear Tag, QR Token, or ID...',
+                                  hintStyle: AppTypography.bodySmall,
                                   border: InputBorder.none,
+                                  contentPadding: EdgeInsets.zero,
+                                  filled: false,
                                 ),
                                 onSubmitted: (val) => controller.fetchPublicPassport(val),
                               ),
                             ),
-                            const SizedBox(width: 8),
                             Material(
-                              color: const Color(0xFF1B5E20),
-                              borderRadius: BorderRadius.circular(12),
+                              color: AppColors.primary,
+                              borderRadius: AppSpacing.roundedSm,
                               child: InkWell(
-                                borderRadius: BorderRadius.circular(12),
-                                onTap: () => controller.fetchPublicPassport(searchController.text),
-                                child: Container(
-                                  width: 38,
-                                  height: 38,
-                                  alignment: Alignment.center,
-                                  child: const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 20),
+                                borderRadius: AppSpacing.roundedSm,
+                                onTap: () => controller.fetchPublicPassport(_searchController.text.trim()),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18),
                                 ),
                               ),
                             ),
@@ -102,28 +100,22 @@ class AnimalPassportView extends GetView<AnimalPassportController> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: AppSpacing.sm),
                     Container(
-                      width: 52,
-                      height: 52,
+                      height: 48,
+                      width: 48,
                       decoration: BoxDecoration(
-                        color: Colors.amber.shade600,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 10,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
+                        color: AppColors.accent,
+                        borderRadius: AppSpacing.roundedMd,
+                        boxShadow: AppSpacing.shadowSubtle,
                       ),
                       child: IconButton(
-                        icon: const Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 24),
+                        icon: const Icon(Icons.qr_code_scanner_rounded, color: AppColors.primaryDark, size: 22),
                         tooltip: 'Scan Ear-Tag QR',
                         onPressed: () async {
                           final result = await Get.to(() => const QRScannerView());
                           if (result != null && result is String) {
-                            searchController.text = result;
+                            _searchController.text = result;
                             controller.fetchPublicPassport(result);
                           }
                         },
@@ -131,17 +123,16 @@ class AnimalPassportView extends GetView<AnimalPassportController> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                // Quick Chips for 1-tap testing
+                const SizedBox(height: AppSpacing.sm),
                 SizedBox(
-                  height: 30,
+                  height: 28,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     children: [
-                      _buildQuickChip('COW-GIR-01', searchController),
-                      _buildQuickChip('COW-SAH-02', searchController),
-                      _buildQuickChip('BUF-MUR-01', searchController),
-                      _buildQuickChip('GOAT-JAM-01', searchController),
+                      _quickChip('COW-GIR-01'),
+                      _quickChip('COW-SAH-02'),
+                      _quickChip('BUF-MUR-01'),
+                      _quickChip('GOAT-JAM-01'),
                     ],
                   ),
                 ),
@@ -149,21 +140,22 @@ class AnimalPassportView extends GetView<AnimalPassportController> {
             ),
           ),
 
-          // 2. Main Passport Content
+          // Main Passport Content
           Expanded(
             child: controller.obx(
               (passport) => SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.all(AppSpacing.lg),
                 child: Column(
                   children: [
                     _buildPassportHeader(passport!),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.md),
                     _buildSafetyBanner(passport),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: AppSpacing.md),
                     _buildCountdownSection(passport),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: AppSpacing.md),
                     _buildDetailCard(passport),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppSpacing.xxl),
                   ],
                 ),
               ),
@@ -171,57 +163,40 @@ class AnimalPassportView extends GetView<AnimalPassportController> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(color: Color(0xFF1B5E20)),
-                    SizedBox(height: 14),
-                    Text('Verifying Blockchain & MRL Ledger...', style: TextStyle(color: Colors.blueGrey, fontSize: 13)),
+                    CircularProgressIndicator(color: AppColors.primary),
+                    SizedBox(height: 12),
+                    Text('Verifying National MRL Registry...', style: TextStyle(color: AppColors.textSecondary)),
                   ],
                 ),
               ),
-              onEmpty: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.qr_code_2_rounded, size: 80, color: Colors.blueGrey),
-                      const SizedBox(height: 14),
-                      Text(
-                        'Scan an Ear-Tag QR to Verify Safety',
-                        style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Tap any tag chip above or scan a livestock QR code.',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade600),
-                      ),
-                    ],
-                  ),
-                ),
+              onEmpty: AppEmptyState(
+                icon: Icons.qr_code_2_rounded,
+                title: 'Scan or Search Livestock Tag',
+                description: 'Enter an ear-tag ID above or tap any quick chip to view consumer food safety verification.',
               ),
               onError: (err) => Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(24.0),
+                  padding: const EdgeInsets.all(AppSpacing.xl),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.error_outline_rounded, size: 64, color: Colors.red.shade400),
-                      const SizedBox(height: 14),
-                      Text(
-                        'Verification Note',
-                        style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red.shade800),
-                      ),
-                      const SizedBox(height: 6),
+                      const Icon(Icons.error_outline_rounded, size: 48, color: AppColors.danger),
+                      const SizedBox(height: 12),
+                      Text('Verification Lookup', style: AppTypography.titleMedium),
+                      const SizedBox(height: 4),
                       Text(
                         err.toString(),
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade600),
+                        style: AppTypography.bodySmall,
                       ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () => controller.fetchPublicPassport('COW-GIR-01'),
-                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1B5E20)),
-                        child: const Text('Load Demo Animal Passport', style: TextStyle(color: Colors.white)),
+                      const SizedBox(height: AppSpacing.lg),
+                      AppButton(
+                        label: 'Load Demo Animal Passport',
+                        variant: AppButtonVariant.secondary,
+                        onPressed: () {
+                          _searchController.text = 'COW-GIR-01';
+                          controller.fetchPublicPassport('COW-GIR-01');
+                        },
                       ),
                     ],
                   ),
@@ -234,88 +209,78 @@ class AnimalPassportView extends GetView<AnimalPassportController> {
     );
   }
 
-  Widget _buildQuickChip(String label, TextEditingController searchController) {
-    return GestureDetector(
-      onTap: () {
-        searchController.text = label;
-        controller.fetchPublicPassport(label);
-      },
-      child: Container(
-        margin: const EdgeInsets.only(right: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.18),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.white.withOpacity(0.3)),
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.poppins(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+  Widget _quickChip(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 6),
+      child: GestureDetector(
+        onTap: () {
+          _searchController.text = label;
+          controller.fetchPublicPassport(label);
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.16),
+            borderRadius: AppSpacing.roundedSm,
+            border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+          ),
+          child: Text(
+            label,
+            style: AppTypography.labelSmall.copyWith(color: Colors.white, fontSize: 10.5),
+          ),
         ),
       ),
     );
   }
 
   Widget _buildPassportHeader(PublicPassport passport) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+    return AppCard(
       child: Row(
         children: [
           Container(
-            width: 76,
-            height: 76,
+            width: 72,
+            height: 72,
             decoration: BoxDecoration(
-              color: const Color(0xFFE8F5E9),
-              borderRadius: BorderRadius.circular(16),
+              color: AppColors.primarySoft,
+              borderRadius: AppSpacing.roundedMd,
               image: passport.imageUrl != null
                   ? DecorationImage(
                       image: NetworkImage(passport.imageUrl!),
                       fit: BoxFit.cover,
-                      onError: (_, __) {},
                     )
                   : null,
             ),
             child: passport.imageUrl == null
-                ? const Icon(Icons.pets_rounded, size: 36, color: Color(0xFF1B5E20))
+                ? const Icon(Icons.pets_rounded, size: 32, color: AppColors.primary)
                 : null,
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   passport.animalCode ?? 'Unknown Tag',
-                  style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
+                  style: AppTypography.codeTag.copyWith(fontSize: 16),
                 ),
                 Text(
                   '${passport.breed ?? "Indigenous Breed"} • ${(passport.species ?? "Livestock").toUpperCase()}',
-                  style: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade600, fontWeight: FontWeight.w500),
+                  style: AppTypography.bodySmall,
                 ),
-                const SizedBox(height: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1B5E20).withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    '📍 ${passport.farmName ?? "Sundarbans Farm"}',
-                    style: GoogleFonts.poppins(fontSize: 10.5, fontWeight: FontWeight.bold, color: const Color(0xFF1B5E20)),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.location_on_rounded, size: 13, color: AppColors.primary),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        passport.farmName ?? "Registered Farm",
+                        style: AppTypography.labelSmall.copyWith(color: AppColors.primary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -329,40 +294,40 @@ class AnimalPassportView extends GetView<AnimalPassportController> {
     final bool isSafe = passport.isSafeToConsume ?? (passport.isMilkSafe ?? true);
     final String product = (passport.product ?? 'Milk & Meat').toUpperCase();
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-      decoration: BoxDecoration(
-        color: isSafe ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: isSafe ? Colors.green.shade400 : Colors.red.shade400, width: 1.5),
-      ),
+    return AppCard(
+      color: isSafe ? AppColors.successBg : AppColors.dangerBg,
+      borderColor: isSafe
+          ? AppColors.success.withValues(alpha: 0.3)
+          : AppColors.danger.withValues(alpha: 0.3),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             isSafe ? Icons.verified_rounded : Icons.warning_amber_rounded,
-            color: isSafe ? const Color(0xFF1B5E20) : Colors.red.shade800,
-            size: 30,
+            color: isSafe ? AppColors.success : AppColors.danger,
+            size: 28,
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isSafe ? '🟢 100% VERIFIED SAFE FOR SALE' : '🔴 ACTIVE WITHDRAWAL ($product)',
-                  style: GoogleFonts.poppins(
-                    fontSize: 13.5,
+                  isSafe ? 'VERIFIED SAFE FOR HUMAN CONSUMPTION' : 'ACTIVE WITHDRAWAL ($product)',
+                  style: AppTypography.labelLarge.copyWith(
+                    color: isSafe ? AppColors.success : AppColors.danger,
                     fontWeight: FontWeight.w800,
-                    color: isSafe ? const Color(0xFF1B5E20) : Colors.red.shade900,
+                    fontSize: 12.5,
                   ),
                 ),
+                const SizedBox(height: 2),
                 Text(
                   isSafe
-                      ? 'Complies with FSSAI & Codex Alimentarius MRL Standards.'
-                      : 'Antibiotic residues present. Strictly withhold produce from market.',
-                  style: GoogleFonts.poppins(fontSize: 10.5, color: Colors.blueGrey.shade700),
+                      ? 'Certified compliant with national FSSAI & Codex Alimentarius MRL Standards.'
+                      : 'Antibiotic residues active. Strictly withhold livestock produce from sale.',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: isSafe ? AppColors.success : AppColors.danger,
+                    fontSize: 11,
+                  ),
                 ),
               ],
             ),
@@ -379,33 +344,31 @@ class AnimalPassportView extends GetView<AnimalPassportController> {
     final remainingHours = passport.remainingHours ?? (passport.remainingWithdrawalHours ?? 48);
     final clearanceDate = passport.withdrawalEndDate ?? passport.safeDate ?? DateTime.now().add(const Duration(days: 3));
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.amber.shade300),
-      ),
+    return AppCard(
+      color: AppColors.warningBg,
+      borderColor: AppColors.warning.withValues(alpha: 0.3),
       child: Column(
         children: [
           Text(
             'MRL CLEARANCE COUNTDOWN',
-            style: GoogleFonts.poppins(fontSize: 11, color: Colors.amber.shade900, fontWeight: FontWeight.bold),
+            style: AppTypography.labelSmall.copyWith(
+              color: AppColors.warning,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildTimeCard('${remainingHours ~/ 24}', 'DAYS'),
+              _timePod('${remainingHours ~/ 24}', 'DAYS'),
               const SizedBox(width: 8),
-              _buildTimeCard('${remainingHours % 24}', 'HOURS'),
+              _timePod('${remainingHours % 24}', 'HOURS'),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
-            'Safe for Harvest after: ${DateFormat('EEE, MMM dd, yyyy (hh:mm a)').format(clearanceDate)}',
-            style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.blueGrey.shade800),
+            'Safe for distribution after: ${DateFormat('EEE, dd MMM yyyy (hh:mm a)').format(clearanceDate)}',
+            style: AppTypography.bodySmall.copyWith(fontSize: 11, fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
         ],
@@ -413,92 +376,54 @@ class AnimalPassportView extends GetView<AnimalPassportController> {
     );
   }
 
-  Widget _buildTimeCard(String value, String label) {
+  Widget _timePod(String value, String label) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
-        borderRadius: BorderRadius.circular(12),
+        color: AppColors.slate900,
+        borderRadius: AppSpacing.roundedSm,
       ),
       child: Column(
         children: [
-          Text(value, style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
-          Text(label, style: GoogleFonts.poppins(fontSize: 9, color: Colors.blueGrey.shade300, fontWeight: FontWeight.bold)),
+          Text(value, style: AppTypography.titleLarge.copyWith(color: Colors.white)),
+          Text(label, style: AppTypography.labelSmall.copyWith(color: AppColors.slate400, fontSize: 8.5)),
         ],
       ),
     );
   }
 
   Widget _buildDetailCard(PublicPassport passport) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Clinical Safety & Regulatory Audit', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 14)),
-          const SizedBox(height: 8),
-          const Divider(height: 1),
-          const SizedBox(height: 8),
-          _buildInfoRow(Icons.health_and_safety_outlined, 'Health Status', passport.healthStatus?.capitalizeFirst ?? 'Healthy'),
-          _buildInfoRow(Icons.science_outlined, 'Latest Residue Test', passport.latestLabResult ?? 'MRL Zero (Compliant)'),
-          _buildInfoRow(Icons.verified_user_outlined, 'Safety Index Score', '${passport.complianceScore ?? 98.0}% Verified'),
-          _buildInfoRow(Icons.event_available_outlined, 'Last Verified', DateFormat('MMM dd, yyyy').format(passport.lastVerifiedAt ?? DateTime.now())),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.shield_rounded, size: 14, color: Color(0xFF1B5E20)),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    'Certified under FarmShield AMU National Surveillance Protocol',
-                    style: GoogleFonts.poppins(fontSize: 9.5, color: Colors.blueGrey.shade600, fontStyle: FontStyle.italic),
-                  ),
-                ),
-              ],
-            ),
+          Text('Clinical Safety & Regulatory Audit', style: AppTypography.titleSmall),
+          const Divider(height: 20),
+          _infoRow(
+            Icons.health_and_safety_outlined,
+            'Health Status',
+            passport.healthStatus != null
+                ? passport.healthStatus!.replaceAll('_', ' ').split(' ').map((w) => w.capitalizeFirst ?? w).join(' ')
+                : 'Healthy',
           ),
+          _infoRow(Icons.science_outlined, 'Latest Residue Test', passport.latestLabResult ?? 'MRL Zero (Compliant)'),
+          _infoRow(Icons.verified_user_outlined, 'Safety Index Score', '${passport.complianceScore ?? 98.0}% Verified'),
+          _infoRow(Icons.event_available_outlined, 'Last Verified', DateFormat('dd MMM yyyy').format(passport.lastVerifiedAt ?? DateTime.now())),
         ],
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
+  Widget _infoRow(IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 16, color: const Color(0xFF1B5E20)),
+          Icon(icon, size: 16, color: AppColors.primary),
           const SizedBox(width: 8),
-          Text(
-            label,
-            style: GoogleFonts.poppins(fontSize: 12, color: Colors.blueGrey.shade600),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
-            ),
-          ),
+          Text(label, style: AppTypography.bodySmall),
+          const Spacer(),
+          Text(value, style: AppTypography.labelSmall.copyWith(fontWeight: FontWeight.w700)),
         ],
       ),
     );
