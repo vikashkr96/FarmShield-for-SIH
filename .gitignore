@@ -44,3 +44,10 @@ Thumbs.db
 key.properties
 **/secrets.xml
 **/constants.dart
+
+# Python / ML artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
