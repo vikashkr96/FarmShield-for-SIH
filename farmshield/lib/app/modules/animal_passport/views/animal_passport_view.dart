@@ -262,10 +262,14 @@ class _AnimalPassportViewState extends State<AnimalPassportView> {
                 Text(
                   passport.animalCode ?? 'Unknown Tag',
                   style: AppTypography.codeTag.copyWith(fontSize: 16),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   '${passport.breed ?? "Indigenous Breed"} • ${(passport.species ?? "Livestock").toUpperCase()}',
                   style: AppTypography.bodySmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Row(
@@ -418,12 +422,28 @@ class _AnimalPassportViewState extends State<AnimalPassportView> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(icon, size: 16, color: AppColors.primary),
           const SizedBox(width: 8),
-          Text(label, style: AppTypography.bodySmall),
-          const Spacer(),
-          Text(value, style: AppTypography.labelSmall.copyWith(fontWeight: FontWeight.w700)),
+          Expanded(
+            child: Text(
+              label,
+              style: AppTypography.bodySmall,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              value,
+              style: AppTypography.labelSmall.copyWith(fontWeight: FontWeight.w700),
+              textAlign: TextAlign.end,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );

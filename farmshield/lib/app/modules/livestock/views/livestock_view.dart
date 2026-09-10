@@ -330,10 +330,10 @@ class LivestockView extends GetView<LivestockController> {
                         borderRadius: AppSpacing.roundedLg,
                         border: Border.all(color: AppColors.border, width: 1.5),
                       ),
-                      child: controller.selectedImage.value != null
+                      child: controller.selectedImageBytes.value != null
                           ? ClipRRect(
                               borderRadius: AppSpacing.roundedLg,
-                              child: Image.file(controller.selectedImage.value!, fit: BoxFit.cover),
+                              child: Image.memory(controller.selectedImageBytes.value!, fit: BoxFit.cover),
                             )
                           : Column(
                               mainAxisAlignment: MainAxisAlignment.center,

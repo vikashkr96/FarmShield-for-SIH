@@ -1,9 +1,10 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../../../core/services/cloudinary_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -16,24 +17,235 @@ import '../../../core/widgets/app_header_bar.dart';
 import '../../../core/widgets/app_loading_skeleton.dart';
 import '../../../routes/app_pages.dart';
 import '../controllers/animal_detail_controller.dart';
+import '../widgets/edit_animal_bottom_sheet.dart';
 
 class AnimalDetailView extends GetView<AnimalDetailController> {
   const AnimalDetailView({super.key});
+
+  void _openEditBottomSheet(BuildContext context) {
+    final currentData = controller.state;
+    if (currentData == null) return;
+
+    EditAnimalBottomSheet.show(
+      context,
+      animalData: currentData,
+      onSave: (updated) => controller.updateAnimalDetails(updated),
+    );
+  }
+
+  void _showImageSourcePicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusLg)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.slate300,
+                  borderRadius: AppSpacing.roundedFull,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Change Animal Photo',
+                style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 12),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primarySoft,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.camera_alt_rounded, color: AppColors.primary, size: 20),
+                ),
+                title: const Text('Take New Photo', style: TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: const Text('Capture using device camera'),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  _pickAndPreviewImage(context, ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primarySoft,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.photo_library_rounded, color: AppColors.primary, size: 20),
+                ),
+                title: const Text('Choose from Gallery / Files', style: TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: const Text('Select a JPG, PNG, or WebP photo'),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  _pickAndPreviewImage(context, ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickAndPreviewImage(BuildContext context, ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: source,
+        imageQuality: 85,
+        maxWidth: 1600,
+        maxHeight: 1600,
+      );
+
+      if (pickedFile == null) return;
+
+      final bytes = await pickedFile.readAsBytes();
+      final validationError = CloudinaryService().validateImage(
+        bytes: bytes,
+        fileName: pickedFile.name,
+      );
+
+      if (validationError != null) {
+        Get.snackbar('Invalid Image', validationError, snackPosition: SnackPosition.BOTTOM);
+        return;
+      }
+
+      if (!context.mounted) return;
+
+      // Show Visual Confirmation Dialog before uploading
+      _showUploadPreviewDialog(context, bytes, pickedFile.name);
+    } catch (e) {
+      Get.log('Image pick error: $e');
+      Get.snackbar('Image Error', 'Could not open image picker: $e', snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  void _showUploadPreviewDialog(BuildContext context, Uint8List bytes, String fileName) {
+    final sizeKb = (bytes.lengthInBytes / 1024).toStringAsFixed(0);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedLg),
+        backgroundColor: Colors.white,
+        title: Text(
+          'Confirm New Photo',
+          style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.w700),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 160,
+              height: 160,
+              decoration: BoxDecoration(
+                borderRadius: AppSpacing.roundedMd,
+                border: Border.all(color: AppColors.border, width: 1.5),
+              ),
+              child: ClipRRect(
+                borderRadius: AppSpacing.roundedMd,
+                child: Image.memory(
+                  bytes,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '$fileName ($sizeKb KB)',
+              style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'This photo will be uploaded to Cloudinary and saved to the animal record.',
+              style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: AppButton(
+                  label: 'Cancel',
+                  variant: AppButtonVariant.outline,
+                  height: 44,
+                  onPressed: () => Navigator.of(ctx).pop(),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: AppButton(
+                  label: 'Upload Photo',
+                  variant: AppButtonVariant.primary,
+                  height: 44,
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    controller.uploadAnimalPhotoBytes(
+                      bytes: bytes,
+                      fileName: fileName,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const AppHeaderBar(
+      appBar: AppHeaderBar(
         title: 'Animal Profile',
         subtitle: 'Digital Passport & Medical History',
+        actions: [
+          IconButton(
+            icon: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.18),
+                borderRadius: AppSpacing.roundedSm,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.edit_outlined, size: 16, color: Colors.white),
+                  const SizedBox(width: 4),
+                  Text('Edit', style: AppTypography.labelSmall.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+            tooltip: 'Edit Animal Details',
+            onPressed: () => _openEditBottomSheet(context),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: controller.obx(
         (data) => SingleChildScrollView(
-          // physics: const Ph,
           child: Column(
             children: [
-              _buildHeroHeader(data!),
+              _buildHeroHeader(context, data!),
               _buildSafetyBanner(data),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
@@ -69,7 +281,7 @@ class AnimalDetailView extends GetView<AnimalDetailController> {
     );
   }
 
-  Widget _buildHeroHeader(Map<String, dynamic> animal) {
+  Widget _buildHeroHeader(BuildContext context, Map<String, dynamic> animal) {
     final breed = animal['breed']?.toString() ?? 'Indigenous';
     final species = animal['species']?.toString() ?? 'cow';
     final imageUrl = animal['image_url'] ?? BreedAssetHelper.getBreedImage(breed, species);
@@ -82,40 +294,71 @@ class AnimalDetailView extends GetView<AnimalDetailController> {
       ),
       child: Column(
         children: [
-          Stack(
-            alignment: Alignment.bottomRight,
-            children: [
-              Container(
-                width: 124,
-                height: 124,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 3.5),
-                  boxShadow: AppSpacing.shadowElevated,
-                ),
-                child: ClipOval(
-                  child: Image.network(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => const Center(
-                      child: Icon(Icons.pets, size: 48, color: Colors.white70),
+          // Circular Avatar with interactive camera badge & upload indicator
+          Obx(() {
+            final isUploading = controller.isUploading.value;
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: 124,
+                  height: 124,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 3.5),
+                    boxShadow: AppSpacing.shadowElevated,
+                  ),
+                  child: ClipOval(
+                    child: Image.network(
+                      imageUrl,
+                      key: ValueKey(imageUrl),
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => const Center(
+                        child: Icon(Icons.pets, size: 48, color: Colors.white70),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              GestureDetector(
-                onTap: () => _pickImage(ImageSource.camera),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: AppColors.accent,
-                    shape: BoxShape.circle,
+                if (isUploading)
+                  Container(
+                    width: 124,
+                    height: 124,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.black.withValues(alpha: 0.6),
+                    ),
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.accent,
+                        strokeWidth: 3,
+                      ),
+                    ),
                   ),
-                  child: const Icon(Icons.camera_alt_rounded, color: AppColors.primaryDark, size: 18),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: GestureDetector(
+                    onTap: isUploading ? null : () => _showImageSourcePicker(context),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: AppColors.accent,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(Icons.camera_alt_rounded, color: AppColors.primaryDark, size: 18),
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            );
+          }),
           const SizedBox(height: AppSpacing.md),
           Text(
             animal['animal_code'] ?? 'N/A',
@@ -308,7 +551,7 @@ class AnimalDetailView extends GetView<AnimalDetailController> {
             variant: AppButtonVariant.outline,
             isFullWidth: true,
             icon: Icons.verified_outlined,
-            onPressed: () => Get.toNamed(Routes.ANIMAL_PASSPORT),
+            onPressed: () => Get.toNamed(Routes.ANIMAL_PASSPORT, arguments: qrToken),
           ),
         ],
       ),
@@ -322,7 +565,13 @@ class AnimalDetailView extends GetView<AnimalDetailController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Clinical & Treatment History', style: AppTypography.titleMedium),
+            Row(
+              children: [
+                const Icon(Icons.history_edu_rounded, color: AppColors.primary, size: 20),
+                const SizedBox(width: 8),
+                Text('Medical & Treatment History', style: AppTypography.titleSmall),
+              ],
+            ),
             Text(
               '${treatments.length} logged',
               style: AppTypography.labelSmall.copyWith(color: AppColors.textMuted),
@@ -332,11 +581,20 @@ class AnimalDetailView extends GetView<AnimalDetailController> {
         const SizedBox(height: AppSpacing.md),
         if (treatments.isEmpty)
           AppCard(
-            padding: const EdgeInsets.all(AppSpacing.xl),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             child: Center(
-              child: Text(
-                'No antimicrobial treatments recorded yet.',
-                style: AppTypography.bodySmall,
+              child: Column(
+                children: [
+                  const Icon(Icons.shield_outlined, size: 36, color: AppColors.success),
+                  const SizedBox(height: 8),
+                  Text('Clean Health Record', style: AppTypography.titleSmall),
+                  const SizedBox(height: 2),
+                  Text(
+                    'No antimicrobial treatments administered to this animal.',
+                    style: AppTypography.bodySmall,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
           )
@@ -347,8 +605,13 @@ class AnimalDetailView extends GetView<AnimalDetailController> {
             itemCount: treatments.length,
             itemBuilder: (context, index) {
               final t = treatments[index];
-              final medicine = t['medicine'] ?? {};
-              return IntrinsicHeight(
+              final medName = t['medicine']?['name'] ?? t['medicine_name'] ?? 'Antimicrobial';
+              final activeIng = t['medicine']?['active_ingredient'] ?? t['active_ingredient'] ?? 'Active Substance';
+              final dose = '${t['dose'] ?? ""} ${t['dose_unit'] ?? ""}';
+              final startDate = _formatDate(t['start_date']);
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -362,20 +625,18 @@ class AnimalDetailView extends GetView<AnimalDetailController> {
                             shape: BoxShape.circle,
                           ),
                         ),
-                        Expanded(
-                          child: Container(
+                        if (index < treatments.length - 1)
+                          Container(
                             width: 2,
-                            color: index == treatments.length - 1
-                                ? Colors.transparent
-                                : AppColors.primarySoft,
+                            height: 64,
+                            color: AppColors.border,
                           ),
-                        ),
                       ],
                     ),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                      child: Transform.translate(
+                        offset: const Offset(0, -4),
                         child: AppCard(
                           padding: const EdgeInsets.all(AppSpacing.md),
                           child: Column(
@@ -384,39 +645,25 @@ class AnimalDetailView extends GetView<AnimalDetailController> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Expanded(
-                                    child: Text(
-                                      medicine['name'] ?? 'Antimicrobial Drug',
-                                      style: AppTypography.titleSmall.copyWith(fontSize: 14),
-                                    ),
+                                  Text(
+                                    medName,
+                                    style: AppTypography.titleSmall.copyWith(fontSize: 13),
                                   ),
                                   Text(
-                                    t['start_date'] != null
-                                        ? DateFormat('dd MMM yyyy').format(DateTime.parse(t['start_date']))
-                                        : 'N/A',
-                                    style: AppTypography.labelSmall.copyWith(
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    startDate,
+                                    style: AppTypography.labelSmall.copyWith(color: AppColors.slate400),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 2),
-                              Text(
-                                '${medicine['active_ingredient'] ?? "Active Compound"} • ${medicine['antimicrobial_class'] ?? "Antibiotic"}',
-                                style: AppTypography.bodySmall,
-                              ),
-                              const Divider(height: 18),
-                              Row(
+                              Text(activeIng, style: AppTypography.bodySmall),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
                                 children: [
-                                  _treatmentTag(Icons.scale_rounded, 'Dose: ${t['dose']} ${t['dose_unit'] ?? "mg/kg"}'),
-                                  const SizedBox(width: 8),
-                                  _treatmentTag(
-                                    Icons.medical_services_rounded,
-                                    t['indication'] != null
-                                        ? t['indication'].toString().replaceAll('_', ' ').capitalizeFirst!
-                                        : 'Clinical Care',
-                                  ),
+                                  _treatmentTag(Icons.medication_outlined, dose),
+                                  if (t['indication'] != null)
+                                    _treatmentTag(Icons.healing_outlined, t['indication']),
                                 ],
                               ),
                             ],
@@ -457,14 +704,6 @@ class AnimalDetailView extends GetView<AnimalDetailController> {
       return DateFormat('dd MMM yyyy').format(DateTime.parse(date.toString()));
     } catch (_) {
       return date.toString();
-    }
-  }
-
-  void _pickImage(ImageSource source) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: source, imageQuality: 70);
-    if (pickedFile != null) {
-      controller.uploadAnimalPhoto(File(pickedFile.path));
     }
   }
 }

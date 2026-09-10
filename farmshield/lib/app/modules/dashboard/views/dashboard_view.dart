@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../controllers/nav_controller.dart';
+import '../../../routes/app_pages.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -42,9 +43,72 @@ class DashboardView extends GetView<DashboardController> {
             const ReportsView(),
           ],
         ),
+        floatingActionButton: _buildScanQrFab(context),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         bottomNavigationBar: FarmShieldBottomNavBar(),
       );
     });
+  }
+
+  Widget _buildScanQrFab(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0, right: 4.0),
+      child: Tooltip(
+        message: 'Scan Animal QR',
+        child: Material(
+          color: Colors.transparent,
+          shape: const CircleBorder(),
+          elevation: 6,
+          shadowColor: const Color(0xFF1B5E20).withValues(alpha: 0.4),
+          child: Ink(
+            width: 60,
+            height: 60,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [Color(0xFF2E7D32), Color(0xFF1B5E20)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x331B5E20),
+                  blurRadius: 14,
+                  offset: Offset(0, 6),
+                ),
+              ],
+            ),
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              splashColor: AppColors.accent.withValues(alpha: 0.3),
+              highlightColor: Colors.white.withValues(alpha: 0.1),
+              onTap: () => Get.toNamed(Routes.QR_SCANNER),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.accent.withValues(alpha: 0.4),
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                  const Icon(
+                    Icons.qr_code_scanner_rounded,
+                    color: AppColors.accent,
+                    size: 28,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildDashboardBody(BuildContext context) {

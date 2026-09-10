@@ -1,20 +1,20 @@
-import 'dart:io';
-import 'package:dio/dio.dart' as dio_client;
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../core/services/cloudinary_service.dart';
 import '../../../data/models/farm_models.dart';
 import '../../../data/repositories/farm_repository.dart';
-import '../../../core/values/constants.dart';
 
 class LivestockController extends GetxController with StateMixin<List<Animal>> {
   final FarmRepository repository;
   LivestockController({required this.repository});
 
   final selectedSpecies = 'all'.obs;
-  final Rx<File?> selectedImage = Rx<File?>(null);
+  final Rx<Uint8List?> selectedImageBytes = Rx<Uint8List?>(null);
+  String? selectedImageName;
   final RxBool isUploading = false.obs;
-  final dio_client.Dio _dio = dio_client.Dio();
+  final CloudinaryService _cloudinary = CloudinaryService();
 
   @override
   void onInit() {
@@ -60,26 +60,25 @@ class LivestockController extends GetxController with StateMixin<List<Animal>> {
 
   Future<void> pickImage(ImageSource source) async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: source, imageQuality: 50);
+    final pickedFile = await picker.pickImage(source: source, imageQuality: 70);
     if (pickedFile != null) {
-      selectedImage.value = File(pickedFile.path);
+      final bytes = await pickedFile.readAsBytes();
+      selectedImageBytes.value = bytes;
+      selectedImageName = pickedFile.name;
     }
   }
 
-  Future<String?> uploadToCloudinary(File file) async {
+  Future<String?> uploadToCloudinary(Uint8List bytes, String fileName) async {
     try {
       isUploading.value = true;
-      String url = "https://api.cloudinary.com/v1_1/${constants.cloudName}/image/upload";
-      
-      dio_client.FormData formData = dio_client.FormData.fromMap({
-        "file": await dio_client.MultipartFile.fromFile(file.path),
-        "upload_preset": constants.uploadPreset,
-      });
-
-      final response = await _dio.post(url, data: formData);
-      return response.data['secure_url'];
+      final result = await _cloudinary.uploadImage(
+        bytes: bytes,
+        fileName: fileName,
+        folder: 'animals',
+      );
+      return result.secureUrl;
     } catch (e) {
-      Get.snackbar("Upload Error", "Failed to upload image to Cloudinary");
+      Get.snackbar("Upload Error", "Failed to upload image to Cloudinary: $e");
       return null;
     } finally {
       isUploading.value = false;
@@ -89,14 +88,15 @@ class LivestockController extends GetxController with StateMixin<List<Animal>> {
   Future<void> registerAnimal(Animal animal) async {
     try {
       isUploading.value = true;
-      if (selectedImage.value != null) {
-        final imageUrl = await uploadToCloudinary(selectedImage.value!);
+      if (selectedImageBytes.value != null && selectedImageName != null) {
+        final imageUrl = await uploadToCloudinary(selectedImageBytes.value!, selectedImageName!);
         animal.imageUrl = imageUrl;
       }
       
       await repository.registerAnimal(animal);
       fetchAnimals(); // Refresh the list
-      selectedImage.value = null;
+      selectedImageBytes.value = null;
+      selectedImageName = null;
       Get.back();
       Get.snackbar('Success', 'Animal registered successfully', 
         snackPosition: SnackPosition.BOTTOM,

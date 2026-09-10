@@ -32,6 +32,51 @@ class OfflineStorageService {
     _listenToConnectivity();
   }
 
+  /// Cache Animal profile locally in Hive
+  Future<void> cacheAnimal(Map<String, dynamic> animalData) async {
+    try {
+      final id = animalData['id']?.toString();
+      final code = animalData['animal_code']?.toString();
+      final qr = animalData['qr_token']?.toString();
+
+      if (id != null && id.isNotEmpty) {
+        await animalsBox.put(id, animalData);
+      }
+      if (code != null && code.isNotEmpty) {
+        await animalsBox.put('code_$code', animalData);
+      }
+      if (qr != null && qr.isNotEmpty) {
+        await animalsBox.put('qr_$qr', animalData);
+      }
+    } catch (_) {}
+  }
+
+  /// Retrieve cached Animal profile from Hive
+  Map<String, dynamic>? getCachedAnimal(String identifier) {
+    try {
+      final direct = animalsBox.get(identifier);
+      if (direct is Map) return Map<String, dynamic>.from(direct);
+
+      final byCode = animalsBox.get('code_$identifier');
+      if (byCode is Map) return Map<String, dynamic>.from(byCode);
+
+      final byQr = animalsBox.get('qr_$identifier');
+      if (byQr is Map) return Map<String, dynamic>.from(byQr);
+
+      // Search values
+      for (var val in animalsBox.values) {
+        if (val is Map) {
+          if (val['id'] == identifier ||
+              val['animal_code'] == identifier ||
+              val['qr_token'] == identifier) {
+            return Map<String, dynamic>.from(val);
+          }
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
   /// Save Treatment locally when offline (for MRL/AMU compliance)
   Future<void> saveTreatmentLocally(Map<String, dynamic> treatment) async {
     await treatmentsBox.add(treatment);

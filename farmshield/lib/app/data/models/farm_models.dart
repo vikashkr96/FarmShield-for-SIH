@@ -11,6 +11,7 @@ class Animal {
   String? healthStatus;
   String? qrToken;
   String? imageUrl;
+  String? cloudinaryPublicId;
   Map<String, dynamic>? fisheryDetails;
 
   Animal({
@@ -26,23 +27,25 @@ class Animal {
     this.healthStatus,
     this.qrToken,
     this.imageUrl,
+    this.cloudinaryPublicId,
     this.fisheryDetails,
   });
 
   factory Animal.fromJson(Map<String, dynamic> json) => Animal(
-        id: json['id'],
-        farmId: json['farm_id'],
-        animalCode: json['animal_code'],
-        species: json['species'],
-        breed: json['breed'],
-        dob: json['dob'] != null ? DateTime.parse(json['dob']) : null,
-        sex: json['sex'],
-        weightKg: (json['weight'] ?? json['weight_kg'])?.toDouble(),
-        purpose: json['purpose'],
-        healthStatus: json['health_status'],
-        qrToken: json['qr_token'],
-        imageUrl: json['image_url'],
-        fisheryDetails: json['fishery_details'],
+        id: json['id']?.toString(),
+        farmId: json['farm_id']?.toString(),
+        animalCode: json['animal_code']?.toString(),
+        species: json['species']?.toString(),
+        breed: json['breed']?.toString(),
+        dob: json['dob'] != null ? DateTime.tryParse(json['dob'].toString()) : null,
+        sex: json['sex']?.toString(),
+        weightKg: (json['weight'] ?? json['weight_kg']) != null ? double.tryParse((json['weight'] ?? json['weight_kg']).toString()) : null,
+        purpose: json['purpose']?.toString(),
+        healthStatus: json['health_status']?.toString(),
+        qrToken: json['qr_token']?.toString(),
+        imageUrl: json['image_url']?.toString(),
+        cloudinaryPublicId: json['cloudinary_public_id']?.toString(),
+        fisheryDetails: json['fishery_details'] is Map ? Map<String, dynamic>.from(json['fishery_details']) : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -58,24 +61,45 @@ class Animal {
         "health_status": healthStatus,
         "qr_token": qrToken,
         "image_url": imageUrl,
+        "cloudinary_public_id": cloudinaryPublicId,
         "fishery_details": fisheryDetails,
       };
 
-  Map<String, dynamic> toMap() => {
-        "id": id,
-        "farm_id": farmId,
-        "animal_code": animalCode,
-        "species": species,
-        "breed": breed,
-        "dob": dob?.toIso8601String().split('T')[0],
-        "sex": sex,
-        "weight": weightKg,
-        "purpose": purpose,
-        "health_status": healthStatus,
-        "qr_token": qrToken,
-        "image_url": imageUrl,
-        "fishery_details": fisheryDetails,
-      };
+  Map<String, dynamic> toMap() => toJson();
+
+  Animal copyWith({
+    String? id,
+    String? farmId,
+    String? animalCode,
+    String? species,
+    String? breed,
+    DateTime? dob,
+    String? sex,
+    double? weightKg,
+    String? purpose,
+    String? healthStatus,
+    String? qrToken,
+    String? imageUrl,
+    String? cloudinaryPublicId,
+    Map<String, dynamic>? fisheryDetails,
+  }) {
+    return Animal(
+      id: id ?? this.id,
+      farmId: farmId ?? this.farmId,
+      animalCode: animalCode ?? this.animalCode,
+      species: species ?? this.species,
+      breed: breed ?? this.breed,
+      dob: dob ?? this.dob,
+      sex: sex ?? this.sex,
+      weightKg: weightKg ?? this.weightKg,
+      purpose: purpose ?? this.purpose,
+      healthStatus: healthStatus ?? this.healthStatus,
+      qrToken: qrToken ?? this.qrToken,
+      imageUrl: imageUrl ?? this.imageUrl,
+      cloudinaryPublicId: cloudinaryPublicId ?? this.cloudinaryPublicId,
+      fisheryDetails: fisheryDetails ?? this.fisheryDetails,
+    );
+  }
 }
 
 class Withdrawal {

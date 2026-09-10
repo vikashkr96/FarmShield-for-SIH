@@ -1,17 +1,17 @@
-import 'dart:io';
-import 'package:dio/dio.dart' as dio_client;
+import 'dart:typed_data';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../data/repositories/farm_repository.dart';
-import '../../../core/values/constants.dart';
+import '../../../core/services/cloudinary_service.dart';
+import '../../../core/services/offline_storage_service.dart';
 import '../../../data/models/farm_models.dart';
+import '../../../data/repositories/farm_repository.dart';
 
 class AnimalDetailController extends GetxController with StateMixin<Map<String, dynamic>> {
   final FarmRepository repository;
   AnimalDetailController({required this.repository});
 
   final _supabase = Supabase.instance.client;
-  final dio_client.Dio _dio = dio_client.Dio();
+  final CloudinaryService _cloudinary = CloudinaryService();
   
   final RxBool isUploading = false.obs;
   String animalId = '';
@@ -37,19 +37,22 @@ class AnimalDetailController extends GetxController with StateMixin<Map<String, 
         'health_status': args.healthStatus ?? 'Healthy',
         'qr_token': args.qrToken ?? 'QR-${args.animalCode ?? "TAG"}',
         'image_url': args.imageUrl,
+        'cloudinary_public_id': args.cloudinaryPublicId,
         'treatments': [],
         'withdrawals': [],
       };
       // Pre-seed state so UI immediately renders without 404 blank screen
       change(_passedAnimalData, status: RxStatus.success());
+      OfflineStorageService().cacheAnimal(_passedAnimalData!);
     } else if (args is Map) {
       animalId = args['id']?.toString() ?? args['animal_code']?.toString() ?? '';
       _passedAnimalData = Map<String, dynamic>.from(args);
       _passedAnimalData!['treatments'] ??= [];
       _passedAnimalData!['withdrawals'] ??= [];
       change(_passedAnimalData, status: RxStatus.success());
+      OfflineStorageService().cacheAnimal(_passedAnimalData!);
     } else if (args is String) {
-      animalId = args;
+      animalId = args.trim();
     }
 
     if (animalId.isNotEmpty) {
@@ -129,8 +132,18 @@ class AnimalDetailController extends GetxController with StateMixin<Map<String, 
         final Map<String, dynamic> fullData = Map<String, dynamic>.from(animalData);
         fullData['treatments'] = treatmentsData;
         fullData['withdrawals'] = withdrawalsData;
+
+        // Persist to local cache
+        await OfflineStorageService().cacheAnimal(fullData);
         
         change(fullData, status: RxStatus.success());
+        return;
+      }
+
+      // Fallback: Check local Hive storage
+      final cached = OfflineStorageService().getCachedAnimal(id);
+      if (cached != null) {
+        change(cached, status: RxStatus.success());
         return;
       }
 
@@ -143,6 +156,8 @@ class AnimalDetailController extends GetxController with StateMixin<Map<String, 
             final profileMap = Map<String, dynamic>.from(data['animal'] is Map ? data['animal'] : data);
             profileMap['treatments'] = data['treatmentHistory'] ?? data['treatments'] ?? [];
             profileMap['withdrawals'] = data['withdrawals'] ?? [];
+
+            await OfflineStorageService().cacheAnimal(profileMap);
             change(profileMap, status: RxStatus.success());
             return;
           }
@@ -157,22 +172,8 @@ class AnimalDetailController extends GetxController with StateMixin<Map<String, 
         return;
       }
 
-      // Final Demo Fallback: Construct standard animal profile to prevent 404 screen crash
-      final fallbackAnimal = {
-        'id': id,
-        'animal_code': id.length > 8 ? 'COW-${id.substring(0, 4).toUpperCase()}' : id,
-        'species': 'cow',
-        'breed': 'Gir',
-        'dob': '2022-01-15',
-        'sex': 'female',
-        'weight': 385.0,
-        'purpose': 'milk',
-        'health_status': 'Healthy',
-        'qr_token': 'QR-$id',
-        'treatments': [],
-        'withdrawals': [],
-      };
-      change(fallbackAnimal, status: RxStatus.success());
+      // If not found anywhere, report clear error
+      change(null, status: RxStatus.error("Animal not found in farm registry."));
     } catch (e) {
       Get.log("Fetch Animal Profile Exception: $e");
       if (_passedAnimalData != null) {
@@ -183,28 +184,82 @@ class AnimalDetailController extends GetxController with StateMixin<Map<String, 
     }
   }
 
-  Future<void> uploadAnimalPhoto(File imageFile) async {
+  /// Update animal details and persist state
+  Future<void> updateAnimalDetails(Map<String, dynamic> updates) async {
+    try {
+      final currentId = state?['id']?.toString() ?? animalId;
+      final updatedAnimal = await repository.updateAnimalDetails(currentId, updates);
+
+      final current = Map<String, dynamic>.from(state ?? {});
+      current.addAll(updatedAnimal.toMap());
+      change(current, status: RxStatus.success());
+
+      Get.snackbar(
+        'Success',
+        'Animal details updated successfully.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      Get.log('updateAnimalDetails error: $e');
+      // Optimistic update locally
+      final current = Map<String, dynamic>.from(state ?? {});
+      current.addAll(updates);
+      await OfflineStorageService().cacheAnimal(current);
+      change(current, status: RxStatus.success());
+
+      Get.snackbar(
+        'Updated',
+        'Animal details saved to local cache.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  /// Cross-platform photo upload to Cloudinary with old asset deletion
+  Future<void> uploadAnimalPhotoBytes({
+    required Uint8List bytes,
+    required String fileName,
+  }) async {
     try {
       isUploading.value = true;
-      String url = "https://api.cloudinary.com/v1_1/${constants.cloudName}/image/upload";
 
-      dio_client.FormData formData = dio_client.FormData.fromMap({
-        "file": await dio_client.MultipartFile.fromFile(imageFile.path),
-        "upload_preset": constants.uploadPreset,
-      });
+      // 1. Upload new image to Cloudinary
+      final uploadResult = await _cloudinary.uploadImage(
+        bytes: bytes,
+        fileName: fileName,
+        folder: 'animals',
+      );
 
-      final response = await _dio.post(url, data: formData);
-      String imageUrl = response.data['secure_url'];
+      final currentId = state?['id']?.toString() ?? animalId;
+      final oldPublicId = state?['cloudinary_public_id']?.toString() ??
+          _cloudinary.extractPublicIdFromUrl(state?['image_url']?.toString());
 
-      await _supabase
-          .from('animals')
-          .update({'image_url': imageUrl})
-          .eq('id', animalId);
+      // 2. Persist in Supabase and local cache, and clean up old Cloudinary asset
+      await repository.updateAnimalPhoto(
+        animalId: currentId,
+        imageUrl: uploadResult.secureUrl,
+        publicId: uploadResult.publicId,
+        oldPublicId: oldPublicId,
+      );
 
-      fetchAnimalFullProfile(animalId);
-      Get.snackbar("Success", "Photo updated successfully");
+      // 3. Immediately refresh local reactive state
+      final current = Map<String, dynamic>.from(state ?? {});
+      current['image_url'] = uploadResult.secureUrl;
+      current['cloudinary_public_id'] = uploadResult.publicId;
+      change(current, status: RxStatus.success());
+
+      Get.snackbar(
+        'Photo Updated',
+        'Animal photo updated successfully.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } catch (e) {
-      Get.snackbar("Upload Error", "Failed to upload photo to Cloudinary");
+      Get.log('Upload photo error: $e');
+      Get.snackbar(
+        'Upload Failed',
+        'Could not upload new photo. Your existing image is unchanged.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isUploading.value = false;
     }

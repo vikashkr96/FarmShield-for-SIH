@@ -26,6 +26,7 @@ import '../modules/reports/bindings/reports_binding.dart';
 import '../modules/reports/views/reports_view.dart';
 import '../modules/syndromic_report/bindings/syndromic_report_binding.dart';
 import '../modules/syndromic_report/views/syndromic_report_view.dart';
+import '../modules/animal_passport/views/qr_scanner_page.dart';
 
 part 'app_routes.dart';
 
@@ -102,6 +103,10 @@ class AppPages {
       name: _Paths.SYNDROMIC_REPORT,
       page: () => const SyndromicReportView(),
       binding: SyndromicReportBinding(),
+    ),
+    GetPage(
+      name: _Paths.QR_SCANNER,
+      page: () => const QRScannerPage(),
     ),
   ];
 }
