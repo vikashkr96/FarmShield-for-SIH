@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Navbar, UserRoleMode } from '../components/ui/Navbar';
 import { FarmerHome } from '../components/farmer/FarmerHome';
 import { AnimalList, AnimalItem } from '../components/farmer/AnimalList';
@@ -8,31 +9,77 @@ import { TreatmentModal } from '../components/farmer/TreatmentModal';
 import { MilkSafetyCheck } from '../components/farmer/MilkSafetyCheck';
 import { WarningsList } from '../components/farmer/WarningsList';
 import { QRScannerModal } from '../components/farmer/QRScannerModal';
+import { WithdrawalCalendar } from '../components/farmer/WithdrawalCalendar';
+import { SyndromicTriageModal } from '../components/farmer/SyndromicTriageModal';
+import { MedicineCatalogModal } from '../components/farmer/MedicineCatalogModal';
+import { ConnectionStatus } from '../components/ConnectionStatus';
 import { VetDashboard } from '../components/vet/VetDashboard';
 import { AdminDashboard } from '../components/admin/AdminDashboard';
 import { Footer } from '../components/ui/Footer';
 import { AuthModal } from '../components/auth/AuthModal';
-import { useAuth } from '../providers/AuthProvider';
+import { useAuth, UserProfile } from '../providers/AuthProvider';
 import { useLanguage } from '../providers/LanguageProvider';
 import { API_BASE_URL } from '../lib/config';
 
-export default function Home() {
+function MainContent() {
   const { t } = useLanguage();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, login } = useAuth();
+  const searchParams = useSearchParams();
 
   const [roleMode, setRoleMode] = useState<UserRoleMode | undefined>(undefined);
-  const [farmerView, setFarmerView] = useState<'home' | 'animals' | 'treatment' | 'milk_safety' | 'alerts' | 'history' | 'qr_scan'>('home');
+  const [farmerView, setFarmerView] = useState<'home' | 'animals' | 'treatment' | 'milk_safety' | 'alerts' | 'history' | 'qr_scan' | 'calendar'>('home');
   const [selectedQrToken, setSelectedQrToken] = useState<string>('');
   const [autoOpenRegisterForm, setAutoOpenRegisterForm] = useState<boolean>(false);
+  const [showTriageModal, setShowTriageModal] = useState<boolean>(false);
+  const [showMedicinesModal, setShowMedicinesModal] = useState<boolean>(false);
 
-  // Sync roleMode when user logs in or out
+  // Sync roleMode when user logs in or out, or when ?role= query is passed
   useEffect(() => {
-    if (isAuthenticated && user) {
+    const queryRole = searchParams?.get('role') as UserRoleMode | null;
+    if (queryRole && ['farmer', 'vet', 'admin'].includes(queryRole)) {
+      setRoleMode(queryRole);
+      if (!isAuthenticated) {
+        // Auto-provision demo session for seamless evaluation
+        const demoProfiles: Record<UserRoleMode, UserProfile> = {
+          farmer: {
+            id: 'u_farmer_demo',
+            name: 'Ramesh Patel',
+            phone: '9876543210',
+            role: 'farmer',
+            state: 'Uttar Pradesh',
+            district: 'Varanasi',
+            farmId: 'IND-UP-8842',
+            authProvider: 'demo',
+          },
+          vet: {
+            id: 'u_vet_demo',
+            name: 'Dr. Priya Sharma, MVSc',
+            phone: '9876543211',
+            role: 'vet',
+            state: 'Gujarat',
+            district: 'Anand',
+            licenseNo: 'VCI-GUJ-4091',
+            authProvider: 'demo',
+          },
+          admin: {
+            id: 'u_admin_demo',
+            name: 'Sh. Rajesh Verma (DAHD)',
+            phone: '9876543212',
+            role: 'admin',
+            state: 'National / DAHD Delhi',
+            district: 'Krishi Bhawan',
+            licenseNo: 'DAHD-ADM-001',
+            authProvider: 'demo',
+          },
+        };
+        login(demoProfiles[queryRole]);
+      }
+    } else if (isAuthenticated && user) {
       setRoleMode(user.role);
     } else {
       setRoleMode(undefined);
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, searchParams]);
 
   // Scroll to top smoothly when switching between views/features
   useEffect(() => {
@@ -182,6 +229,8 @@ export default function Home() {
                     setAutoOpenRegisterForm(true);
                     setFarmerView('animals');
                   }}
+                  onOpenTriage={() => setShowTriageModal(true)}
+                  onOpenMedicines={() => setShowMedicinesModal(true)}
                   stats={{
                     totalAnimals,
                     underTreatment,
@@ -189,6 +238,11 @@ export default function Home() {
                     clearedCount,
                   }}
                 />
+
+                {/* Architecture Health Verification Widget */}
+                <div className="max-w-5xl mx-auto px-4 pt-4">
+                  <ConnectionStatus />
+                </div>
               </div>
             )}
 
@@ -203,6 +257,10 @@ export default function Home() {
                 }}
                 autoOpenRegister={autoOpenRegisterForm}
               />
+            )}
+
+            {farmerView === 'calendar' && (
+              <WithdrawalCalendar onBack={() => setFarmerView('home')} />
             )}
 
             {farmerView === 'treatment' && (
@@ -238,6 +296,18 @@ export default function Home() {
                 onBack={() => setFarmerView('home')}
               />
             )}
+
+            {/* Syndromic Clinical Triage Modal */}
+            <SyndromicTriageModal
+              isOpen={showTriageModal}
+              onClose={() => setShowTriageModal(false)}
+            />
+
+            {/* Medicine & MRL Catalog Modal */}
+            <MedicineCatalogModal
+              isOpen={showMedicinesModal}
+              onClose={() => setShowMedicinesModal(false)}
+            />
           </>
         )}
 
@@ -259,5 +329,13 @@ export default function Home() {
         }}
       />
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center font-bold text-gray-400">Loading FarmShield...</div>}>
+      <MainContent />
+    </Suspense>
   );
 }

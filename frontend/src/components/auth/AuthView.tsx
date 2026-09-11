@@ -451,13 +451,26 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
             {/* 1. STAKEHOLDER ROLE SELECTOR */}
             <div className="space-y-2">
-              <label className="text-xs font-black text-gray-700 uppercase tracking-wide">
-                Select Your Role
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-black text-gray-700 uppercase tracking-wide">
+                  Select Stakeholder Role
+                </label>
+                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  Instant Demo Switcher
+                </span>
+              </div>
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
-                  onClick={() => setRole('farmer')}
+                  onClick={() => {
+                    setRole('farmer');
+                    setPhone('9876543210');
+                    setPassword('password123');
+                    setOtp('584291');
+                    setName('Ramesh Patel');
+                    setError(null);
+                    setInfoMessage('👨‍🌾 Selected Farmer profile: Ramesh Patel (+91 9876543210)');
+                  }}
                   className={`py-2.5 px-2 rounded-2xl text-xs font-black border-2 transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 cursor-pointer ${
                     role === 'farmer'
                       ? 'bg-[#1B5E20] text-white border-[#1B5E20] shadow-md scale-[1.02]'
@@ -470,7 +483,15 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => setRole('vet')}
+                  onClick={() => {
+                    setRole('vet');
+                    setPhone('9876543211');
+                    setPassword('password123');
+                    setOtp('584291');
+                    setName('Dr. Priya Sharma, MVSc');
+                    setError(null);
+                    setInfoMessage('🩺 Selected Veterinarian profile: Dr. Priya Sharma (+91 9876543211)');
+                  }}
                   className={`py-2.5 px-2 rounded-2xl text-xs font-black border-2 transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 cursor-pointer ${
                     role === 'vet'
                       ? 'bg-[#1B5E20] text-white border-[#1B5E20] shadow-md scale-[1.02]'
@@ -483,7 +504,15 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => setRole('admin')}
+                  onClick={() => {
+                    setRole('admin');
+                    setPhone('9876543212');
+                    setPassword('password123');
+                    setOtp('584291');
+                    setName('Sh. Rajesh Verma (DAHD)');
+                    setError(null);
+                    setInfoMessage('🏛️ Selected Admin / Govt profile: Rajesh Verma (+91 9876543212)');
+                  }}
                   className={`py-2.5 px-2 rounded-2xl text-xs font-black border-2 transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 cursor-pointer ${
                     role === 'admin'
                       ? 'bg-[#1B5E20] text-white border-[#1B5E20] shadow-md scale-[1.02]'
@@ -493,6 +522,42 @@ export const AuthView: React.FC<AuthViewProps> = ({
                   <span>🏛️</span>
                   <span>Admin/Govt</span>
                 </button>
+              </div>
+
+              {/* Quick 1-Click Demo Login Shortcuts */}
+              <div className="bg-[#F0FDF4] border border-[#BBF7D0] p-3 rounded-2xl space-y-2 mt-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-black text-[#166534] flex items-center gap-1">
+                    <span>⚡</span> 1-Click Instant Stakeholder Demo Access:
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-semibold">No OTP needed</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => performDirectLogin('farmer')}
+                    className="px-2 py-1.5 bg-white hover:bg-emerald-50 border border-emerald-300 text-[#166534] font-black text-[11px] rounded-xl shadow-xs transition-all flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    <span>👨‍🌾</span>
+                    <span>Enter Farmer</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => performDirectLogin('vet')}
+                    className="px-2 py-1.5 bg-white hover:bg-emerald-50 border border-emerald-300 text-[#166534] font-black text-[11px] rounded-xl shadow-xs transition-all flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    <span>🩺</span>
+                    <span>Enter Vet</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => performDirectLogin('admin')}
+                    className="px-2 py-1.5 bg-white hover:bg-emerald-50 border border-emerald-300 text-[#166534] font-black text-[11px] rounded-xl shadow-xs transition-all flex items-center justify-center gap-1 cursor-pointer"
+                  >
+                    <span>🏛️</span>
+                    <span>Enter Admin</span>
+                  </button>
+                </div>
               </div>
             </div>
 

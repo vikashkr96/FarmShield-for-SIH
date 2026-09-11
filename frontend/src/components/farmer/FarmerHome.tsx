@@ -15,16 +15,21 @@ import {
   ShieldAlert,
   HelpCircle,
   Layers,
+  Stethoscope,
+  CalendarDays,
 } from 'lucide-react';
 import { useLanguage } from '../../providers/LanguageProvider';
 import { useAuth } from '../../providers/AuthProvider';
 import { FarmSlider } from './FarmSlider';
 import { LandingPublicSections } from './LandingPublicSections';
 import { ArticleModal, ArticleData } from './ArticleModal';
+import { WeatherTHICard } from './WeatherTHICard';
 
 interface FarmerHomeProps {
-  onNavigate: (view: 'animals' | 'treatment' | 'milk_safety' | 'alerts' | 'history' | 'qr_scan') => void;
+  onNavigate: (view: 'animals' | 'treatment' | 'milk_safety' | 'alerts' | 'history' | 'qr_scan' | 'calendar') => void;
   onOpenRegisterAnimal?: () => void;
+  onOpenTriage?: () => void;
+  onOpenMedicines?: () => void;
   stats: {
     totalAnimals: number;
     underTreatment: number;
@@ -33,7 +38,13 @@ interface FarmerHomeProps {
   };
 }
 
-export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegisterAnimal, stats }) => {
+export const FarmerHome: React.FC<FarmerHomeProps> = ({
+  onNavigate,
+  onOpenRegisterAnimal,
+  onOpenTriage,
+  onOpenMedicines,
+  stats,
+}) => {
   const { t, language } = useLanguage();
   const { isAuthenticated, openAuthModal } = useAuth();
   const [selectedArticle, setSelectedArticle] = useState<ArticleData | null>(null);
@@ -242,13 +253,32 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
               : 'भारत के पशुधन और मत्स्य क्षेत्र में अधिकतम अवशेष सीमा (MRL) निगरानी और एंटीमाइक्रोबियल उपयोग (AMU) प्रबंधन के लिए एक व्यापक डिजिटल मंच, जो खाद्य सुरक्षा और नियमों का अनुपालन सुनिश्चित करता है।'}
           </p>
 
-          <div className="flex items-center justify-center gap-3.5 pt-0.5">
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
             <Link
               href="/login?role=farmer"
-              className="px-8 py-3 bg-[#1B5E20] hover:bg-[#2E7D32] text-white font-black text-sm sm:text-base rounded-xl shadow-xl transition-all hover:scale-105 flex items-center gap-2 cursor-pointer"
+              className="px-6 py-2.5 bg-[#1B5E20] hover:bg-[#2E7D32] text-white font-black text-xs sm:text-sm rounded-xl shadow-lg transition-all hover:scale-105 flex items-center gap-2 cursor-pointer"
             >
-              <span>{language === 'en' ? 'Get Started' : 'शुरू करें'}</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>👨‍🌾</span>
+              <span>{language === 'en' ? 'Farmer Portal' : 'किसान पोर्टल'}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+
+            <Link
+              href="/login?role=vet"
+              className="px-6 py-2.5 bg-white hover:bg-emerald-50 border-2 border-[#1B5E20] text-[#1B5E20] font-black text-xs sm:text-sm rounded-xl shadow-md transition-all hover:scale-105 flex items-center gap-2 cursor-pointer"
+            >
+              <span>🩺</span>
+              <span>{language === 'en' ? 'Veterinarian Portal' : 'पशु चिकित्सक'}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+
+            <Link
+              href="/login?role=admin"
+              className="px-6 py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-black text-xs sm:text-sm rounded-xl shadow-md transition-all hover:scale-105 flex items-center gap-2 cursor-pointer"
+            >
+              <span>🏛️</span>
+              <span>{language === 'en' ? 'Govt / Admin Portal' : 'प्रशासक पोर्टल'}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
@@ -378,80 +408,129 @@ export const FarmerHome: React.FC<FarmerHomeProps> = ({ onNavigate, onOpenRegist
 
           {/* 3. FOUR KEY STATISTICS CARDS */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white border-2 border-[#1B5E20] rounded-3xl p-5 flex flex-col justify-between shadow-md">
-              <span className="text-xs sm:text-sm text-[#1B5E20] font-black">{t('farmerHome.stats.totalAnimals')}</span>
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col justify-between shadow-sm hover:border-[#10B981] transition-all">
+              <span className="text-xs sm:text-sm text-[#0E4D2B] font-bold">{t('farmerHome.stats.totalAnimals')}</span>
               <div className="flex items-baseline space-x-2 mt-2">
-                <span className="text-4xl font-black text-[#1B5E20]">{stats.totalAnimals}</span>
+                <span className="text-3xl sm:text-4xl font-black text-[#0E4D2B]">{stats.totalAnimals}</span>
               </div>
             </div>
 
-            <div className="bg-white border-2 border-[#1B5E20]/40 rounded-3xl p-5 flex flex-col justify-between shadow-md">
-              <span className="text-xs sm:text-sm text-[#1B5E20] font-black">{t('farmerHome.stats.underTreatment')}</span>
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col justify-between shadow-sm hover:border-[#10B981] transition-all">
+              <span className="text-xs sm:text-sm text-slate-700 font-bold">{t('farmerHome.stats.underTreatment')}</span>
               <div className="flex items-baseline space-x-2 mt-2">
-                <span className="text-4xl font-black text-[#1B5E20]">{stats.underTreatment}</span>
+                <span className="text-3xl sm:text-4xl font-black text-amber-700">{stats.underTreatment}</span>
               </div>
             </div>
 
-            <div className="bg-white border-2 border-red-500/60 rounded-3xl p-5 flex flex-col justify-between shadow-md">
-              <span className="text-xs sm:text-sm text-red-700 font-black">{t('farmerHome.stats.underWithdrawal')}</span>
+            <div className="bg-white border border-amber-200 bg-amber-50/30 rounded-2xl p-5 flex flex-col justify-between shadow-sm hover:border-amber-400 transition-all">
+              <span className="text-xs sm:text-sm text-amber-900 font-bold">{t('farmerHome.stats.underWithdrawal')}</span>
               <div className="flex items-baseline space-x-2 mt-2">
-                <span className="text-4xl font-black text-red-700">{stats.underWithdrawal}</span>
+                <span className="text-3xl sm:text-4xl font-black text-amber-700">{stats.underWithdrawal}</span>
               </div>
             </div>
 
-            <div className="bg-white border-2 border-[#1B5E20] rounded-3xl p-5 flex flex-col justify-between shadow-md">
-              <span className="text-xs sm:text-sm text-[#1B5E20] font-black">{t('farmerHome.stats.cleared')}</span>
+            <div className="bg-white border border-emerald-200 bg-[#E8F5E9]/40 rounded-2xl p-5 flex flex-col justify-between shadow-sm hover:border-[#10B981] transition-all">
+              <span className="text-xs sm:text-sm text-[#0E4D2B] font-bold">{t('farmerHome.stats.cleared')}</span>
               <div className="flex items-baseline space-x-2 mt-2">
-                <span className="text-4xl font-black text-[#1B5E20]">{stats.clearedCount}</span>
+                <span className="text-3xl sm:text-4xl font-black text-[#0E4D2B]">{stats.clearedCount}</span>
               </div>
             </div>
           </div>
 
+          {/* 3.5. ⛅ METEOROLOGICAL THI & HEAT STRESS HAZARD COMPONENT */}
+          <WeatherTHICard />
+
           {/* 4. SECONDARY QUICK ACTIONS */}
           <div className="space-y-4">
-            <h2 className="text-xl font-black text-[#1B5E20]">
-              {language === 'en' ? 'Quick Actions' : 'अन्य सुविधाएं'}
+            <h2 className="text-xl font-black text-[#0E4D2B]">
+              {language === 'en' ? 'Core Management & Decision Support Tools' : 'मुख्य प्रबंधन एवं रोग निदान सुविधाएं'}
             </h2>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <Card
                 variant="glass"
                 hoverEffect
                 onClick={() => onNavigate('animals')}
-                className="cursor-pointer border-2 border-[#1B5E20]/30 hover:bg-[#E8F5E9]/50 p-5 flex flex-col justify-between group text-center items-center space-y-2"
+                className="cursor-pointer border border-slate-200 hover:border-[#10B981] hover:bg-[#E8F5E9]/40 p-5 flex flex-col justify-between group text-center items-center space-y-2 rounded-2xl"
               >
                 <span className="text-3xl">🐄</span>
-                <span className="text-sm font-black text-[#1B5E20]">{t('farmerHome.actions.myAnimals')}</span>
+                <span className="text-xs font-bold text-[#0E4D2B]">{t('farmerHome.actions.myAnimals')}</span>
+              </Card>
+
+              <Card
+                variant="glass"
+                hoverEffect
+                onClick={() => onOpenTriage?.()}
+                className="cursor-pointer border border-slate-200 hover:border-[#10B981] hover:bg-[#E8F5E9]/40 p-5 flex flex-col justify-between group text-center items-center space-y-2 rounded-2xl"
+              >
+                <span className="text-3xl">🩺</span>
+                <span className="text-xs font-bold text-[#0E4D2B]">
+                  {language === 'en' ? 'Clinical Triage' : 'लक्षण आधारित निदान'}
+                </span>
+              </Card>
+
+              <Card
+                variant="glass"
+                hoverEffect
+                onClick={() => onNavigate('calendar')}
+                className="cursor-pointer border border-slate-200 hover:border-[#10B981] hover:bg-[#E8F5E9]/40 p-5 flex flex-col justify-between group text-center items-center space-y-2 rounded-2xl"
+              >
+                <span className="text-3xl">📅</span>
+                <span className="text-xs font-bold text-[#0E4D2B]">
+                  {language === 'en' ? 'Withdrawal Calendar' : 'निकासी समय कैलेंडर'}
+                </span>
+              </Card>
+
+              <Card
+                variant="glass"
+                hoverEffect
+                onClick={() => onOpenMedicines?.()}
+                className="cursor-pointer border border-slate-200 hover:border-[#10B981] hover:bg-[#E8F5E9]/40 p-5 flex flex-col justify-between group text-center items-center space-y-2 rounded-2xl"
+              >
+                <span className="text-3xl">💊</span>
+                <span className="text-xs font-bold text-[#0E4D2B]">
+                  {language === 'en' ? 'Medicine Catalog' : 'औषध निर्देशिका'}
+                </span>
               </Card>
 
               <Card
                 variant="glass"
                 hoverEffect
                 onClick={() => onNavigate('treatment')}
-                className="cursor-pointer border-2 border-[#1B5E20]/30 hover:bg-[#E8F5E9]/50 p-5 flex flex-col justify-between group text-center items-center space-y-2"
+                className="cursor-pointer border border-slate-200 hover:border-[#10B981] hover:bg-[#E8F5E9]/40 p-5 flex flex-col justify-between group text-center items-center space-y-2 rounded-2xl"
               >
-                <span className="text-3xl">💊</span>
-                <span className="text-sm font-black text-[#1B5E20]">{t('farmerHome.actions.recordMedicine')}</span>
+                <span className="text-3xl">📝</span>
+                <span className="text-xs font-bold text-[#0E4D2B]">{t('farmerHome.actions.recordMedicine')}</span>
               </Card>
 
               <Card
                 variant="glass"
                 hoverEffect
                 onClick={() => onNavigate('milk_safety')}
-                className="cursor-pointer border-2 border-[#1B5E20]/30 hover:bg-[#E8F5E9]/50 p-5 flex flex-col justify-between group text-center items-center space-y-2"
+                className="cursor-pointer border border-slate-200 hover:border-[#10B981] hover:bg-[#E8F5E9]/40 p-5 flex flex-col justify-between group text-center items-center space-y-2 rounded-2xl"
               >
                 <span className="text-3xl">🥛</span>
-                <span className="text-sm font-black text-[#1B5E20]">{t('farmerHome.actions.isMilkSafe')}</span>
+                <span className="text-xs font-bold text-[#0E4D2B]">{t('farmerHome.actions.isMilkSafe')}</span>
               </Card>
+
+              <Link
+                href="/surveillance/map"
+                className="bg-white border border-slate-200 hover:border-[#10B981] hover:bg-[#E8F5E9]/40 p-5 flex flex-col justify-between group text-center items-center space-y-2 rounded-2xl shadow-sm transition-all hover:-translate-y-0.5"
+              >
+                <span className="text-3xl">🗺️</span>
+                <span className="text-xs font-bold text-[#0E4D2B]">
+                  {language === 'en' ? 'Surveillance Map' : 'रोग निगरानी नक्शा'}
+                </span>
+              </Link>
 
               <Card
                 variant="glass"
                 hoverEffect
                 onClick={() => onNavigate('alerts')}
-                className="cursor-pointer border-2 border-[#1B5E20]/30 hover:bg-[#E8F5E9]/50 p-5 flex flex-col justify-between group text-center items-center space-y-2"
+                className="cursor-pointer border border-slate-200 hover:border-[#10B981] hover:bg-[#E8F5E9]/40 p-5 flex flex-col justify-between group text-center items-center space-y-2 rounded-2xl"
               >
                 <span className="text-3xl">⚠️</span>
-                <span className="text-sm font-black text-[#1B5E20]">{t('farmerHome.actions.warnings')}</span>
+                <span className="text-xs font-bold text-[#0E4D2B]">{t('farmerHome.actions.warnings')}</span>
               </Card>
             </div>
           </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import {
   ShieldCheck,
   Package,
@@ -227,10 +228,19 @@ export const LandingPublicSections: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left">
           {workflowSteps.map((step) => {
             const IconComp = step.icon;
+            // Map step to stakeholder login target
+            const targetRole =
+              step.step === 1
+                ? 'vet'
+                : step.step === 8
+                ? 'admin'
+                : 'farmer';
+
             return (
-              <div
+              <Link
                 key={step.step}
-                className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between space-y-3 relative group"
+                href={`/login?role=${targetRole}`}
+                className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between space-y-3 relative group cursor-pointer block"
               >
                 {/* Step Number Badge */}
                 <div className="flex items-center justify-between">
@@ -243,8 +253,11 @@ export const LandingPublicSections: React.FC = () => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <h3 className="text-sm sm:text-base font-black text-gray-900 group-hover:text-[#1B5E20] transition-colors leading-tight">
-                    {language === 'en' ? step.titleEn : step.titleHi}
+                  <h3 className="text-sm sm:text-base font-black text-gray-900 group-hover:text-[#1B5E20] transition-colors leading-tight flex items-center justify-between">
+                    <span>{language === 'en' ? step.titleEn : step.titleHi}</span>
+                    <span className="text-[10px] text-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity font-bold">
+                      Open →
+                    </span>
                   </h3>
 
                   {/* Role Badge */}
@@ -256,7 +269,7 @@ export const LandingPublicSections: React.FC = () => {
                     {language === 'en' ? step.descEn : step.descHi}
                   </p>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
