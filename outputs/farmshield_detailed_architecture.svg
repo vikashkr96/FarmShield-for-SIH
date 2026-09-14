@@ -1,0 +1,319 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" style="background:#ffffff; font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Drop Shadows -->
+    <filter id="shadow-sm" x="-5%" y="-5%" width="110%" height="114%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.07"/>
+    </filter>
+    <filter id="shadow-md" x="-4%" y="-4%" width="108%" height="112%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+
+    <!-- Arrow Markers -->
+    <marker id="arr-dark" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#1e293b"/>
+    </marker>
+    <marker id="arr-dark-down" viewBox="0 0 10 10" refX="5" refY="6" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 1.5 0 L 5 8 L 8.5 0 z" fill="#1e293b"/>
+    </marker>
+    <marker id="arr-green-right" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#16a34a"/>
+    </marker>
+    <marker id="arr-green-down" viewBox="0 0 10 10" refX="5" refY="6" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 1.5 0 L 5 8 L 8.5 0 z" fill="#16a34a"/>
+    </marker>
+    <marker id="arr-blue-down" viewBox="0 0 10 10" refX="5" refY="6" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 1.5 0 L 5 8 L 8.5 0 z" fill="#0284c7"/>
+    </marker>
+  </defs>
+
+  <!-- ==================== HEADER BAR ==================== -->
+  <!-- Top Left Pill Badge -->
+  <g transform="translate(60, 18)" filter="url(#shadow-sm)">
+    <rect x="0" y="0" width="240" height="54" rx="27" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1.8"/>
+    <text x="120" y="24" font-size="13" font-weight="800" fill="#5b21b6" text-anchor="middle" letter-spacing="0.5">DAHD • GOVT OF INDIA</text>
+    <text x="120" y="41" font-size="11" font-weight="600" fill="#7c3aed" text-anchor="middle">Ministry of Fisheries, Animal Husbandry &amp; Dairying</text>
+  </g>
+
+  <!-- Center Title -->
+  <g transform="translate(800, 42)">
+    <text x="0" y="0" font-size="34" font-weight="900" fill="#0f172a" text-anchor="middle" letter-spacing="0.5">System Architecture &amp; Solution Flow</text>
+    <text x="0" y="24" font-size="13" font-weight="600" fill="#64748b" text-anchor="middle">FarmShield: Digital Platform for MRL Monitoring &amp; Antimicrobial Usage (AMU) Governance</text>
+  </g>
+
+  <!-- Top Right SIH Emblem -->
+  <g transform="translate(1330, 16)">
+    <g transform="translate(0, 4)">
+      <circle cx="24" cy="24" r="22" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+      <path d="M 24 6 A 18 18 0 0 0 24 42 Z" fill="#ea580c"/>
+      <path d="M 24 6 A 18 18 0 0 1 24 42 Z" fill="#16a34a"/>
+      <rect x="19" y="42" width="10" height="4.5" rx="1.5" fill="#334155"/>
+      <line x1="21" y1="49" x2="27" y2="49" stroke="#334155" stroke-width="1.8"/>
+    </g>
+    <text x="58" y="20" font-size="16" font-weight="900" fill="#1e293b" letter-spacing="0.5">SMART INDIA</text>
+    <text x="58" y="35" font-size="13" font-weight="800" fill="#0284c7" letter-spacing="1">HACKATHON</text>
+    <text x="58" y="50" font-size="15" font-weight="900" fill="#ea580c">2024</text>
+  </g>
+
+
+  <!-- ==================== TIER 1: CLIENT ROLES ==================== -->
+  <!-- Card 1.1: Farmer / Farm Manager -->
+  <g transform="translate(60, 92)" filter="url(#shadow-sm)">
+    <rect x="0" y="0" width="345" height="74" rx="10" fill="#ffffff" stroke="#334155" stroke-width="1.6"/>
+    <path d="M 0 10 A 10 10 0 0 1 10 0 L 335 0 A 10 10 0 0 1 345 10 L 345 14 L 0 14 Z" fill="#2563eb"/>
+    <text x="172" y="38" font-size="16" font-weight="800" fill="#0f172a" text-anchor="middle">Farmer / Farm Manager</text>
+    <text x="172" y="58" font-size="12" font-weight="500" fill="#475569" text-anchor="middle">Animals, treatments, medicine stock, alerts, QR profiles</text>
+  </g>
+
+  <!-- Card 1.2: Veterinarian -->
+  <g transform="translate(440, 92)" filter="url(#shadow-sm)">
+    <rect x="0" y="0" width="345" height="74" rx="10" fill="#ffffff" stroke="#334155" stroke-width="1.6"/>
+    <path d="M 0 10 A 10 10 0 0 1 10 0 L 335 0 A 10 10 0 0 1 345 10 L 345 14 L 0 14 Z" fill="#0284c7"/>
+    <text x="172" y="38" font-size="16" font-weight="800" fill="#0f172a" text-anchor="middle">Veterinarian</text>
+    <text x="172" y="58" font-size="12" font-weight="500" fill="#475569" text-anchor="middle">Approve treatments, review risk alerts, repeated therapy</text>
+  </g>
+
+  <!-- Card 1.3: Processor / Inspector -->
+  <g transform="translate(820, 92)" filter="url(#shadow-sm)">
+    <rect x="0" y="0" width="345" height="74" rx="10" fill="#ffffff" stroke="#334155" stroke-width="1.6"/>
+    <path d="M 0 10 A 10 10 0 0 1 10 0 L 335 0 A 10 10 0 0 1 345 10 L 345 14 L 0 14 Z" fill="#0d9488"/>
+    <text x="172" y="38" font-size="16" font-weight="800" fill="#0f172a" text-anchor="middle">Processor / Inspector</text>
+    <text x="172" y="58" font-size="12" font-weight="500" fill="#475569" text-anchor="middle">Check product clearance, read-only compliance history</text>
+  </g>
+
+  <!-- Card 1.4: System Administrator -->
+  <g transform="translate(1200, 92)" filter="url(#shadow-sm)">
+    <rect x="0" y="0" width="345" height="74" rx="10" fill="#ffffff" stroke="#334155" stroke-width="1.6"/>
+    <path d="M 0 10 A 10 10 0 0 1 10 0 L 335 0 A 10 10 0 0 1 345 10 L 345 14 L 0 14 Z" fill="#4338ca"/>
+    <text x="172" y="38" font-size="16" font-weight="800" fill="#0f172a" text-anchor="middle">System Administrator</text>
+    <text x="172" y="58" font-size="12" font-weight="500" fill="#475569" text-anchor="middle">Reference data, users, farms, rules, permissions</text>
+  </g>
+
+
+  <!-- ==================== CONNECTOR BUS: CLIENTS TO BACKEND ==================== -->
+  <line x1="232" y1="166" x2="232" y2="194" stroke="#1e293b" stroke-width="1.8"/>
+  <line x1="612" y1="166" x2="612" y2="194" stroke="#1e293b" stroke-width="1.8"/>
+  <line x1="992" y1="166" x2="992" y2="194" stroke="#1e293b" stroke-width="1.8"/>
+  <line x1="1372" y1="166" x2="1372" y2="194" stroke="#1e293b" stroke-width="1.8"/>
+
+  <!-- Horizontal Bus Bar -->
+  <line x1="232" y1="194" x2="1372" y2="194" stroke="#1e293b" stroke-width="1.8"/>
+
+  <!-- Bus Label Pill -->
+  <g transform="translate(800, 194)">
+    <rect x="-195" y="-13" width="390" height="26" rx="13" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.2"/>
+    <text x="0" y="5" font-size="12" font-weight="700" fill="#1e293b" text-anchor="middle">Flutter mobile &amp; web client — role-based views</text>
+  </g>
+
+  <!-- Arrow down into REST API -->
+  <line x1="800" y1="207" x2="800" y2="234" stroke="#1e293b" stroke-width="2" marker-end="url(#arr-dark-down)"/>
+
+
+  <!-- ==================== TIER 2: REST API LAYER ==================== -->
+  <g transform="translate(230, 236)" filter="url(#shadow-md)">
+    <rect x="0" y="0" width="1140" height="78" rx="14" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+    <text x="570" y="30" font-size="18" font-weight="900" fill="#065f46" text-anchor="middle" letter-spacing="0.3">FastAPI backend – REST API layer</text>
+    <text x="570" y="51" font-size="13" font-weight="600" fill="#047857" text-anchor="middle">
+      Authentication  •  Role-based access control  •  Farm-level tenancy &amp; data isolation
+    </text>
+    <text x="570" y="69" font-size="11.5" font-weight="500" fill="#059669" text-anchor="middle">
+      Request routing to core services below
+    </text>
+  </g>
+
+
+  <!-- ==================== CONNECTOR: API TO CORE SERVICES ==================== -->
+  <!-- Center drop stem -->
+  <line x1="800" y1="314" x2="800" y2="344" stroke="#1e293b" stroke-width="2"/>
+  
+  <!-- "CORE SERVICES" Pill Badge -->
+  <g transform="translate(800, 355)">
+    <rect x="-75" y="-12" width="150" height="24" rx="6" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <text x="0" y="5" font-size="11" font-weight="900" fill="#0f172a" text-anchor="middle" letter-spacing="1">CORE SERVICES</text>
+  </g>
+
+  <!-- Branching arrows from CORE SERVICES to 3 Columns -->
+  <!-- Center Column Arrow -->
+  <line x1="800" y1="367" x2="800" y2="388" stroke="#1e293b" stroke-width="2" marker-end="url(#arr-dark-down)"/>
+
+  <!-- Left Column Path & Arrow -->
+  <path d="M 725 355 L 285 355 L 285 388" fill="none" stroke="#1e293b" stroke-width="1.8" marker-end="url(#arr-dark-down)"/>
+
+  <!-- Right Column Path & Arrow -->
+  <path d="M 875 355 L 1315 355 L 1315 388" fill="none" stroke="#1e293b" stroke-width="1.8" marker-end="url(#arr-dark-down)"/>
+
+
+  <!-- ==================== TIER 3: CORE SERVICES (2 ROWS × 3 COLUMNS) ==================== -->
+
+  <!-- ===== ROW 1 ===== -->
+  <!-- Service 1: Farm & livestock management -->
+  <g transform="translate(60, 390)" filter="url(#shadow-sm)">
+    <rect x="0" y="0" width="450" height="84" rx="12" fill="#ffffff" stroke="#10b981" stroke-width="1.8"/>
+    <rect x="0" y="0" width="450" height="8" rx="4" fill="#10b981"/>
+    <text x="24" y="34" font-size="16" font-weight="800" fill="#065f46">Farm &amp; livestock management</text>
+    <text x="24" y="54" font-size="12.5" font-weight="500" fill="#334155">Registration, species inventory, animal profiles,</text>
+    <text x="24" y="72" font-size="12.5" font-weight="500" fill="#334155">treatment history</text>
+  </g>
+
+  <!-- Service 2: Treatment recording -->
+  <g transform="translate(575, 390)" filter="url(#shadow-sm)">
+    <rect x="0" y="0" width="450" height="84" rx="12" fill="#ffffff" stroke="#10b981" stroke-width="1.8"/>
+    <rect x="0" y="0" width="450" height="8" rx="4" fill="#10b981"/>
+    <text x="24" y="34" font-size="16" font-weight="800" fill="#065f46">Treatment recording</text>
+    <text x="24" y="54" font-size="12.5" font-weight="500" fill="#334155">Medicine, dose, route, frequency,</text>
+    <text x="24" y="72" font-size="12.5" font-weight="500" fill="#334155">duration, prescription reference</text>
+  </g>
+
+  <!-- Service 3: Compliance & withdrawal rules -->
+  <g transform="translate(1090, 390)" filter="url(#shadow-sm)">
+    <rect x="0" y="0" width="450" height="84" rx="12" fill="#ffffff" stroke="#10b981" stroke-width="1.8"/>
+    <rect x="0" y="0" width="450" height="8" rx="4" fill="#10b981"/>
+    <text x="24" y="34" font-size="16" font-weight="800" fill="#065f46">Compliance &amp; withdrawal rules</text>
+    <text x="24" y="54" font-size="12.5" font-weight="500" fill="#334155">MRL matching, withdrawal</text>
+    <text x="24" y="72" font-size="12.5" font-weight="500" fill="#334155">calculation, versioned rule data</text>
+  </g>
+
+
+  <!-- ===== ROW 1 TO ROW 2 INTER-SERVICE ARROWS & EVENT PIPELINES ===== -->
+  <!-- Horizontal Flow: Service 2 -> Service 3 (Trigger MRL calculation) -->
+  <g transform="translate(1025, 432)">
+    <line x1="4" y1="0" x2="57" y2="0" stroke="#15803d" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr-green-right)"/>
+    <text x="30" y="-8" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">Rx event</text>
+  </g>
+
+  <!-- Vertical Flow 1: Service 1 -> Service 4 (Herd biomass data to AMU analytics) -->
+  <g transform="translate(285, 474)">
+    <line x1="0" y1="0" x2="0" y2="40" stroke="#15803d" stroke-width="2" marker-end="url(#arr-green-down)"/>
+    <text x="12" y="24" font-size="10" font-weight="700" fill="#15803d" text-anchor="start">biomass feed</text>
+  </g>
+
+  <!-- Vertical Flow 2: Service 2 -> Service 5 (Clinical treatments to ML risk) -->
+  <g transform="translate(800, 474)">
+    <line x1="0" y1="0" x2="0" y2="40" stroke="#15803d" stroke-width="2" marker-end="url(#arr-green-down)"/>
+    <text x="12" y="24" font-size="10" font-weight="700" fill="#15803d" text-anchor="start">inference payload</text>
+  </g>
+
+  <!-- Diagonal Flow: Service 3 -> Service 5 (Withdrawal calculation to ML risk) -->
+  <path d="M 1200 474 L 1200 495 L 940 495 L 940 514" fill="none" stroke="#15803d" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#arr-green-down)"/>
+
+
+  <!-- ===== ROW 2 ===== -->
+  <!-- Service 4: AMU analytics engine -->
+  <g transform="translate(60, 518)" filter="url(#shadow-sm)">
+    <rect x="0" y="0" width="450" height="84" rx="12" fill="#ffffff" stroke="#10b981" stroke-width="1.8"/>
+    <rect x="0" y="0" width="450" height="8" rx="4" fill="#10b981"/>
+    <text x="24" y="34" font-size="16" font-weight="800" fill="#065f46">AMU analytics engine</text>
+    <text x="24" y="54" font-size="12.5" font-weight="500" fill="#334155">Usage trends by species, class,</text>
+    <text x="24" y="72" font-size="12.5" font-weight="500" fill="#334155">farm, time period</text>
+  </g>
+
+  <!-- Service 5: ML risk service -->
+  <g transform="translate(575, 518)" filter="url(#shadow-sm)">
+    <rect x="0" y="0" width="450" height="84" rx="12" fill="#ffffff" stroke="#10b981" stroke-width="1.8"/>
+    <rect x="0" y="0" width="450" height="8" rx="4" fill="#10b981"/>
+    <text x="24" y="34" font-size="16" font-weight="800" fill="#065f46">ML risk service</text>
+    <text x="24" y="54" font-size="12.5" font-weight="500" fill="#334155">Overuse risk + MRL/withdrawal</text>
+    <text x="24" y="72" font-size="12.5" font-weight="500" fill="#334155">compliance risk prediction</text>
+  </g>
+
+  <!-- Service 6: Notification service -->
+  <g transform="translate(1090, 518)" filter="url(#shadow-sm)">
+    <rect x="0" y="0" width="450" height="84" rx="12" fill="#ffffff" stroke="#10b981" stroke-width="1.8"/>
+    <rect x="0" y="0" width="450" height="8" rx="4" fill="#10b981"/>
+    <text x="24" y="34" font-size="16" font-weight="800" fill="#065f46">Notification service</text>
+    <text x="24" y="54" font-size="12.5" font-weight="500" fill="#334155">Push alerts via Firebase Cloud</text>
+    <text x="24" y="72" font-size="12.5" font-weight="500" fill="#334155">Messaging</text>
+  </g>
+
+  <!-- Horizontal Flow: Service 5 -> Service 6 (ML breach alerts trigger Push Notification) -->
+  <g transform="translate(1025, 560)">
+    <line x1="4" y1="0" x2="57" y2="0" stroke="#15803d" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr-green-right)"/>
+    <text x="30" y="-8" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">alert trigger</text>
+  </g>
+
+
+  <!-- ==================== CONNECTOR: SERVICES TO DATABASE ==================== -->
+  <!-- Clean Drop Lines from each column -->
+  <line x1="285" y1="602" x2="285" y2="636" stroke="#1e293b" stroke-width="1.8"/>
+  <line x1="800" y1="602" x2="800" y2="636" stroke="#1e293b" stroke-width="1.8"/>
+  <line x1="1315" y1="602" x2="1315" y2="636" stroke="#1e293b" stroke-width="1.8"/>
+
+  <!-- Bus Bar to DB -->
+  <line x1="285" y1="636" x2="1315" y2="636" stroke="#1e293b" stroke-width="1.8"/>
+
+  <!-- Bus Label Pill -->
+  <g transform="translate(800, 636)">
+    <rect x="-140" y="-12" width="280" height="24" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.2"/>
+    <text x="0" y="5" font-size="11" font-weight="700" fill="#334155" text-anchor="middle">PostgREST &amp; Encrypted SQL Transactions</text>
+  </g>
+
+  <!-- Arrow down into DB -->
+  <line x1="800" y1="648" x2="800" y2="668" stroke="#1e293b" stroke-width="2" marker-end="url(#arr-dark-down)"/>
+
+
+  <!-- ==================== TIER 4: DATABASE LAYER ==================== -->
+  <g transform="translate(280, 672)" filter="url(#shadow-md)">
+    <rect x="0" y="0" width="1040" height="96" rx="14" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+    <text x="520" y="32" font-size="19" font-weight="900" fill="#065f46" text-anchor="middle" letter-spacing="0.3">PostgreSQL database</text>
+    
+    <!-- Schema Tables Entities -->
+    <text x="520" y="55" font-size="12.5" font-weight="600" fill="#047857" text-anchor="middle">
+      users  •  farms  •  animals  •  medicines  •  regulatory_rules  •  treatments
+    </text>
+    <text x="520" y="73" font-size="12" font-weight="600" fill="#059669" text-anchor="middle">
+      withdrawals  •  amu_records  •  lab_samples  •  alerts  •  audit_logs  •  ml_predictions
+    </text>
+    <text x="520" y="89" font-size="11" font-weight="500" fill="#065f46" text-anchor="middle">
+      Regulatory reference data kept versioned and separate from operational data
+    </text>
+  </g>
+
+
+  <!-- ==================== TIER 5: TECHNOLOGIES TO BE USED ==================== -->
+  <g transform="translate(800, 815)">
+    <!-- Rounded Outer Capsule -->
+    <rect x="-650" y="0" width="1300" height="88" rx="44" fill="#f8fafc" stroke="#166534" stroke-width="2"/>
+    
+    <!-- Title Pill -->
+    <rect x="-170" y="-16" width="340" height="32" rx="16" fill="#166534"/>
+    <text x="0" y="5" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="1">Technologies to be Used</text>
+
+    <!-- Technology Badges Inside Capsule -->
+    <g transform="translate(0, 50)">
+      <!-- Tech 1: Flutter -->
+      <g transform="translate(-490, 0)">
+        <rect x="-68" y="-16" width="136" height="32" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1.3"/>
+        <text x="0" y="4" font-size="12.5" font-weight="700" fill="#0369a1" text-anchor="middle">Flutter (Android/Web)</text>
+      </g>
+      <!-- Tech 2: FastAPI & Express -->
+      <g transform="translate(-310, 0)">
+        <rect x="-85" y="-16" width="170" height="32" rx="8" fill="#f0fdf4" stroke="#4ade80" stroke-width="1.3"/>
+        <text x="0" y="4" font-size="12.5" font-weight="700" fill="#15803d" text-anchor="middle">FastAPI &amp; Express API</text>
+      </g>
+      <!-- Tech 3: PostgreSQL / Supabase -->
+      <g transform="translate(-100, 0)">
+        <rect x="-95" y="-16" width="190" height="32" rx="8" fill="#ecfdf5" stroke="#34d399" stroke-width="1.3"/>
+        <text x="0" y="4" font-size="12.5" font-weight="700" fill="#047857" text-anchor="middle">PostgreSQL / Supabase</text>
+      </g>
+      <!-- Tech 4: Python XGBoost & SHAP -->
+      <g transform="translate(130, 0)">
+        <rect x="-105" y="-16" width="210" height="32" rx="8" fill="#fef3c7" stroke="#fbbf24" stroke-width="1.3"/>
+        <text x="0" y="4" font-size="12.5" font-weight="700" fill="#b45309" text-anchor="middle">Python XGBoost &amp; SHAP</text>
+      </g>
+      <!-- Tech 5: Cloudinary & Open-Meteo -->
+      <g transform="translate(350, 0)">
+        <rect x="-85" y="-16" width="170" height="32" rx="8" fill="#ede9fe" stroke="#a78bfa" stroke-width="1.3"/>
+        <text x="0" y="4" font-size="12.5" font-weight="700" fill="#6d28d9" text-anchor="middle">Cloudinary &amp; Open-Meteo</text>
+      </g>
+      <!-- Tech 6: Hive Local Edge DB -->
+      <g transform="translate(520, 0)">
+        <rect x="-60" y="-16" width="120" height="32" rx="8" fill="#fff7ed" stroke="#fb923c" stroke-width="1.3"/>
+        <text x="0" y="4" font-size="12.5" font-weight="700" fill="#c2410c" text-anchor="middle">Hive Offline DB</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Presentation Footer Metadata -->
+  <text x="800" y="934" font-size="11.5" font-weight="500" fill="#94a3b8" text-anchor="middle">
+    FarmShield Platform Architecture • Smart India Hackathon Grand Finale • Ministry of Fisheries, Animal Husbandry &amp; Dairying
+  </text>
+</svg>

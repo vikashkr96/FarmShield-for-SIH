@@ -1,0 +1,208 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 820" width="680" height="820" style="background:transparent; font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Soft Card Shadow -->
+    <filter id="card-shadow" x="-6%" y="-6%" width="112%" height="116%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Title: TECH-STACK -->
+  <g transform="translate(340, 48)">
+    <text x="0" y="0" font-size="34" font-weight="900" fill="#14532d" text-anchor="middle" letter-spacing="1.5">TECH-STACK</text>
+  </g>
+
+  <!-- ==================== 2x2 GRID OF TECH CARDS ==================== -->
+
+  <!-- CARD 1: MACHINE LEARNING (Top-Left, Green) -->
+  <g transform="translate(25, 80)" filter="url(#card-shadow)">
+    <!-- Card Body -->
+    <rect x="0" y="0" width="295" height="340" rx="20" fill="#ffffff" stroke="#86efac" stroke-width="3"/>
+    
+    <!-- Top Ribbon / Tab -->
+    <g transform="translate(25, -12)">
+      <rect x="0" y="0" width="245" height="36" rx="12" fill="#dcfce7" stroke="#4ade80" stroke-width="1.8"/>
+      <text x="122" y="24" font-size="14" font-weight="800" fill="#15803d" text-anchor="middle" letter-spacing="0.5">MACHINE LEARNING</text>
+    </g>
+
+    <!-- Item 1: Python -->
+    <g transform="translate(30, 68)">
+      <!-- Python Logo Icon -->
+      <circle cx="20" cy="20" r="18" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+      <path d="M 12 14 C 12 11 15 9 19 9 L 22 9 C 26 9 29 11 29 14 L 29 18 L 22 18 C 18 18 16 20 16 24 L 16 26 L 14 26 C 11 26 9 23 9 19 Z" fill="#3b82f6"/>
+      <circle cx="16" cy="13" r="1.5" fill="#ffffff"/>
+      <path d="M 28 26 C 28 29 25 31 21 31 L 18 31 C 14 31 11 29 11 26 L 11 22 L 18 22 C 22 22 24 20 24 16 L 24 14 L 26 14 C 29 14 31 17 31 21 Z" fill="#eab308"/>
+      <circle cx="24" cy="27" r="1.5" fill="#ffffff"/>
+      <!-- Label -->
+      <text x="52" y="26" font-size="18" font-weight="800" fill="#1e293b">Python</text>
+    </g>
+
+    <!-- Item 2: Scikit-Learn -->
+    <g transform="translate(30, 138)">
+      <!-- Scikit Icon -->
+      <circle cx="20" cy="20" r="18" fill="#fff7ed" stroke="#fed7aa" stroke-width="1"/>
+      <circle cx="14" cy="20" r="7" fill="#f97316"/>
+      <circle cx="26" cy="20" r="7" fill="#0284c7" fill-opacity="0.85"/>
+      <!-- Label -->
+      <text x="52" y="26" font-size="18" font-weight="800" fill="#1e293b">Scikit-Learn</text>
+    </g>
+
+    <!-- Item 3: XGBoost -->
+    <g transform="translate(30, 208)">
+      <!-- XGBoost Icon -->
+      <circle cx="20" cy="20" r="18" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+      <path d="M 12 13 L 18 20 L 12 27 L 16 27 L 20 22 L 24 27 L 28 27 L 22 20 L 28 13 L 24 13 L 20 18 L 16 13 Z" fill="#16a34a"/>
+      <!-- Label -->
+      <text x="52" y="26" font-size="18" font-weight="800" fill="#1e293b">XGBoost</text>
+    </g>
+
+    <!-- Item 4: SHAP Explainability -->
+    <g transform="translate(30, 278)">
+      <!-- SHAP Icon -->
+      <circle cx="20" cy="20" r="18" fill="#fef2f2" stroke="#fecaca" stroke-width="1"/>
+      <rect x="12" y="21" width="4" height="8" rx="1" fill="#ef4444"/>
+      <rect x="18" y="15" width="4" height="14" rx="1" fill="#3b82f6"/>
+      <rect x="24" y="11" width="4" height="18" rx="1" fill="#ef4444"/>
+      <!-- Label -->
+      <text x="52" y="26" font-size="18" font-weight="800" fill="#1e293b">SHAP AI</text>
+    </g>
+  </g>
+
+
+  <!-- CARD 2: FRONT-END (Top-Right, Blue) -->
+  <g transform="translate(360, 80)" filter="url(#card-shadow)">
+    <!-- Card Body -->
+    <rect x="0" y="0" width="295" height="340" rx="20" fill="#ffffff" stroke="#93c5fd" stroke-width="3"/>
+    
+    <!-- Top Ribbon / Tab -->
+    <g transform="translate(25, -12)">
+      <rect x="0" y="0" width="245" height="36" rx="12" fill="#dbeafe" stroke="#60a5fa" stroke-width="1.8"/>
+      <text x="122" y="24" font-size="14" font-weight="800" fill="#1d4ed8" text-anchor="middle" letter-spacing="0.5">FRONT-END</text>
+    </g>
+
+    <!-- Item 1: Flutter -->
+    <g transform="translate(30, 68)">
+      <circle cx="20" cy="20" r="18" fill="#f0f9ff" stroke="#bae6fd" stroke-width="1"/>
+      <!-- Flutter Origami Shape -->
+      <path d="M 23 9 L 12 20 L 16 24 L 30 10 Z" fill="#38bdf8"/>
+      <path d="M 21 21 L 16 26 L 21 31 L 26 31 L 21 26 L 27 20 Z" fill="#0284c7"/>
+      <text x="52" y="26" font-size="18" font-weight="800" fill="#1e293b">Flutter</text>
+    </g>
+
+    <!-- Item 2: Next.js -->
+    <g transform="translate(30, 138)">
+      <circle cx="20" cy="20" r="18" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+      <path d="M 16 12 L 16 28 L 18 28 L 26 17 L 26 28 L 28 28 L 28 12 L 26 12 L 18 23 L 18 12 Z" fill="#ffffff"/>
+      <text x="52" y="26" font-size="18" font-weight="800" fill="#1e293b">Next.js</text>
+    </g>
+
+    <!-- Item 3: Dart -->
+    <g transform="translate(30, 208)">
+      <circle cx="20" cy="20" r="18" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+      <path d="M 12 28 L 17 28 L 28 17 L 23 12 Z" fill="#2563eb"/>
+      <path d="M 12 17 L 17 12 L 23 12 L 17 28 Z" fill="#60a5fa"/>
+      <text x="52" y="26" font-size="18" font-weight="800" fill="#1e293b">Dart</text>
+    </g>
+
+    <!-- Item 4: Hive (Offline DB) -->
+    <g transform="translate(30, 278)">
+      <circle cx="20" cy="20" r="18" fill="#fefce8" stroke="#fef08a" stroke-width="1"/>
+      <!-- Hive Hexagon Icon -->
+      <polygon points="20,10 28,15 28,25 20,30 12,25 12,15" fill="#eab308"/>
+      <text x="52" y="26" font-size="18" font-weight="800" fill="#1e293b">Hive (Offline)</text>
+    </g>
+  </g>
+
+
+  <!-- CARD 3: BACKEND (Bottom-Left, Orange) -->
+  <g transform="translate(25, 450)" filter="url(#card-shadow)">
+    <!-- Card Body -->
+    <rect x="0" y="0" width="295" height="340" rx="20" fill="#ffffff" stroke="#fed7aa" stroke-width="3"/>
+    
+    <!-- Top Ribbon / Tab -->
+    <g transform="translate(25, -12)">
+      <rect x="0" y="0" width="245" height="36" rx="12" fill="#ffedd5" stroke="#fb923c" stroke-width="1.8"/>
+      <text x="122" y="24" font-size="14" font-weight="800" fill="#c2410c" text-anchor="middle" letter-spacing="0.5">BACKEND</text>
+    </g>
+
+    <!-- Item 1: FastAPI -->
+    <g transform="translate(30, 68)">
+      <circle cx="20" cy="20" r="18" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1"/>
+      <!-- Lightning Fast Bolt -->
+      <polygon points="21,9 13,21 19,21 18,31 27,18 21,18" fill="#059669"/>
+      <text x="52" y="26" font-size="18" font-weight="800" fill="#1e293b">FastAPI</text>
+    </g>
+
+    <!-- Item 2: Node.js / Express -->
+    <g transform="translate(30, 138)">
+      <circle cx="20" cy="20" r="18" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+      <!-- Node Hexagon -->
+      <polygon points="20,10 28,15 28,25 20,30 12,25 12,15" fill="#16a34a"/>
+      <text x="20" y="24" font-size="10" font-weight="900" fill="#ffffff" text-anchor="middle">JS</text>
+      <text x="52" y="26" font-size="18" font-weight="800" fill="#1e293b">Node / Express</text>
+    </g>
+
+    <!-- Item 3: Supabase Postgres -->
+    <g transform="translate(30, 208)">
+      <circle cx="20" cy="20" r="18" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1"/>
+      <!-- Supabase Emerald Flash -->
+      <path d="M 21 8 L 13 22 L 20 22 L 17 32 L 28 17 L 21 17 Z" fill="#10b981"/>
+      <text x="52" y="26" font-size="17" font-weight="800" fill="#1e293b">Supabase SQL</text>
+    </g>
+
+    <!-- Item 4: Firebase (FCM) -->
+    <g transform="translate(30, 278)">
+      <circle cx="20" cy="20" r="18" fill="#fffbeb" stroke="#fde68a" stroke-width="1"/>
+      <!-- Firebase Flame -->
+      <path d="M 14 27 L 19 12 L 22 17 L 27 27 Z" fill="#f59e0b"/>
+      <path d="M 14 27 L 18 20 L 22 27 Z" fill="#d97706"/>
+      <text x="52" y="26" font-size="18" font-weight="800" fill="#1e293b">Firebase (FCM)</text>
+    </g>
+  </g>
+
+
+  <!-- CARD 4: CLOUD & DEVOPS (Bottom-Right, Teal / Purple) -->
+  <g transform="translate(360, 450)" filter="url(#card-shadow)">
+    <!-- Card Body -->
+    <rect x="0" y="0" width="295" height="340" rx="20" fill="#ffffff" stroke="#99f6e4" stroke-width="3"/>
+    
+    <!-- Top Ribbon / Tab -->
+    <g transform="translate(25, -12)">
+      <rect x="0" y="0" width="245" height="36" rx="12" fill="#ccfbf1" stroke="#2dd4bf" stroke-width="1.8"/>
+      <text x="122" y="24" font-size="14" font-weight="800" fill="#0f766e" text-anchor="middle" letter-spacing="0.5">CLOUD &amp; DEVOPS</text>
+    </g>
+
+    <!-- Item 1: Docker -->
+    <g transform="translate(30, 68)">
+      <circle cx="20" cy="20" r="18" fill="#f0f9ff" stroke="#bae6fd" stroke-width="1"/>
+      <!-- Docker Whale Containers -->
+      <rect x="14" y="16" width="3" height="3" fill="#0284c7"/>
+      <rect x="18" y="16" width="3" height="3" fill="#0284c7"/>
+      <rect x="22" y="16" width="3" height="3" fill="#0284c7"/>
+      <path d="M 12 21 C 12 21 15 26 25 26 C 28 26 30 23 30 21 Z" fill="#0284c7"/>
+      <text x="52" y="26" font-size="18" font-weight="800" fill="#1e293b">Docker</text>
+    </g>
+
+    <!-- Item 2: AWS Cloud -->
+    <g transform="translate(30, 138)">
+      <circle cx="20" cy="20" r="18" fill="#fff7ed" stroke="#fed7aa" stroke-width="1"/>
+      <path d="M 13 22 C 11 22 10 20 11 18 C 12 16 15 15 16 16 C 17 14 20 13 22 14 C 25 14 27 16 27 18 C 29 18 30 20 29 22 Z" fill="#ea580c"/>
+      <text x="52" y="26" font-size="18" font-weight="800" fill="#1e293b">AWS Cloud</text>
+    </g>
+
+    <!-- Item 3: Cloudinary CDN -->
+    <g transform="translate(30, 208)">
+      <circle cx="20" cy="20" r="18" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+      <path d="M 14 21 C 13 21 12 20 13 18 C 14 17 16 16 17 17 C 18 15 21 14 23 15 C 25 15 27 17 27 18 C 28 18 29 20 28 21 Z" fill="#2563eb"/>
+      <text x="52" y="26" font-size="17" font-weight="800" fill="#1e293b">Cloudinary CDN</text>
+    </g>
+
+    <!-- Item 4: Open-Meteo API -->
+    <g transform="translate(30, 278)">
+      <circle cx="20" cy="20" r="18" fill="#fef2f2" stroke="#fecaca" stroke-width="1"/>
+      <!-- Sun / Thermometer Weather -->
+      <circle cx="18" cy="18" r="6" fill="#f59e0b"/>
+      <path d="M 23 19 L 27 25" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+      <text x="52" y="26" font-size="17" font-weight="800" fill="#1e293b">Open-Meteo API</text>
+    </g>
+  </g>
+</svg>
