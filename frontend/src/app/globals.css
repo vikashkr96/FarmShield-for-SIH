@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+:root {
+  --primary-green: #1B5E20;
+  --secondary-green: #2E7D32;
+  --light-green: #E8F5E9;
+  --border-green: #A5D6A7;
+  --bg-white: #FFFFFF;
+  --card-white: #FFFFFF;
+  --text-dark: #111827;
+}
+
+body {
+  background-color: #FFFFFF;
+  color: var(--text-dark);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom Green & White Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FFFFFF;
+}
+::-webkit-scrollbar-thumb {
+  background: #A5D6A7;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #1B5E20;
+}
