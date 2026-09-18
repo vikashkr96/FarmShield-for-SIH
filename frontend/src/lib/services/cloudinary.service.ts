@@ -17,8 +17,8 @@ export interface CloudinaryUploadResult {
   bytes?: number;
 }
 
-const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dly88888';
-const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'farmshield_preset';
+const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dwfowhzwn';
+const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'dashsocial';
 
 export class CloudinaryService {
   /**

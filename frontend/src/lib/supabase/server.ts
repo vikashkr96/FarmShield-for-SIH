@@ -3,8 +3,8 @@ import { cookies } from 'next/headers';
 
 export async function createClient() {
   const cookieStore = await cookies();
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder-project.supabase.co';
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.placeholder_anon_key';
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dykjepfsrndzamkkzcxf.supabase.co';
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_K8HRl4YEkhw1hcztFjJ7kA_bWfWg-rT';
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
