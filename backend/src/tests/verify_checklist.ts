@@ -1,7 +1,7 @@
 import app from '../server';
 import http from 'http';
 
-process.env.NODE_ENV = 'test';
+(process.env as Record<string, string | undefined>).NODE_ENV = 'test';
 const PORT = 5098;
 const server = http.createServer(app);
 
