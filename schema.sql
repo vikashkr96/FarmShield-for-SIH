@@ -173,18 +173,7 @@ create table public.ml_predictions (
   created_at timestamptz not null default now()
 );
 
--- 3. PRODUCTION INDEXES
-create index if not exists idx_animals_farm_id on public.animals(farm_id);
-create index if not exists idx_animals_qr_token on public.animals(qr_token);
-create index if not exists idx_animals_health_status on public.animals(health_status);
-create index if not exists idx_treatments_animal_id on public.treatments(animal_id);
-create index if not exists idx_treatments_start_date on public.treatments(start_date);
-create index if not exists idx_withdrawals_animal_id on public.withdrawals(animal_id);
-create index if not exists idx_withdrawals_status on public.withdrawals(status);
-create index if not exists idx_alerts_farm_id on public.alerts(farm_id);
-create index if not exists idx_lab_results_animal_id on public.lab_results(animal_id);
-
--- 4. ENABLE ROW LEVEL SECURITY (RLS)
+-- 3. ENABLE ROW LEVEL SECURITY (RLS)
 
 alter table public.users enable row level security;
 alter table public.farms enable row level security;

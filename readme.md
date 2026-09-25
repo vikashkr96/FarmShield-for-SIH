@@ -1,24 +1,118 @@
+<div align="center">
+
 # 🛡️ FarmShield (फार्मशील्ड)
 ### *National Digital Livestock Surveillance, Health Intelligence & MRL Compliance Decision Support Platform*
 
-[![Next.js 16](https://img.shields.io/badge/Next.js-16.1.6-black?logo=next.js&logoColor=white)](https://nextjs.org)
-[![React 19](https://img.shields.io/badge/React-19.0.0-blue?logo=react&logoColor=white)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://typescriptlang.org)
-[![Tailwind CSS 4](https://img.shields.io/badge/Tailwind-4.x-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
-[![Flutter 3.x](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
+[![Flutter Version](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)](https://dart.dev)
 [![Supabase](https://img.shields.io/badge/Supabase-Backend%20%26%20Auth-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com)
+[![Cloudinary](https://img.shields.io/badge/Cloudinary-Media%20CDN-3448C5?logo=cloudinary&logoColor=white)](https://cloudinary.com)
+[![Open-Meteo](https://img.shields.io/badge/Open--Meteo-Weather%20Risk-FF6B6B)](https://open-meteo.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **Smart India Hackathon (SIH) Grand Finalist Solution**  
-> An enterprise-grade, multi-stakeholder livestock health intelligence, epidemiological disease surveillance, and Maximum Residue Limit (MRL) food safety governance system. Built for Livestock Owners, Field Veterinarians, Para-Veterinary Cadres, and State Animal Husbandry Departments.
+<p align="center">
+  <b>Smart India Hackathon (SIH) Grand Finalist Solution</b><br>
+  Built for Livestock Owners, Farmers, Field Veterinarians, Para-Veterinary Cadres, and State Animal Husbandry Departments.
+</p>
 
 ---
 
-## 📌 Executive Overview
+</div>
 
-**FarmShield** bridges grassroots livestock care and national regulatory bodies through two complementary platforms sharing a unified Supabase cloud backbone:
-1. **Next.js 16 Web Application (`/frontend`)**: Enterprise portal featuring SSR, interactive dashboards, geospatial epidemic heatmaps, batch QR passport generation, AMU governance, biometeorological THI modeling, offline sync queue, and responsive interfaces optimized from 320px to 4K displays.
-2. **Flutter Mobile Application (`/farmshield`)**: Offline-first (Hive) Android/iOS client with optical QR scanning, on-field clinical symptom triage, camera image acquisition, and live sync.
+## 📌 Executive Summary
+
+**FarmShield** is an end-to-end, multi-stakeholder animal health intelligence, disease surveillance, and food safety governance system. Its mission is the **early detection, prevention, epidemiological tracking, and coordinated veterinary response** to livestock diseases and Antimicrobial Resistance (AMR).
+
+By combining **offline-first field capability (Hive)**, **instant QR animal identification**, **rule-based transparent clinical triage**, **geospatial epidemic risk mapping**, and **biometeorological hazard modeling (THI & vector surges)**, FarmShield bridges the critical gap between grassroots livestock care and national regulatory bodies.
+
+---
+
+## 📸 Application Interface
+
+<div align="center"> 
+  <img src="outputs/1.jpg" width="220" alt="FarmShield Splash & Dashboard"/> 
+  <img src="outputs/2.jpg" width="220" alt="Animal Detail View"/> 
+  <img src="outputs/3.jpg" width="220" alt="Animal Passport & Health Timeline"/> 
+  <img src="outputs/4.jpg" width="220" alt="Treatment Registry"/> 
+</div>
+
+<br>
+
+<div align="center">
+  <img src="outputs/5.jpg" width="220" alt="AMU & Withdrawal Calendar"/> 
+  <img src="outputs/6.jpg" width="220" alt="Geospatial Risk Map"/> 
+  <img src="outputs/7.jpg" width="220" alt="Syndromic Field Report"/> 
+  <img src="outputs/8.jpg" width="220" alt="Prescription PDF Generator"/> 
+</div>
+
+<br>
+
+<div align="center">
+  <img src="outputs/9.jpg" width="220" alt="Veterinary Medicine Catalog"/> 
+  <img src="outputs/10.jpg" width="220" alt="AI Risk Estimation Models"/> 
+  <img src="outputs/11.jpg" width="220" alt="MRL Compliance Engine"/> 
+  <img src="outputs/12.jpg" width="220" alt="Emergency Alert Feed"/> 
+</div>
+
+<br>
+
+<div align="center">
+  <img src="outputs/13.jpg" width="220" alt="Livestock Herd Inventory"/> 
+  <img src="outputs/14.jpg" width="220" alt="Offline Queue Sync"/> 
+  <img src="outputs/15.jpg" width="220" alt="Multi-Language Support"/> 
+  <img src="outputs/16.jpg" width="220" alt="Veterinarian Dashboard"/> 
+</div>
+
+---
+
+## 🌟 Core Feature Modules
+
+### 1. 🔐 Google Authentication & Persistent Sessions (Supabase Auth)
+- **Zero-Friction Single Sign-On (SSO)**: Seamless Google OAuth integrated directly with Supabase Authentication.
+- **Deep Linking Protocol**: Custom URI callback `io.supabase.farmshield://login-callback` for immediate app resumption on Android/iOS/Web without webview traps.
+- **Persistent State Gate**: Re-opening the app securely checks existing cached sessions, booting authenticated users directly to the command dashboard with zero login-screen flicker.
+- **Automatic Profile Upsert**: Onboards Google user metadata (full name, email, avatar) into the PostgreSQL `public.users` table while retaining existing roles and data integrity.
+
+### 2. 🔍 Dynamic QR Animal Passport & Cloudinary Media Pipeline
+- **Instant Optical Identification**: High-performance camera scanner with fallback manual tag input. Resolves URLs (`https://farmshield.in/qr/COW-101`), raw tokens, and UUIDs.
+- **Optimized Image Ingestion**: Multi-part image picking (Camera / Gallery) with automatic size capping (10MB), extension validation, and upload to Cloudinary.
+- **Clean Media Lifecycle**: Deletes orphaned previous cloud images upon update to conserve storage quotas and persists direct HTTPS URLs to Supabase.
+- **Digital Passport**: Generates verifiable QR digital passports and exportable, tamper-proof veterinary medical health certificates in PDF format.
+
+### 3. 🧠 Clinical Decision Support & Explainable Triage
+- **Rule-Based Triage Engine**: Transparent clinical logic (100% deterministic, zero opaque AI hallucination) evaluating multi-system syndromic signs:
+  - **FMD (Foot-and-Mouth Disease)**: Oral vesicles, drooling, coronary lesions &rarr; Urgent Biosecurity Alert.
+  - **LSD (Lumpy Skin Disease)**: Cutaneous nodular eruptive lesions, limb edema &rarr; High Priority Vector Containment.
+  - **HS (Hemorrhagic Septicemia)**: Submandibular throat edema, acute respiratory distress &rarr; Critical Emergency.
+  - **Anthrax**: Sudden death, orifice non-clotting hemorrhage &rarr; Immediate Carcass Handling Precaution (**DO NOT OPEN CARCASS**).
+  - **Clinical Mastitis**: Hard swollen quarters, clot/flake milk &rarr; Strict milk withholding protocol.
+  - **Bovine Babesiosis (Tick Fever)**: Red urine (hemoglobinuria), high fever &rarr; Tick acaricide protocol.
+- **Interactive Triage Sheet**: Live symptom chips, rectal temperature slider, reactive urgency badges, and step-by-step containment checklists.
+
+### 4. 📊 Herd Health Intelligence & Surveillance
+- **Herd Analytics Dashboard**: Aggregated herd metrics tracking total head count, proportion distributions across health states (`Healthy`, `Under Observation`, `Affected`, `Critical`, `Recovered`, `Deceased`).
+- **Vaccination Compliance Index**: Tracks mandatory booster schedules, overdue immunizations, and herd-wide coverage percentages.
+- **Explainable Herd Risk Score (0-100)**: Multi-factor algorithm weighing disease severity, recent clinical velocity (72-hour clusters), and vaccination vulnerabilities.
+
+### 5. ⛅ Meteorological Hazard & THI Heat Stress Modeling
+- **Zero-Key Weather Ingestion**: Integrated with the Open-Meteo REST API (zero cost, zero API keys exposed) with 1-hour local coordinate caching.
+- **Temperature-Humidity Index (THI)**:
+  $$\text{THI} = (1.8 \times T + 32) - (0.55 - 0.0055 \times RH) \times (1.8 \times T - 26)$$
+- **Heat Stress Classification**: Normal (&lt; 72), Alert (72-78), Danger (79-88), Emergency (&ge; 89).
+- **Vector-Borne Proliferation Multiplier**: Real-time surge warning for *Culicoides* midges, *Stomoxys* biting flies, and ticks linked directly to LSD and Babesiosis outbreaks.
+
+### 6. 🗺️ Geospatial Risk Map & Epidemic Heatmaps
+- **Interactive Google Maps Engine**: Smooth pan, zoom, cluster, and camera bounding controls.
+- **Multi-Layer Visualization**:
+  - **Hybrid**: Risk heat halos alongside animal and incident markers.
+  - **Heatmap**: Weighted semi-transparent gradient circles indicating disease severity.
+  - **Markers**: Color-coded pins with interactive bottom sheets detailing clinical findings.
+- **Epidemiological Filtering**: Real-time filtering by pathogen (`All`, `FMD`, `LSD`, `HS`, `Mastitis`, `Anthrax`) and live meteorological risk overlay.
+
+### 7. 💊 Maximum Residue Limit (MRL) & AMU Governance
+- **AMU Tracker**: Logs antimicrobial usage by active ingredient and class (Highest Priority Critically Important Antimicrobials).
+- **Withdrawal Countdown**: Dynamic real-time countdown timer showing remaining milk and meat withholding days to prevent contaminated food products from entering the human supply chain.
+- **Standardized Drug Catalog**: Preloaded with regulatory guidelines, dosage norms, and withdrawal days.
 
 ---
 
@@ -26,171 +120,166 @@
 
 ```mermaid
 graph TD
-    subgraph Clients [Client Applications]
-        Web[Next.js 16 Web App<br/>SSR + React 19 + Tailwind 4]
-        Mobile[Flutter 3.x Mobile Client<br/>Android / iOS / Offline Hive]
+    subgraph ClientLayer [Client Application Layer]
+        App[Flutter Client App<br/>Android / iOS / Web]
     end
 
-    subgraph SupabaseCloud [Supabase Cloud Infrastructure]
-        Auth[Supabase Auth<br/>Google OAuth, Email/Password, Phone OTP]
-        DB[(PostgreSQL 15+<br/>RLS Policies, Triggers & Foreign Keys)]
-        Storage[Supabase Storage<br/>Buckets: animal-photos, lab-reports]
-        Realtime[Postgres Realtime Engine<br/>WebSocket Alerts & Incident Streams]
+    subgraph AuthAndCloud [Cloud Backend Services]
+        SupaAuth[Supabase Auth<br/>Google OAuth & Deep Linking]
+        SupaDB[(Supabase PostgreSQL<br/>Animal, Treatments & Users)]
+        Cloudinary[Cloudinary Media CDN<br/>Optimized Images & Documents]
+        OpenMeteo[Open-Meteo REST API<br/>Live Biometeorology & THI]
     end
 
-    subgraph ExternalAPIs [External Intelligence APIs]
-        OpenMeteo[Open-Meteo REST API<br/>Zero-Key Biometeorological & THI Modeling]
-        Cloudinary[Cloudinary Media CDN<br/>Legacy Media Ingestion & Optimization]
+    subgraph OfflineCache [Edge Persistence]
+        HiveDB[(Hive Local Cache<br/>Offline Storage & Sync Queue)]
     end
 
-    Web -->|Next.js SSR / Client SDK| Auth
-    Web -->|PostgREST & Typed Queries| DB
-    Web -->|Supabase Storage API| Storage
-    Web -->|Realtime WebSocket| Realtime
-    Web -->|Live THI & Heat Stress| OpenMeteo
-
-    Mobile -->|OAuth & Session Storage| Auth
-    Mobile -->|PostgREST & Sync Queue| DB
-    Mobile -->|Image Uploads| Cloudinary
-    Mobile -->|Weather Queries| OpenMeteo
+    App -->|OAuth Token & Profile| SupaAuth
+    App -->|PostgREST Realtime Sync| SupaDB
+    App -->|Upload & Manage Photos| Cloudinary
+    App -->|Weather Queries Cached 1h| OpenMeteo
+    App <-->|Store & Replay Mutex| HiveDB
 ```
-
----
-
-## 🌟 Next.js 16 Web Platform Features
-
-| Module | Next.js Route | Key Capabilities |
-| :--- | :--- | :--- |
-| **Authentication** | `/login`, `/signup`, `/forgot-password`, `/auth/callback` | Google OAuth, Email/Password, Phone OTP, protected routes via Next.js middleware, automatic profile upsert. |
-| **Command Dashboard** | `/dashboard` | Herd census KPIs, urgent containment alerts, live biometeorology (THI), AMU withdrawal status, quick-action navigation. |
-| **Livestock Inventory** | `/livestock`, `/livestock/new`, `/livestock/[id]` | Full CRUD, species filtering, multi-field search, pagination, dynamic status badges, Supabase Storage photo integration. |
-| **QR Animal Passports** | `/passport/[tag]`, `/qr-scanner` | Printable verified passports, live webcam/file QR scanner, batch PDF generation, direct cryptographic link validation. |
-| **Clinical Triage** | `/triage`, `/triage/[id]` | 100% deterministic rule-based symptom evaluator (FMD, LSD, HS, Anthrax, Mastitis, Babesiosis), urgency matrix. |
-| **Geospatial Surveillance** | `/map` | Interactive Leaflet risk map, severity heatmaps, radius risk assessment, real-time outbreak filtering. |
-| **AMU & MRL Compliance** | `/amu`, `/calendar` | Antimicrobial treatment logging, withdrawal countdown clocks (meat & milk), critical drug category tagging. |
-| **Lab Diagnostics** | `/lab-results`, `/lab-results/upload` | Diagnostic reports, pathogen PCR/ELISA tracking, PDF/image upload to secured Supabase `lab-reports` bucket. |
-| **Offline Sync Engine** | `/offline-sync` | IndexedDB persistent queue, online/offline detection, background mutex replay, conflict resolution. |
-| **Regulatory Reports** | `/reports` | Exportable health compliance summaries, MRL compliance certificates, printable veterinary documentation. |
-| **Emergency Alerts** | `/alerts` | High-priority biosecurity feeds, quarantine warnings, Supabase Realtime live subscriptions. |
-| **Veterinary Teleconsult**| `/teleconsult` | Tele-veterinary consultation requests, clinical notes attachment, case escalation. |
-| **Farmer Community** | `/community` | Advisory forum, farmer discussions, verified veterinarian badge responses. |
-| **Language & Theming** | Persistent in Navbar/Settings | English & Hindi (हिन्दी) bilingual toggle, responsive viewport optimization (320px to 1920px+). |
 
 ---
 
 ## 📁 Repository Structure
 
 ```text
-FarmShield-for-SIH-app/
-├── frontend/                        # Next.js 16 Web Application
-│   ├── src/
-│   │   ├── app/                     # 26 App Router routes (SSR + Client)
-│   │   ├── components/              # 35+ Reusable UI components & dialogs
-│   │   ├── contexts/                # Auth & Language contexts
-│   │   ├── hooks/                   # Custom hooks (useAuth, useOfflineSync, useDebounce)
-│   │   ├── lib/
-│   │   │   ├── supabase/            # Browser client, Server client, Middleware client
-│   │   │   ├── offline/             # IndexedDB sync queue & offline storage
-│   │   │   └── utils.ts             # Tailwind class merging & formatters
-│   │   ├── services/                # Supabase Data Access, Triage Engine, Weather
-│   │   └── types/                   # Complete TypeScript database & model definitions
-│   ├── package.json
-│   └── tailwind.config.ts
-├── farmshield/                      # Main Flutter Mobile Application
-│   ├── lib/                         # Mobile App Router, GetX Controllers, Hive offline DB
-│   └── test/                        # 35 Unit & Integration Tests (100% Passing)
-├── docs/                            # Comprehensive Architecture & Setup Guides
-│   ├── final-feature-audit.md       # Complete 28-feature Flutter vs Next.js audit
-│   ├── SUPABASE_SETUP.md            # Supabase manual guide (SQL schema, RLS, Storage)
-│   ├── MANUAL_SETUP_CHECKLIST.md    # Step-by-step Automated vs Manual deployment checklist
-│   ├── flutter-analysis.md          # Deep analysis of the Flutter application
-│   └── migration-map.md             # Component-by-component architectural mapping
-├── backend/                         # Express / Node.js helper services
-├── ml_service/                      # Python ML predictive services
-└── outputs/                         # UI screenshots and application assets
+FarmShield-for-SIH/
+├── farmshield/                      # Main Flutter Application
+│   ├── android/                     # Android Native Config & Deep Link Intents
+│   │   └── app/src/main/AndroidManifest.xml
+│   ├── lib/
+│   │   ├── main.dart                # App Entrypoint & Session Startup Gate
+│   │   ├── app/
+│   │   │   ├── core/
+│   │   │   │   ├── services/        # Triage Engine, Weather, Cloudinary, Hive
+│   │   │   │   ├── theme/           # Design System, Colors, Typography, Spacing
+│   │   │   │   └── widgets/         # AppButton, AppCard, AppTextField, NavBars
+│   │   │   ├── data/
+│   │   │   │   ├── models/          # Animal, Health, Risk, Geo, KPI Models
+│   │   │   │   └── repositories/    # FarmRepository (Supabase & Offline Sync)
+│   │   │   ├── modules/
+│   │   │   │   ├── auth/            # Google OAuth, Email, OTP Login & Register
+│   │   │   │   ├── dashboard/       # KPI, AMU, Countdown, Weather & Trend Cards
+│   │   │   │   ├── animal_detail/   # Profile, QR Card, Timeline, Triage Modal
+│   │   │   │   ├── animal_passport/ # QR Scanner, Verifiable Passports, PDF
+│   │   │   │   ├── geospatial_risk/ # Interactive Google Maps Risk View
+│   │   │   │   ├── livestock/       # Herd View, Health Ratios, Species Filter
+│   │   │   │   ├── calendar/        # AMU Withdrawal Timelines
+│   │   │   │   └── reports/         # PDF Regulatory Certificate Export
+│   │   │   └── routes/              # GetX Pages & Route Names
+│   │   └── firebase_options.dart
+│   └── test/                        # 35 Unit & Integration Tests (100% Pass)
+├── backend/                         # Node.js / Express Helper Services
+├── ml_service/                      # Python ML Predictive Services
+└── outputs/                         # Application UI Screenshots
 ```
 
 ---
 
-## 🚀 Quick Start: Next.js 16 Web Application
-
-### Prerequisites
-- **Node.js**: `v20.x` or higher (LTS recommended)
-- **npm**: `v10.x` or higher
-- **Supabase Project**: (See [`docs/SUPABASE_SETUP.md`](docs/SUPABASE_SETUP.md))
-
-### 1. Environment Setup
-Navigate to the `frontend/` directory and configure `.env.local`:
-```bash
-cd frontend
-cp .env.example .env.local
-```
-
-Populate the required environment variables:
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-
-# Server-only (DO NOT expose to client)
-# SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-```
-
-### 2. Install Dependencies & Run Development Server
-```bash
-npm install
-npm run dev
-```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-### 3. Production Build & Linting Verification
-```bash
-# Type check and build (Turbopack)
-npm run build
-
-# Code linting check
-npm run lint
-```
-*Verification status: 26/26 routes compile statically and dynamically with 0 errors.*
-
----
-
-## 📱 Quick Start: Flutter Mobile Client
+## 🚀 Getting Started
 
 ### Prerequisites
 - **Flutter SDK**: `^3.10.4` or higher
-- **Android SDK**: `API Level 26+`
+- **Dart SDK**: `^3.10.4`
+- **Android SDK**: `API Level 26+` (Android 8.0+)
+- **Supabase Account**: Project configured with Google Auth Provider
 
-### Installation & Launch
+### Installation
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/vikashkr96/FarmShield-for-SIH.git
+   cd FarmShield-for-SIH/farmshield
+   ```
+
+2. **Install Flutter Dependencies**:
+   ```bash
+   flutter pub get
+   ```
+
+3. **Configure Environment Secrets**:
+   Create or verify `farmshield/android/app/src/main/res/values/secrets.xml`:
+   ```xml
+   <?xml version="1.0" encoding="utf-8"?>
+   <resources>
+       <string name="google_maps_api_key">YOUR_GOOGLE_MAPS_API_KEY</string>
+   </resources>
+   ```
+
+4. **Run Unit & Integration Tests**:
+   ```bash
+   flutter test
+   ```
+   *Expected result: All 35 tests pass with 0 errors.*
+
+5. **Launch Application**:
+   ```bash
+   # Launch on connected Android device / emulator
+   flutter run
+
+   # Launch on Web with Chrome
+   flutter run -d chrome
+   ```
+
+---
+
+## ⚙️ Cloud & Supabase Configuration Guide
+
+To configure Google OAuth with Supabase in your own instance:
+
+### 1. Google Cloud Console
+1. Navigate to [Google Cloud Console](https://console.cloud.google.com/).
+2. Under **APIs & Services &rarr; OAuth consent screen**, set up your app name and contact email.
+3. Under **Credentials &rarr; Create Credentials &rarr; OAuth client ID**:
+   - Application Type: **Web application**.
+   - Authorized Redirect URIs:
+     ```text
+     https://<YOUR-SUPABASE-PROJECT-ID>.supabase.co/auth/v1/callback
+     ```
+4. Copy the **Client ID** and **Client Secret**.
+
+### 2. Supabase Dashboard
+1. Go to **Authentication &rarr; Providers &rarr; Google**:
+   - Turn **ON** Google provider.
+   - Paste your **Client ID** and **Client Secret**.
+2. Go to **Authentication &rarr; URL Configuration**:
+   - Add to Redirect URLs:
+     ```text
+     io.supabase.farmshield://login-callback
+     ```
+
+---
+
+## 🧪 Testing & Quality Assurance
+
+The codebase includes an automated test suite covering all mission-critical algorithms:
+
+| Test Suite | Focus Area | Status |
+|---|---|:---:|
+| `health_intelligence_test.dart` | Clinical Triage Rules, THI Equations, Herd Health Ratios | ✅ PASS |
+| `geospatial_risk_test.dart` | Coordinate validation, risk weighting, cluster calculations | ✅ PASS |
+| `qr_and_animal_workflow_test.dart` | QR URL parsing, Cloudinary Public ID extraction, Animal models | ✅ PASS |
+| `auth_flow_test.dart` | Role normalization, deep link callback URI formatting | ✅ PASS |
+| `widget_test.dart` | Design tokens, color palettes, responsive typography | ✅ PASS |
+
 ```bash
-cd farmshield
-flutter pub get
-flutter test        # Runs 35 unit/integration tests
-flutter run         # Launches on connected device or emulator
+flutter test
+# Result: 35/35 passed in ~2.8s
 ```
 
 ---
 
-## 🔐 Security & Production Hardening
+## 👥 Contributors & Acknowledgements
 
-- **Zero Client-Side Secret Leakage**: The `SUPABASE_SERVICE_ROLE_KEY` is strictly confined to server-side environments and is never exposed to client bundles.
-- **Row Level Security (RLS)**: Enforced across all PostgreSQL tables (`animals`, `treatments`, `profiles`, `alerts`, `triage_records`). Users can only modify authorized records.
-- **Storage Isolation**:
-  - `animal-photos`: Public read access, authenticated insert/update/delete.
-  - `lab-reports`: Private bucket; signed URLs generated server-side for authorized veterinary personnel.
-- **CSRF & Route Protection**: Built-in Next.js SSR middleware (`src/middleware.ts`) verifies session tokens on all `/dashboard`, `/livestock`, `/amu`, `/triage`, and `/settings` routes, redirecting unauthenticated traffic to `/login`.
+Developed with ❤️ for **Smart India Hackathon (SIH)**.
+Special thanks to the veterinary officers and farmers whose feedback shaped FarmShield's clinical triage and MRL decision support workflows.
 
 ---
 
-## 📖 Key Documentation Reference
-
-- **[Final Feature Audit](docs/final-feature-audit.md)**: 28-row matrix verifying 100% feature migration from Flutter to Next.js.
-- **[Supabase Setup Guide](docs/SUPABASE_SETUP.md)**: Copy-paste SQL schema, RLS policies, trigger functions, and storage bucket configuration.
-- **[Manual Setup Checklist](docs/MANUAL_SETUP_CHECKLIST.md)**: Clear separation of automated vs manual developer setup tasks.
-
----
-
-## 👥 License & Acknowledgements
-
-Developed with ❤️ for **Smart India Hackathon (SIH)**.  
-Licensed under the [MIT License](LICENSE).
+<div align="center">
+  <sub>FarmShield • Protecting Livestock, Ensuring Food Safety, Empowering Farmers</sub>
+</div>
