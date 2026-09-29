@@ -5,12 +5,13 @@ import { useLanguage } from '../../providers/LanguageProvider';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
-import { Stethoscope, Activity, AlertTriangle, ShieldCheck, FileText, CheckCircle2, Cpu, BarChart3, AlertOctagon } from 'lucide-react';
+import { Stethoscope, Activity, AlertTriangle, ShieldCheck, FileText, CheckCircle2, Cpu, BarChart3, AlertOctagon, FileCheck } from 'lucide-react';
 import { AMUAnalytics } from './AMUAnalytics';
+import { LabResultsSection } from './LabResultsSection';
 
 export const VetDashboard: React.FC = () => {
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'clinical' | 'amu' | 'ml_models'>('clinical');
+  const [activeTab, setActiveTab] = useState<'clinical' | 'amu' | 'ml_models' | 'lab_results'>('clinical');
   const [modelsMetadata, setModelsMetadata] = useState<any>(null);
 
   useEffect(() => {
@@ -27,44 +28,53 @@ export const VetDashboard: React.FC = () => {
   return (
     <div className="space-y-6 max-w-6xl mx-auto px-4 py-6 font-sans">
       {/* Vet Header Banner */}
-      <div className="bg-[#1B5E20] text-white rounded-3xl p-6 sm:p-8 shadow-2xl space-y-4">
+      <div className="bg-gradient-to-br from-[#072716] via-[#0E4D2B] to-[#166534] text-white rounded-3xl p-6 sm:p-8 shadow-xl space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center space-x-3">
-            <div className="w-14 h-14 rounded-2xl bg-white text-[#1B5E20] flex items-center justify-center text-3xl shadow-lg">
+            <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md text-white flex items-center justify-center text-3xl shadow-lg border border-white/20">
               🩺
             </div>
             <div>
               <div className="flex items-center space-x-2">
                 <h1 className="text-2xl sm:text-3xl font-black text-white">{t('vet.title')}</h1>
-                <Badge variant="success" className="bg-white text-[#1B5E20] border-none font-black">
+                <Badge variant="success" className="bg-[#DCFCE7] text-[#166534] border-none font-bold">
                   Dr. Sharma (VET-882)
                 </Badge>
               </div>
-              <p className="text-xs text-[#E8F5E9] font-bold">{t('vet.subtitle')}</p>
+              <p className="text-xs text-[#DCFCE7] font-semibold">{t('vet.subtitle')}</p>
             </div>
           </div>
 
-          <div className="flex items-center bg-white border-2 border-white p-1.5 rounded-2xl text-xs font-black self-end sm:self-center">
+          <div className="flex flex-wrap items-center bg-white/10 backdrop-blur-md border border-white/20 p-1.5 rounded-2xl text-xs font-bold gap-1 self-stretch sm:self-center">
             <button
               onClick={() => setActiveTab('clinical')}
-              className={`px-3 py-2 rounded-xl transition-all ${
-                activeTab === 'clinical' ? 'bg-[#1B5E20] text-white shadow-md' : 'text-[#1B5E20] hover:bg-[#E8F5E9]'
+              className={`px-3 py-2 rounded-xl transition-all cursor-pointer ${
+                activeTab === 'clinical' ? 'bg-white text-[#0E4D2B] shadow-md' : 'text-white hover:bg-white/10'
               }`}
             >
               {t('vet.activeTreatments')}
             </button>
             <button
               onClick={() => setActiveTab('amu')}
-              className={`px-3 py-2 rounded-xl transition-all ${
-                activeTab === 'amu' ? 'bg-[#1B5E20] text-white shadow-md' : 'text-[#1B5E20] hover:bg-[#E8F5E9]'
+              className={`px-3 py-2 rounded-xl transition-all cursor-pointer ${
+                activeTab === 'amu' ? 'bg-white text-[#0E4D2B] shadow-md' : 'text-white hover:bg-white/10'
               }`}
             >
               {t('vet.amuTrend')}
             </button>
             <button
+              onClick={() => setActiveTab('lab_results')}
+              className={`px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'lab_results' ? 'bg-white text-[#0E4D2B] shadow-md' : 'text-white hover:bg-white/10'
+              }`}
+            >
+              <FileCheck className="w-3.5 h-3.5" />
+              <span>Lab Diagnostics</span>
+            </button>
+            <button
               onClick={() => setActiveTab('ml_models')}
-              className={`px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
-                activeTab === 'ml_models' ? 'bg-[#1B5E20] text-white shadow-md' : 'text-[#1B5E20] hover:bg-[#E8F5E9]'
+              className={`px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'ml_models' ? 'bg-white text-[#0E4D2B] shadow-md' : 'text-white hover:bg-white/10'
               }`}
             >
               <Cpu className="w-3.5 h-3.5" />
@@ -73,6 +83,8 @@ export const VetDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {activeTab === 'lab_results' && <LabResultsSection />}
 
       {activeTab === 'amu' && <AMUAnalytics />}
 

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Navbar, UserRoleMode } from '../components/ui/Navbar';
 import { FarmerHome } from '../components/farmer/FarmerHome';
 import { AnimalList, AnimalItem } from '../components/farmer/AnimalList';
@@ -8,30 +9,82 @@ import { TreatmentModal } from '../components/farmer/TreatmentModal';
 import { MilkSafetyCheck } from '../components/farmer/MilkSafetyCheck';
 import { WarningsList } from '../components/farmer/WarningsList';
 import { QRScannerModal } from '../components/farmer/QRScannerModal';
+import { WithdrawalCalendar } from '../components/farmer/WithdrawalCalendar';
+import { SyndromicTriageModal } from '../components/farmer/SyndromicTriageModal';
+import { MedicineCatalogModal } from '../components/farmer/MedicineCatalogModal';
+import { ConnectionStatus } from '../components/ConnectionStatus';
 import { VetDashboard } from '../components/vet/VetDashboard';
 import { AdminDashboard } from '../components/admin/AdminDashboard';
-import { ConnectionStatus } from '../components/ConnectionStatus';
+import { Footer } from '../components/ui/Footer';
 import { AuthModal } from '../components/auth/AuthModal';
-import { useAuth } from '../providers/AuthProvider';
+import { useAuth, UserProfile } from '../providers/AuthProvider';
 import { useLanguage } from '../providers/LanguageProvider';
+import { API_BASE_URL } from '../lib/config';
 
-export default function Home() {
+function MainContent() {
   const { t } = useLanguage();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, login } = useAuth();
+  const searchParams = useSearchParams();
 
   const [roleMode, setRoleMode] = useState<UserRoleMode | undefined>(undefined);
-  const [farmerView, setFarmerView] = useState<'home' | 'animals' | 'treatment' | 'milk_safety' | 'alerts' | 'history' | 'qr_scan'>('home');
+  const [farmerView, setFarmerView] = useState<'home' | 'animals' | 'treatment' | 'milk_safety' | 'alerts' | 'history' | 'qr_scan' | 'calendar'>('home');
   const [selectedQrToken, setSelectedQrToken] = useState<string>('');
   const [autoOpenRegisterForm, setAutoOpenRegisterForm] = useState<boolean>(false);
+  const [showTriageModal, setShowTriageModal] = useState<boolean>(false);
+  const [showMedicinesModal, setShowMedicinesModal] = useState<boolean>(false);
 
-  // Sync roleMode when user logs in or out
+  // Sync roleMode when user logs in or out, or when ?role= query is passed
   useEffect(() => {
-    if (isAuthenticated && user) {
+    const queryRole = searchParams?.get('role') as UserRoleMode | null;
+    if (queryRole && ['farmer', 'vet', 'admin'].includes(queryRole)) {
+      setRoleMode(queryRole);
+      if (!isAuthenticated) {
+        // Auto-provision demo session for seamless evaluation
+        const demoProfiles: Record<UserRoleMode, UserProfile> = {
+          farmer: {
+            id: 'u_farmer_demo',
+            name: 'Ramesh Patel',
+            phone: '9876543210',
+            role: 'farmer',
+            state: 'Uttar Pradesh',
+            district: 'Varanasi',
+            farmId: 'IND-UP-8842',
+            authProvider: 'demo',
+          },
+          vet: {
+            id: 'u_vet_demo',
+            name: 'Dr. Priya Sharma, MVSc',
+            phone: '9876543211',
+            role: 'vet',
+            state: 'Gujarat',
+            district: 'Anand',
+            licenseNo: 'VCI-GUJ-4091',
+            authProvider: 'demo',
+          },
+          admin: {
+            id: 'u_admin_demo',
+            name: 'Sh. Rajesh Verma (DAHD)',
+            phone: '9876543212',
+            role: 'admin',
+            state: 'National / DAHD Delhi',
+            district: 'Krishi Bhawan',
+            licenseNo: 'DAHD-ADM-001',
+            authProvider: 'demo',
+          },
+        };
+        login(demoProfiles[queryRole]);
+      }
+    } else if (isAuthenticated && user) {
       setRoleMode(user.role);
     } else {
       setRoleMode(undefined);
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, searchParams]);
+
+  // Scroll to top smoothly when switching between views/features
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [farmerView, roleMode]);
 
   // Initial Livestock & Fishery Pond Units State
   const [animals, setAnimals] = useState<AnimalItem[]>([
@@ -92,7 +145,7 @@ export default function Home() {
 
   const fetchAnimals = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/animals');
+      const res = await fetch(`${API_BASE_URL}/api/animals`);
       const json = await res.json();
       if (json.status === 'success' && Array.isArray(json.data) && json.data.length > 0) {
         setAnimals(json.data);
@@ -118,7 +171,7 @@ export default function Home() {
     setAnimals((prev) => [newAnimal, ...prev]);
 
     try {
-      await fetch('http://localhost:5000/api/animals', {
+      await fetch(`${API_BASE_URL}/api/animals`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newAnimalData),
@@ -142,141 +195,147 @@ export default function Home() {
   const clearedCount = totalAnimals - underWithdrawal;
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] text-gray-900 flex flex-col justify-between selection:bg-[#1B5E20] selection:text-white font-sans">
-      <div>
-        <Navbar
-          currentRole={roleMode}
-          onRoleChange={(newRole) => {
-            setRoleMode(newRole);
-            if (newRole === 'qr_scanner') setFarmerView('qr_scan');
-            else if (newRole === 'farmer') setFarmerView('home');
-          }}
-        />
+    <div className="min-h-screen bg-[#FDFDFD] text-gray-900 flex flex-col selection:bg-[#1B5E20] selection:text-white font-sans">
+      <Navbar
+        currentRole={roleMode}
+        onRoleChange={(newRole) => {
+          setRoleMode(newRole);
+          if (newRole === 'farmer') setFarmerView('home');
+        }}
+      />
 
-        {/* Global VASUDHA / FarmShield Auth Modal */}
-        <AuthModal
-          onSuccessRoleChange={(authenticatedRole) => {
-            setRoleMode(authenticatedRole);
-            if (authenticatedRole === 'farmer') setFarmerView('home');
-          }}
-        />
+      {/* Global VASUDHA / FarmShield Auth Modal */}
+      <AuthModal
+        onSuccessRoleChange={(authenticatedRole) => {
+          setRoleMode(authenticatedRole);
+          if (authenticatedRole === 'farmer') setFarmerView('home');
+        }}
+      />
 
-        <main className="py-6">
-          {/* ========================================================================= */}
-          {/* PUBLIC LANDING OVERVIEW OR FARMER HOME */}
-          {/* ========================================================================= */}
-          {(!isAuthenticated || roleMode === 'farmer' || roleMode === undefined) && (
-            <>
-              {farmerView === 'home' && (
-                <div className="space-y-12">
-                  <FarmerHome
-                    onNavigate={(view) => {
-                      setAutoOpenRegisterForm(false);
-                      setFarmerView(view);
-                    }}
-                    onOpenRegisterAnimal={() => {
-                      setAutoOpenRegisterForm(true);
-                      setFarmerView('animals');
-                    }}
-                    stats={{
-                      totalAnimals,
-                      underTreatment,
-                      underWithdrawal,
-                      clearedCount,
-                    }}
-                  />
-
-                  {/* Architecture Health Verification Widget */}
-                  <div className="max-w-5xl mx-auto px-4 pt-6">
-                    <ConnectionStatus />
-                  </div>
-                </div>
-              )}
-
-              {farmerView === 'animals' && (
-                <AnimalList
-                  animals={animals}
-                  onAddAnimal={handleAddAnimal}
-                  onSelectAnimalForQr={handleSelectAnimalForQr}
-                  onBack={() => {
+      <main className="flex-1 py-6 flex flex-col">
+        {/* ========================================================================= */}
+        {/* PUBLIC LANDING OVERVIEW OR FARMER HOME */}
+        {/* ========================================================================= */}
+        {(!isAuthenticated || roleMode === 'farmer' || roleMode === undefined) && (
+          <>
+            {farmerView === 'home' && (
+              <div className="space-y-12">
+                <FarmerHome
+                  onNavigate={(view) => {
                     setAutoOpenRegisterForm(false);
-                    setFarmerView('home');
+                    setFarmerView(view);
                   }}
-                  autoOpenRegister={autoOpenRegisterForm}
-                />
-              )}
-
-              {farmerView === 'treatment' && (
-                <TreatmentModal
-                  animals={animals}
-                  onBack={() => setFarmerView('home')}
-                  onSuccess={() => {
-                    fetchAnimals();
-                    setFarmerView('milk_safety');
+                  onOpenRegisterAnimal={() => {
+                    setAutoOpenRegisterForm(true);
+                    setFarmerView('animals');
+                  }}
+                  onOpenTriage={() => setShowTriageModal(true)}
+                  onOpenMedicines={() => setShowMedicinesModal(true)}
+                  stats={{
+                    totalAnimals,
+                    underTreatment,
+                    underWithdrawal,
+                    clearedCount,
                   }}
                 />
-              )}
 
-              {farmerView === 'milk_safety' && (
-                <MilkSafetyCheck onBack={() => setFarmerView('home')} />
-              )}
+                {/* Architecture Health Verification Widget */}
+                <div className="max-w-5xl mx-auto px-4 pt-4">
+                  <ConnectionStatus />
+                </div>
+              </div>
+            )}
 
-              {farmerView === 'alerts' && (
-                <WarningsList onBack={() => setFarmerView('home')} />
-              )}
+            {farmerView === 'animals' && (
+              <AnimalList
+                animals={animals}
+                onAddAnimal={handleAddAnimal}
+                onSelectAnimalForQr={handleSelectAnimalForQr}
+                onBack={() => {
+                  setAutoOpenRegisterForm(false);
+                  setFarmerView('home');
+                }}
+                autoOpenRegister={autoOpenRegisterForm}
+              />
+            )}
 
-              {farmerView === 'history' && (
-                <TreatmentModal
-                  animals={animals}
-                  onBack={() => setFarmerView('home')}
-                  onSuccess={() => setFarmerView('home')}
-                />
-              )}
+            {farmerView === 'calendar' && (
+              <WithdrawalCalendar onBack={() => setFarmerView('home')} />
+            )}
 
-              {farmerView === 'qr_scan' && (
-                <QRScannerModal
-                  initialToken={selectedQrToken}
-                  onBack={() => setFarmerView('home')}
-                />
-              )}
-            </>
-          )}
+            {farmerView === 'treatment' && (
+              <TreatmentModal
+                animals={animals}
+                onBack={() => setFarmerView('home')}
+                onSuccess={() => {
+                  fetchAnimals();
+                  setFarmerView('milk_safety');
+                }}
+              />
+            )}
 
-          {/* ========================================================================= */}
-          {/* VETERINARIAN ROLE MODE */}
-          {/* ========================================================================= */}
-          {isAuthenticated && roleMode === 'vet' && <VetDashboard />}
+            {farmerView === 'milk_safety' && (
+              <MilkSafetyCheck onBack={() => setFarmerView('home')} />
+            )}
 
-          {/* ========================================================================= */}
-          {/* ADMIN / GOVT BODY ROLE MODE */}
-          {/* ========================================================================= */}
-          {isAuthenticated && roleMode === 'admin' && <AdminDashboard />}
+            {farmerView === 'alerts' && (
+              <WarningsList onBack={() => setFarmerView('home')} />
+            )}
 
-          {/* ========================================================================= */}
-          {/* PUBLIC QR SCANNER MODE */}
-          {/* ========================================================================= */}
-          {isAuthenticated && roleMode === 'qr_scanner' && (
-            <QRScannerModal
-              initialToken={selectedQrToken}
-              onBack={() => {
-                setRoleMode('farmer');
-                setFarmerView('home');
-              }}
+            {farmerView === 'history' && (
+              <TreatmentModal
+                animals={animals}
+                onBack={() => setFarmerView('home')}
+                onSuccess={() => setFarmerView('home')}
+              />
+            )}
+
+            {farmerView === 'qr_scan' && (
+              <QRScannerModal
+                initialToken={selectedQrToken}
+                onBack={() => setFarmerView('home')}
+              />
+            )}
+
+            {/* Syndromic Clinical Triage Modal */}
+            <SyndromicTriageModal
+              isOpen={showTriageModal}
+              onClose={() => setShowTriageModal(false)}
             />
-          )}
-        </main>
-      </div>
 
-      <footer className="border-t-2 border-[#1B5E20]/20 bg-white py-8 text-center text-xs text-gray-700 font-bold mt-12">
-        <div className="max-w-7xl mx-auto px-4 space-y-2">
-          <p className="font-black text-[#1B5E20] text-sm">
-            © 2026 FarmShield Digital Farm Portal • Ministry of Fisheries, Animal Husbandry & Dairying (SIH25007)
-          </p>
-          <p className="text-xs text-gray-600 font-bold">
-            FSSAI Reference Standards • FAO/WHO Codex Alimentarius • WOAH Guidelines on Farm-Level AMU
-          </p>
-        </div>
-      </footer>
+            {/* Medicine & MRL Catalog Modal */}
+            <MedicineCatalogModal
+              isOpen={showMedicinesModal}
+              onClose={() => setShowMedicinesModal(false)}
+            />
+          </>
+        )}
+
+        {/* ========================================================================= */}
+        {/* VETERINARIAN ROLE MODE */}
+        {/* ========================================================================= */}
+        {isAuthenticated && roleMode === 'vet' && <VetDashboard />}
+
+        {/* ========================================================================= */}
+        {/* ADMIN / GOVT BODY ROLE MODE */}
+        {/* ========================================================================= */}
+        {isAuthenticated && roleMode === 'admin' && <AdminDashboard />}
+      </main>
+
+      <Footer
+        onNavigateFarmerView={(view) => {
+          setFarmerView(view);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center font-bold text-gray-400">Loading FarmShield...</div>}>
+      <MainContent />
+    </Suspense>
   );
 }

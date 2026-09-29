@@ -5,6 +5,7 @@ import { useLanguage } from '../../providers/LanguageProvider';
 import { AnimalItem } from './AnimalList';
 import { Button } from '../ui/Button';
 import { ArrowLeft, CheckCircle2, ShieldAlert, Pill } from 'lucide-react';
+import { API_BASE_URL } from '../../lib/config';
 
 interface TreatmentModalProps {
   animals: AnimalItem[];
@@ -51,7 +52,7 @@ export const TreatmentModal: React.FC<TreatmentModalProps> = ({
     setResultMessage(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/treatments', {
+      const response = await fetch(`${API_BASE_URL}/api/treatments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -6,6 +6,7 @@ import { useLanguage } from '../../../providers/LanguageProvider';
 import { Card } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
 import { ShieldCheck, CheckCircle2, AlertTriangle, ShieldAlert, Milk, Fish, Check } from 'lucide-react';
+import { API_BASE_URL } from '../../../lib/config';
 
 export default function PublicQRPage() {
   const params = useParams();
@@ -19,7 +20,7 @@ export default function PublicQRPage() {
   useEffect(() => {
     if (!qrToken) return;
 
-    fetch(`http://localhost:5000/api/animals/qr/${encodeURIComponent(qrToken)}`)
+    fetch(`${API_BASE_URL}/api/animals/qr/${encodeURIComponent(qrToken)}`)
       .then((res) => res.json())
       .then((json) => {
         if (json.status === 'success') {

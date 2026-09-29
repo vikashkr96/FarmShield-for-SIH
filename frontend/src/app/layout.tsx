@@ -1,22 +1,26 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Poppins, Share_Tech_Mono } from 'next/font/google';
 import './globals.css';
 import { LanguageProvider } from '../providers/LanguageProvider';
 import { AuthProvider } from '../providers/AuthProvider';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const poppins = Poppins({
+  variable: '--font-poppins',
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const shareTechMono = Share_Tech_Mono({
+  variable: '--font-share-tech-mono',
   subsets: ['latin'],
+  weight: ['400'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'FarmShield - Digital Farm Management & MRL Portal',
-  description: 'Digital farm management portal for Maximum Residue Limits (MRL) and Antimicrobial Usage (AMU) monitoring in livestock & aquaculture.',
+  title: 'FarmShield (फार्मशील्ड) - National Digital Livestock Surveillance & MRL Compliance',
+  description: 'National Digital Livestock Surveillance, Animal Health Intelligence, and MRL Compliance Decision Support Platform.',
 };
 
 export default function RootLayout({
@@ -25,8 +29,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#FDFDFD] text-gray-900 selection:bg-[#1B5E20] selection:text-white">
+    <html lang="en" className={`${poppins.variable} ${shareTechMono.variable} h-full antialiased font-sans`}>
+      <body className="min-h-full flex flex-col bg-[#F8FAFC] text-[#0F172A] selection:bg-[#0E4D2B] selection:text-white font-sans">
         <LanguageProvider>
           <AuthProvider>
             <div className="flex-1 flex flex-col">{children}</div>

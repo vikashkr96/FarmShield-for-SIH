@@ -1,34 +1,60 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: var(--font-poppins), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-share-tech-mono), monospace;
+  --color-primary: #0E4D2B;
+  --color-primary-light: #166534;
+  --color-primary-dark: #072716;
+  --color-primary-soft: #DCFCE7;
+  --color-primary-container: #E8F5E9;
+  --color-accent: #10B981;
+  --color-accent-light: #6EE7B7;
+  --color-accent-dark: #047857;
+}
+
 :root {
-  --primary-green: #1B5E20;
-  --secondary-green: #2E7D32;
-  --light-green: #E8F5E9;
-  --border-green: #A5D6A7;
-  --bg-white: #FFFFFF;
-  --card-white: #FFFFFF;
-  --text-dark: #111827;
+  --primary: #0E4D2B;
+  --primary-light: #166534;
+  --primary-dark: #072716;
+  --primary-soft: #DCFCE7;
+  --primary-container: #E8F5E9;
+  --accent: #10B981;
+  --accent-light: #6EE7B7;
+  --accent-dark: #047857;
+  --bg-main: #F8FAFC;
+  --surface: #FFFFFF;
+  --surface-subtle: #F1F5F9;
+  --border-subtle: #E2E8F0;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
 }
 
 body {
-  background-color: #FFFFFF;
-  color: var(--text-dark);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: var(--font-poppins), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Custom Green & White Scrollbar */
+.font-mono-tag {
+  font-family: var(--font-share-tech-mono), monospace;
+}
+
+/* Custom Forest Emerald & Mint Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #FFFFFF;
+  background: #F1F5F9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #A5D6A7;
-  border-radius: 4px;
+  background: #CBD5E1;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #1B5E20;
+  background: #10B981;
 }

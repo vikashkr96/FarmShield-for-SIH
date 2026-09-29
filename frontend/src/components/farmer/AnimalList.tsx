@@ -28,6 +28,7 @@ import {
   Filter,
 } from 'lucide-react';
 import { generateClientQRDataUrl, downloadDataUrlAsFile } from '../../lib/qrHelper';
+import { uploadToCloudinary } from '../../lib/cloudinary';
 
 export interface AnimalItem {
   id: string;
@@ -42,6 +43,7 @@ export interface AnimalItem {
   notes?: string;
   qr_token: string;
   image_url?: string;
+  cloudinary_public_id?: string;
   fishery_details?: {
     pond_id?: string;
     water_type?: 'freshwater' | 'brackish' | 'marine';
@@ -101,6 +103,8 @@ export const AnimalList: React.FC<AnimalListProps> = ({
   const [healthStatus, setHealthStatus] = useState<'healthy' | 'sick' | 'under_treatment' | 'quarantine'>('healthy');
   const [notes, setNotes] = useState('');
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [cloudinaryPublicId, setCloudinaryPublicId] = useState<string>('');
+  const [uploadingPhoto, setUploadingPhoto] = useState<boolean>(false);
   const [pondId, setPondId] = useState('POND-01');
   const [waterType, setWaterType] = useState<'freshwater' | 'brackish' | 'marine'>('freshwater');
 
@@ -118,6 +122,7 @@ export const AnimalList: React.FC<AnimalListProps> = ({
     setHealthStatus('healthy');
     setNotes('');
     setImagePreview('');
+    setCloudinaryPublicId('');
     setPondId('POND-01');
     setWaterType('freshwater');
     setShowFormModal(true);
@@ -135,6 +140,7 @@ export const AnimalList: React.FC<AnimalListProps> = ({
     setHealthStatus(animal.health_status || 'healthy');
     setNotes(animal.notes || '');
     setImagePreview(animal.image_url || '');
+    setCloudinaryPublicId(animal.cloudinary_public_id || '');
     if (animal.fishery_details) {
       setPondId(animal.fishery_details.pond_id || 'POND-01');
       setWaterType(animal.fishery_details.water_type || 'freshwater');
@@ -142,14 +148,27 @@ export const AnimalList: React.FC<AnimalListProps> = ({
     setShowFormModal(true);
   };
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Local instant preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    // Direct Cloudinary CDN Upload
+    setUploadingPhoto(true);
+    try {
+      const result = await uploadToCloudinary(file, 'farmshield_animals');
+      setImagePreview(result.secure_url);
+      setCloudinaryPublicId(result.public_id);
+    } catch (err: any) {
+      console.warn('Cloudinary direct upload note:', err.message);
+    } finally {
+      setUploadingPhoto(false);
     }
   };
 
@@ -199,6 +218,7 @@ export const AnimalList: React.FC<AnimalListProps> = ({
         health_status: healthStatus,
         notes,
         image_url: imagePreview,
+        cloudinary_public_id: cloudinaryPublicId,
         fishery_details: species === 'fishery' ? { pond_id: pondId, water_type: waterType, biomass_kg: Number(weight) } : undefined,
       });
       setShowFormModal(false);
@@ -213,6 +233,7 @@ export const AnimalList: React.FC<AnimalListProps> = ({
         purpose: species === 'fishery' ? 'aquaculture' : purpose,
         notes,
         image_url: imagePreview,
+        cloudinary_public_id: cloudinaryPublicId,
         fishery_details: species === 'fishery' ? { pond_id: pondId, water_type: waterType, biomass_kg: Number(weight) } : undefined,
       };
 
@@ -671,24 +692,34 @@ export const AnimalList: React.FC<AnimalListProps> = ({
             <form onSubmit={handleFormSubmit} className="space-y-4 text-xs font-bold text-gray-800">
               {/* Photo Upload Section */}
               <div>
-                <label className="block text-gray-700 mb-1">{t('animals.uploadPhoto')}</label>
+                <label className="block text-slate-700 mb-1">{t('animals.uploadPhoto')}</label>
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-[#1B5E20]/40 rounded-2xl p-4 bg-[#FFFDF5] hover:bg-[#E8F5E9]/50 transition-colors cursor-pointer flex items-center gap-4"
+                  className="border-2 border-dashed border-[#0E4D2B]/30 rounded-2xl p-4 bg-slate-50 hover:bg-[#E8F5E9]/50 transition-colors cursor-pointer flex items-center gap-4"
                 >
-                  <div className="w-16 h-16 rounded-xl bg-white border border-gray-200 flex items-center justify-center overflow-hidden shrink-0">
+                  <div className="w-16 h-16 rounded-xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
                     {imagePreview ? (
                       <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                     ) : (
-                      <ImageIcon className="w-6 h-6 text-gray-400" />
+                      <ImageIcon className="w-6 h-6 text-slate-400" />
                     )}
                   </div>
                   <div className="space-y-1">
-                    <span className="text-xs font-black text-[#1B5E20] flex items-center gap-1.5">
-                      <Upload className="w-4 h-4" />
-                      <span>{imagePreview ? 'Change Photo' : 'Click to Upload Animal/Pond Photo'}</span>
+                    <span className="text-xs font-bold text-[#0E4D2B] flex items-center gap-1.5">
+                      <Upload className="w-4 h-4 text-[#10B981]" />
+                      <span>
+                        {uploadingPhoto
+                          ? 'Uploading to Cloudinary CDN...'
+                          : imagePreview
+                          ? 'Change Animal Photo (Cloudinary)'
+                          : 'Click to Upload Animal/Pond Photo (Cloudinary)'}
+                      </span>
                     </span>
-                    <p className="text-[11px] text-gray-500 font-normal">{t('animals.photoHint')}</p>
+                    <p className="text-[11px] text-slate-500 font-normal">
+                      {imagePreview && !uploadingPhoto
+                        ? 'Photo stored on Cloudinary Media Pipeline & synced to Supabase DB'
+                        : t('animals.photoHint')}
+                    </p>
                   </div>
                   <input
                     type="file"

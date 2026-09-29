@@ -19,6 +19,7 @@ const router = Router();
 router.use('/', healthRouter);
 
 // REST API Modular Mounts
+router.use('/auth', authRouter);
 router.use('/', authRouter);
 router.use('/', animalsRouter);
 router.use('/', treatmentsRouter);
@@ -28,10 +29,14 @@ router.use('/', amuRouter);
 router.use('/', medicinesRouter);
 router.use('/', mlRouter);
 
-// Surveillance & Outbreak Triage Engine (SIH)
+// Surveillance, Outbreak Triage & Diagnostic Chain-of-Custody (SIH)
 router.use('/v1', surveillanceRouter);
+router.use('/', surveillanceRouter);
 router.use('/v1', geoRouter);
+router.use('/', geoRouter);
 router.use('/v1', labReferralRouter);
+router.use('/', labReferralRouter);
 router.use('/v1', ivrRouter);
+router.use('/', ivrRouter);
 
 export default router;

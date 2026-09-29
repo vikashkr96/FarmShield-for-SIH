@@ -47,10 +47,9 @@ export const registeredUsers: Record<string, any> = {
 const activeOtps: Record<string, { otp: string; expiresAt: number }> = {};
 
 /**
- * POST /api/auth/send-otp
- * Generates and returns a 6-digit OTP for SMS verification
+ * Handler for sending OTP
  */
-router.post('/api/auth/send-otp', (req: Request, res: Response): void => {
+const handleSendOtp = (req: Request, res: Response): void => {
   const { phone } = req.body;
 
   if (!phone || phone.length < 10) {
@@ -78,13 +77,12 @@ router.post('/api/auth/send-otp', (req: Request, res: Response): void => {
     },
     timestamp: new Date().toISOString(),
   });
-});
+};
 
 /**
- * POST /api/auth/login
- * Supports Phone+Password, Phone+OTP, and Google/DigiLocker SSO
+ * Handler for user login
  */
-router.post('/api/auth/login', (req: Request, res: Response): void => {
+const handleLogin = (req: Request, res: Response): void => {
   const { method, phone, password, otp, role, googleUser, ssoProvider } = req.body;
 
   // 1. Google / DigiLocker / Pashudhan SSO Auth
@@ -207,13 +205,12 @@ router.post('/api/auth/login', (req: Request, res: Response): void => {
     status: 'error',
     message: 'Unsupported authentication method. Use password, otp, or google.',
   });
-});
+};
 
 /**
- * POST /api/auth/register
- * Registers a new stakeholder profile
+ * Handler for user registration
  */
-router.post('/api/auth/register', (req: Request, res: Response): void => {
+const handleRegister = (req: Request, res: Response): void => {
   const { name, phone, password, role, state, district, farmType } = req.body;
 
   if (!name || !phone || phone.length < 10) {
@@ -251,6 +248,19 @@ router.post('/api/auth/register', (req: Request, res: Response): void => {
     },
     timestamp: new Date().toISOString(),
   });
-});
+};
+
+// Register all route variations to prevent any 404 routing mismatch
+router.post('/auth/send-otp', handleSendOtp);
+router.post('/send-otp', handleSendOtp);
+router.post('/api/auth/send-otp', handleSendOtp);
+
+router.post('/auth/login', handleLogin);
+router.post('/login', handleLogin);
+router.post('/api/auth/login', handleLogin);
+
+router.post('/auth/register', handleRegister);
+router.post('/register', handleRegister);
+router.post('/api/auth/register', handleRegister);
 
 export default router;
