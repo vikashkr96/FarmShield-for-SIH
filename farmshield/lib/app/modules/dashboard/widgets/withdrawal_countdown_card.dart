@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
@@ -66,9 +65,7 @@ class WithdrawalCountdownCard extends StatelessWidget {
                         strokeWidth: 4.0,
                       ),
                     ),
-                    const Icon(Icons.lock_clock_rounded, color: Colors.redAccent, size: 20)
-                        .animate(onPlay: (c) => c.repeat(reverse: true))
-                        .scale(begin: const Offset(0.9, 0.9), end: const Offset(1.15, 1.15), duration: const Duration(seconds: 1)),
+                    const Icon(Icons.lock_clock_rounded, color: Colors.white, size: 20),
                   ],
                 ),
                 const SizedBox(width: AppSpacing.md),
@@ -142,7 +139,7 @@ class WithdrawalCountdownCard extends StatelessWidget {
             ),
           ],
         ),
-      ).animate().fadeIn().scale(delay: const Duration(milliseconds: 150));
+      );
     });
   }
 

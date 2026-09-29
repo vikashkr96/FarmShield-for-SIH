@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../controllers/nav_controller.dart';
@@ -84,29 +83,25 @@ class DashboardView extends GetView<DashboardController> {
         child: Material(
           color: Colors.transparent,
           shape: const CircleBorder(),
-          elevation: 6,
-          shadowColor: const Color(0xFF1B5E20).withValues(alpha: 0.4),
+          elevation: 4,
+          shadowColor: kTeal.withValues(alpha: 0.35),
           child: Ink(
             width: 60,
             height: 60,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [Color(0xFF2E7D32), Color(0xFF1B5E20)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              gradient: AppColors.primaryGradient,
               boxShadow: [
                 BoxShadow(
-                  color: Color(0x331B5E20),
+                  color: kTeal.withValues(alpha: 0.3),
                   blurRadius: 14,
-                  offset: Offset(0, 6),
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
             child: InkWell(
               customBorder: const CircleBorder(),
-              splashColor: AppColors.accent.withValues(alpha: 0.3),
+              splashColor: Colors.white.withValues(alpha: 0.2),
               highlightColor: Colors.white.withValues(alpha: 0.1),
               onTap: () => Get.toNamed(Routes.QR_SCANNER),
               child: Stack(
@@ -118,15 +113,15 @@ class DashboardView extends GetView<DashboardController> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AppColors.accent.withValues(alpha: 0.4),
+                        color: Colors.white.withValues(alpha: 0.35),
                         width: 1.5,
                       ),
                     ),
                   ),
                   const Icon(
                     Icons.qr_code_scanner_rounded,
-                    color: AppColors.accent,
-                    size: 28,
+                    color: Colors.white,
+                    size: 26,
                   ),
                 ],
               ),
@@ -431,7 +426,7 @@ class DashboardView extends GetView<DashboardController> {
                 ),
               ],
             ),
-          ).animate().slideX(begin: 0.15, delay: Duration(milliseconds: index * 60));
+          );
         },
       );
     });

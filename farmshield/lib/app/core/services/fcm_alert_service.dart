@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../core/theme/app_colors.dart';
 import '../../data/models/farm_models.dart';
 
 class FcmAlertService extends GetxService {
@@ -43,8 +44,8 @@ class FcmAlertService extends GetxService {
     final isWarning = alert.type?.toUpperCase() == 'WARNING';
     
     final bannerColor = isCritical 
-        ? const Color(0xFFDC2626) 
-        : (isWarning ? const Color(0xFFD97706) : const Color(0xFF1B5E20));
+        ? AppColors.danger 
+        : (isWarning ? AppColors.warning : AppColors.primary);
 
     Get.rawSnackbar(
       titleText: Row(

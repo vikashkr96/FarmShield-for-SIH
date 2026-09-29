@@ -6,6 +6,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/models/farm_models.dart';
 import '../../../data/repositories/farm_repository.dart';
 import '../../../core/services/offline_storage_service.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
 
 class TreatmentController extends GetxController {
   final FarmRepository repository;
@@ -186,31 +188,31 @@ class TreatmentController extends GetxController {
   void _showModernRiskDialog(Treatment treatment) {
     Get.dialog(
       Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedLg),
+        backgroundColor: AppColors.surface,
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: const BoxDecoration(
-                  color: Color(0xFFE8F5E9),
+                  color: AppColors.primarySoft,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.shield_rounded, color: Color(0xFF1B5E20), size: 36),
+                child: const Icon(Icons.shield_rounded, color: AppColors.primary, size: 36),
               ),
               const SizedBox(height: 12),
               Text(
                 'Treatment Logged & Verified',
-                style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
+                style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 4),
               Text(
                 'AI Safety Engine has synced MRL regulatory withdrawal timers.',
-                style: GoogleFonts.poppins(fontSize: 11.5, color: Colors.blueGrey.shade600),
+                style: GoogleFonts.poppins(fontSize: 11.5, color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
@@ -219,9 +221,9 @@ class TreatmentController extends GetxController {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.grey.shade200),
+                  color: AppColors.surfaceSubtle,
+                  borderRadius: AppSpacing.roundedMd,
+                  border: Border.all(color: AppColors.border),
                 ),
                 child: Column(
                   children: [
@@ -242,9 +244,9 @@ class TreatmentController extends GetxController {
                 height: 46,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1B5E20),
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedMd),
                     elevation: 0,
                   ),
                   onPressed: () {

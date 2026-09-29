@@ -21,25 +21,25 @@ class QuickActionsGrid extends StatelessWidget {
         _actionItem('livestock'.tr, Icons.pets_rounded, AppColors.primary, () {
           Get.find<NavController>().changePage(1);
         }),
-        _actionItem('withdrawals'.tr, Icons.calendar_month_rounded, const Color(0xFF15803D), () {
+        _actionItem('withdrawals'.tr, Icons.calendar_month_rounded, AppColors.success, () {
           Get.find<NavController>().changePage(2);
         }),
         _actionItem('add_treatment'.tr, Icons.add_moderator_rounded, AppColors.danger, () {
           Get.toNamed(Routes.ADD_TREATMENT);
         }),
-        _actionItem('safety_passport'.tr, Icons.qr_code_scanner_rounded, const Color(0xFFD97706), () {
+        _actionItem('safety_passport'.tr, Icons.qr_code_scanner_rounded, AppColors.warning, () {
           Get.toNamed(Routes.ANIMAL_PASSPORT);
         }),
-        _actionItem('Emergency', Icons.warning_amber_rounded, const Color(0xFFDC2626), () {
+        _actionItem('Emergency', Icons.warning_amber_rounded, AppColors.danger, () {
           Get.toNamed(Routes.SYNDROMIC_REPORT);
         }),
-        _actionItem('risk_assess'.tr, Icons.auto_graph_rounded, const Color(0xFF2563EB), () {
+        _actionItem('risk_assess'.tr, Icons.auto_graph_rounded, AppColors.info, () {
           Get.toNamed(Routes.RISK_ASSESSMENT);
         }),
-        _actionItem('medicine_browser'.tr, Icons.medication_liquid_rounded, const Color(0xFF7C3AED), () {
+        _actionItem('medicine_browser'.tr, Icons.medication_liquid_rounded, AppColors.secondary, () {
           Get.toNamed(Routes.MEDICINES_CATALOG);
         }),
-        _actionItem('reports'.tr, Icons.assessment_rounded, const Color(0xFF0D9488), () {
+        _actionItem('reports'.tr, Icons.assessment_rounded, AppColors.accent, () {
           Get.find<NavController>().changePage(3);
         }),
       ],

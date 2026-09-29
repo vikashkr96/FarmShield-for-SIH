@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import '../../../data/models/farm_models.dart';
 import '../../../core/theme/app_colors.dart';
@@ -125,7 +124,7 @@ class HerdHeatmapCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                ).animate().scale(delay: Duration(milliseconds: index * 20));
+                );
               },
             ),
           ],

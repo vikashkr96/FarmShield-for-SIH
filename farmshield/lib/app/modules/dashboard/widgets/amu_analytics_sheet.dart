@@ -1,6 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -118,7 +117,7 @@ class AmuAnalyticsSheet extends StatelessWidget {
           ),
         ],
       ),
-    ).animate().fadeIn(delay: const Duration(milliseconds: 200));
+    );
   }
 
   Widget _buildTrendCard() {

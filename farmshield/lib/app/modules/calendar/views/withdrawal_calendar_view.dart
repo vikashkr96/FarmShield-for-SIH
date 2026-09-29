@@ -51,7 +51,7 @@ class WithdrawalCalendarView extends GetView<WithdrawalCalendarController> {
         color: AppColors.primary,
         onRefresh: () => controller.fetchWithdrawals(),
         child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

@@ -7,6 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/models/farm_models.dart';
 import '../../../data/repositories/farm_repository.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
 
 class LabResultsController extends GetxController {
   final FarmRepository repository;
@@ -157,29 +159,29 @@ class LabResultsController extends GetxController {
   void _showSuccessDialog() {
     Get.dialog(
       Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedLg),
+        backgroundColor: AppColors.surface,
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isCompliant.value ? const Color(0xFFE8F5E9) : const Color(0xFFFEF2F2),
+                  color: isCompliant.value ? AppColors.primarySoft : AppColors.dangerBg,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   isCompliant.value ? Icons.verified_rounded : Icons.warning_amber_rounded,
-                  color: isCompliant.value ? const Color(0xFF1B5E20) : Colors.red.shade800,
+                  color: isCompliant.value ? AppColors.primary : AppColors.danger,
                   size: 36,
                 ),
               ),
               const SizedBox(height: 12),
               Text(
                 isCompliant.value ? 'Residue Assay Compliant' : 'Residue Non-Compliant Alert',
-                style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
+                style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 6),
@@ -187,7 +189,7 @@ class LabResultsController extends GetxController {
                 isCompliant.value
                     ? 'Test results synced with consumer Safety Passport.'
                     : 'MRL exceeded. Withhold notification broadcast to farm dashboard.',
-                style: GoogleFonts.poppins(fontSize: 11.5, color: Colors.blueGrey.shade600),
+                style: GoogleFonts.poppins(fontSize: 11.5, color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 18),
@@ -196,9 +198,9 @@ class LabResultsController extends GetxController {
                 height: 46,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1B5E20),
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedMd),
                     elevation: 0,
                   ),
                   onPressed: () {

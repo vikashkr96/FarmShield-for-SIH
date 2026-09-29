@@ -54,7 +54,6 @@ class _LabResultsViewState extends State<LabResultsView> {
         subtitle: 'Lab Chemical Residue & MRL Compliance Verification',
       ),
       body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

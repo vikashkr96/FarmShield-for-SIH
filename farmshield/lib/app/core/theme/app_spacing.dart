@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'app_colors.dart';
 
 /// Centralized layout metrics, radius, and shadows for FarmShield
 class AppSpacing {
@@ -56,7 +57,7 @@ class AppSpacing {
 
   static List<BoxShadow> shadowPrimary = [
     BoxShadow(
-      color: const Color(0xFF0E4D2B).withValues(alpha: 0.25),
+      color: kTeal.withValues(alpha: 0.28),
       blurRadius: 18,
       offset: const Offset(0, 6),
     ),

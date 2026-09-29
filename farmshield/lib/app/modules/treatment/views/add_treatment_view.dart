@@ -56,7 +56,6 @@ class _AddTreatmentViewState extends State<AddTreatmentView> {
         }
 
         return SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

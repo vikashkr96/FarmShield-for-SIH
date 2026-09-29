@@ -144,7 +144,6 @@ class _AnimalPassportViewState extends State<AnimalPassportView> {
           Expanded(
             child: controller.obx(
               (passport) => SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.all(AppSpacing.lg),
                 child: Column(
                   children: [

@@ -5,8 +5,8 @@ import '../theme/app_spacing.dart';
 
 enum AppButtonVariant { primary, secondary, outline, danger, ghost }
 
-/// Standard high-polish button for FarmShield
-class AppButton extends StatelessWidget {
+/// Standard high-polish button for FarmShield with subtle tactile micro-interaction
+class AppButton extends StatefulWidget {
   final String label;
   final VoidCallback? onPressed;
   final AppButtonVariant variant;
@@ -31,25 +31,35 @@ class AppButton extends StatelessWidget {
   });
 
   @override
+  State<AppButton> createState() => _AppButtonState();
+}
+
+class _AppButtonState extends State<AppButton> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.colorScheme.primary;
+
     Color bg;
     Color fg;
     BorderSide border;
 
-    switch (variant) {
+    switch (widget.variant) {
       case AppButtonVariant.primary:
-        bg = AppColors.primary;
+        bg = primaryColor;
         fg = Colors.white;
         border = BorderSide.none;
         break;
       case AppButtonVariant.secondary:
         bg = AppColors.primaryContainer;
-        fg = AppColors.primary;
+        fg = AppColors.primaryDark;
         border = BorderSide.none;
         break;
       case AppButtonVariant.outline:
         bg = Colors.transparent;
-        fg = AppColors.primary;
+        fg = AppColors.primaryDark;
         border = const BorderSide(color: AppColors.border, width: 1.4);
         break;
       case AppButtonVariant.danger:
@@ -64,9 +74,9 @@ class AppButton extends StatelessWidget {
         break;
     }
 
-    final isEnabled = onPressed != null && !isLoading;
+    final isEnabled = widget.onPressed != null && !widget.isLoading;
 
-    Widget child = isLoading
+    Widget child = widget.isLoading
         ? SizedBox(
             height: 20,
             width: 20,
@@ -76,19 +86,19 @@ class AppButton extends StatelessWidget {
             ),
           )
         : Row(
-            mainAxisSize: isFullWidth ? MainAxisSize.max : MainAxisSize.min,
+            mainAxisSize: widget.isFullWidth ? MainAxisSize.max : MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (leadingWidget != null) ...[
-                leadingWidget!,
+              if (widget.leadingWidget != null) ...[
+                widget.leadingWidget!,
                 const SizedBox(width: 10),
-              ] else if (icon != null) ...[
-                Icon(icon, size: 18, color: fg),
+              ] else if (widget.icon != null) ...[
+                Icon(widget.icon, size: 18, color: fg),
                 const SizedBox(width: 8),
               ],
               Flexible(
                 child: Text(
-                  label,
+                  widget.label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
@@ -107,9 +117,9 @@ class AppButton extends StatelessWidget {
       foregroundColor: fg,
       disabledBackgroundColor: bg.withValues(alpha: 0.5),
       disabledForegroundColor: fg.withValues(alpha: 0.5),
-      elevation: variant == AppButtonVariant.primary ? 1 : 0,
-      shadowColor: AppColors.primary.withValues(alpha: 0.2),
-      padding: padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      elevation: widget.variant == AppButtonVariant.primary ? 0.5 : 0,
+      shadowColor: primaryColor.withValues(alpha: 0.25),
+      padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       shape: RoundedRectangleBorder(
         borderRadius: AppSpacing.roundedMd,
         side: border,
@@ -117,12 +127,22 @@ class AppButton extends StatelessWidget {
     );
 
     Widget result = SizedBox(
-      height: height,
-      width: isFullWidth ? double.infinity : null,
-      child: ElevatedButton(
-        onPressed: isEnabled ? onPressed : null,
-        style: buttonStyle,
-        child: child,
+      height: widget.height,
+      width: widget.isFullWidth ? double.infinity : null,
+      child: Listener(
+        onPointerDown: isEnabled ? (_) => setState(() => _isPressed = true) : null,
+        onPointerUp: isEnabled ? (_) => setState(() => _isPressed = false) : null,
+        onPointerCancel: isEnabled ? (_) => setState(() => _isPressed = false) : null,
+        child: AnimatedScale(
+          scale: _isPressed ? 0.982 : 1.0,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeOutCubic,
+          child: ElevatedButton(
+            onPressed: isEnabled ? widget.onPressed : null,
+            style: buttonStyle,
+            child: child,
+          ),
+        ),
       ),
     );
 

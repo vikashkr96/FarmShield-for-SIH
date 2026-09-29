@@ -45,6 +45,9 @@ void main() async {
       fallbackLocale: const Locale('en', 'US'),
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+      defaultTransition: Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 260),
+      customTransition: null,
     ),
   );
 }

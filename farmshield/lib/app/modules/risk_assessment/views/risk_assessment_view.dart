@@ -111,7 +111,6 @@ class _RiskAssessmentViewState extends State<RiskAssessmentView> with SingleTick
 
   Widget _buildOveruseTab() {
     return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,7 +210,6 @@ class _RiskAssessmentViewState extends State<RiskAssessmentView> with SingleTick
 
   Widget _buildComplianceTab() {
     return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -510,6 +508,6 @@ class _RiskAssessmentViewState extends State<RiskAssessmentView> with SingleTick
           ),
         ],
       ),
-    ).animate().fadeIn(duration: const Duration(milliseconds: 300)).scale(begin: const Offset(0.96, 0.96));
+    ).animate().fadeIn(duration: const Duration(milliseconds: 220));
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -112,7 +111,7 @@ class LivestockView extends GetView<LivestockController> {
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
                     itemCount: animals.length,
-                    physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                    physics: const AlwaysScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
                       final animal = animals[index];
                       return _buildAnimalCard(animal, index);
@@ -154,7 +153,6 @@ class LivestockView extends GetView<LivestockController> {
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         child: Obx(() => Row(
               children: categories.map<Widget>((cat) {
@@ -277,7 +275,7 @@ class LivestockView extends GetView<LivestockController> {
           const Icon(Icons.chevron_right_rounded, color: AppColors.slate400, size: 20),
         ],
       ),
-    ).animate().fadeIn(delay: Duration(milliseconds: index * 30)).slideX(begin: 0.1);
+    );
   }
 
   Widget _metricPill(IconData icon, String text) {

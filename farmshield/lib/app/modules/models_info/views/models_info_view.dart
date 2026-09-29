@@ -22,7 +22,6 @@ class ModelsInfoView extends GetView<ModelsInfoController> {
       ),
       body: controller.obx(
         (data) => ListView(
-          physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
             _buildProjectHeader(data!['project']),

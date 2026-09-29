@@ -70,7 +70,7 @@ class DashboardKpiCard extends StatelessWidget {
                               color: AppColors.accent,
                             ),
                           ).animate(onPlay: (c) => c.repeat(reverse: true))
-                           .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.3, 1.3), duration: const Duration(seconds: 1)),
+                           .fade(begin: 0.5, end: 1.0, duration: const Duration(milliseconds: 1200)),
                           const SizedBox(width: 8),
                           Text(
                             'MRL SURVEILLANCE • LIVE',
@@ -176,7 +176,7 @@ class DashboardKpiCard extends StatelessWidget {
           ),
         ],
       ),
-    ).animate().fade().slideY(begin: 0.15, duration: const Duration(milliseconds: 350));
+    ).animate().fadeIn(duration: const Duration(milliseconds: 250));
   }
 
   Widget _glassMetric({

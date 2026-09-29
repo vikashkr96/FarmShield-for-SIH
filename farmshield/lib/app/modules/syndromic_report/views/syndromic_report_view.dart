@@ -22,7 +22,6 @@ class SyndromicReportView extends GetView<SyndromicReportController> {
         backgroundColor: AppColors.danger,
       ),
       body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,26 +1,30 @@
 import 'package:flutter/material.dart';
 
-/// Centralized color palette for FarmShield
+/// Single source of truth for the primary brand color in FarmShield.
+/// Changing this constant propagates throughout the entire application.
+const Color kTeal = Color(0xFF7AB7A7);
+
+/// Centralized color palette for FarmShield based on kTeal
 class AppColors {
   AppColors._();
 
-  // Primary Brand Shades (Forest Emerald)
-  static const Color primary = Color(0xFF0E4D2B);
-  static const Color primaryLight = Color(0xFF166534);
-  static const Color primaryDark = Color(0xFF072716);
-  static const Color primarySoft = Color(0xFFDCFCE7);
-  static const Color primaryContainer = Color(0xFFE8F5E9);
+  // Primary Brand Shades (Teal / Muted Sage Aesthetic)
+  static const Color primary = kTeal;
+  static const Color primaryLight = Color(0xFFA3CDC2);
+  static const Color primaryDark = Color(0xFF38685C);
+  static const Color primarySoft = Color(0xFFEAF5F2);
+  static const Color primaryContainer = Color(0xFFDFEFEA);
 
   // Accent & Secondary
-  static const Color accent = Color(0xFF10B981);
-  static const Color accentLight = Color(0xFF6EE7B7);
-  static const Color accentDark = Color(0xFF047857);
+  static const Color accent = Color(0xFF4A9E8D);
+  static const Color accentLight = Color(0xFF9FD5C8);
+  static const Color accentDark = Color(0xFF266758);
 
   // Canvas & Surfaces
-  static const Color background = Color(0xFFF8FAFC);
+  static const Color background = Color(0xFFF7FAF9);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surfaceElevated = Color(0xFFFFFFFF);
-  static const Color surfaceSubtle = Color(0xFFF1F5F9);
+  static const Color surfaceSubtle = Color(0xFFEFF5F3);
 
   // Text Tokens
   static const Color textPrimary = Color(0xFF0F172A);
@@ -29,9 +33,9 @@ class AppColors {
   static const Color textLight = Color(0xFFFFFFFF);
 
   // Borders & Dividers
-  static const Color border = Color(0xFFE2E8F0);
-  static const Color borderLight = Color(0xFFF1F5F9);
-  static const Color borderFocused = Color(0xFF10B981);
+  static const Color border = Color(0xFFE0EAE6);
+  static const Color borderLight = Color(0xFFECF3F0);
+  static const Color borderFocused = kTeal;
 
   // Semantic & Status
   static const Color success = Color(0xFF16A34A);
@@ -61,18 +65,18 @@ class AppColors {
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF072716), Color(0xFF0E4D2B), Color(0xFF166534)],
+    colors: [Color(0xFF356A5E), Color(0xFF539485), kTeal],
   );
 
   static const LinearGradient accentGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF10B981), Color(0xFF047857)],
+    colors: [kTeal, Color(0xFF4A9E8D)],
   );
 
   static const LinearGradient cardGlow = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0x1A10B981), Color(0x0010B981)],
+    colors: [Color(0x1A7AB7A7), Color(0x007AB7A7)],
   );
 }

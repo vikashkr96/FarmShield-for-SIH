@@ -29,40 +29,39 @@ class AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final effectiveRadius = BorderRadius.circular(borderRadius ?? AppSpacing.radiusLg);
+    final cardBg = color ?? theme.cardTheme.color ?? AppColors.surface;
+    final cardBorder = borderColor ?? AppColors.border;
 
-    Widget content = Container(
+    Widget cardBody = Container(
       margin: margin,
       decoration: BoxDecoration(
-        color: gradient == null ? (color ?? AppColors.surface) : null,
+        color: gradient == null ? cardBg : null,
         gradient: gradient,
         borderRadius: effectiveRadius,
         border: Border.all(
-          color: borderColor ?? AppColors.border,
+          color: cardBorder,
           width: 1.0,
         ),
         boxShadow: boxShadow ?? AppSpacing.shadowCard,
       ),
-      child: ClipRRect(
+      child: Material(
+        color: Colors.transparent,
         borderRadius: effectiveRadius,
-        child: Padding(
-          padding: padding ?? const EdgeInsets.all(AppSpacing.lg),
-          child: child,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: effectiveRadius,
+          splashColor: theme.colorScheme.primary.withValues(alpha: 0.08),
+          highlightColor: theme.colorScheme.primary.withValues(alpha: 0.04),
+          child: Padding(
+            padding: padding ?? const EdgeInsets.all(AppSpacing.lg),
+            child: child,
+          ),
         ),
       ),
     );
 
-    if (onTap != null) {
-      return Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: effectiveRadius,
-          child: content,
-        ),
-      );
-    }
-
-    return content;
+    return cardBody;
   }
 }

@@ -306,21 +306,24 @@ class AnimalDetailView extends GetView<AnimalDetailController> {
             return Stack(
               alignment: Alignment.center,
               children: [
-                Container(
-                  width: 124,
-                  height: 124,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 3.5),
-                    boxShadow: AppSpacing.shadowElevated,
-                  ),
-                  child: ClipOval(
-                    child: Image.network(
-                      imageUrl,
-                      key: ValueKey(imageUrl),
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => const Center(
-                        child: Icon(Icons.pets, size: 48, color: Colors.white70),
+                Hero(
+                  tag: 'animal_image_${animal['id'] ?? animal['animal_code']}',
+                  child: Container(
+                    width: 124,
+                    height: 124,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 3.5),
+                      boxShadow: AppSpacing.shadowElevated,
+                    ),
+                    child: ClipOval(
+                      child: Image.network(
+                        imageUrl,
+                        key: ValueKey(imageUrl),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => const Center(
+                          child: Icon(Icons.pets, size: 48, color: Colors.white70),
+                        ),
                       ),
                     ),
                   ),

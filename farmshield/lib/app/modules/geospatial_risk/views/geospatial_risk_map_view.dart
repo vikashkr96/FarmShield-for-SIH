@@ -434,7 +434,6 @@ class GeospatialRiskMapView extends StatelessWidget {
   Widget _buildTimeRangeSelector(GeospatialRiskController controller) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
       child: Obx(() {
         final current = controller.selectedTimeRange.value;
         return Row(
@@ -483,7 +482,6 @@ class GeospatialRiskMapView extends StatelessWidget {
   Widget _buildStatusFilterRow(GeospatialRiskController controller) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
       child: Obx(() {
         final selectedSet = controller.selectedStatuses.toSet();
 
@@ -559,7 +557,6 @@ class GeospatialRiskMapView extends StatelessWidget {
   Widget _buildDiseaseFilterRow(GeospatialRiskController controller) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
       child: Obx(() {
         final current = controller.selectedDisease.value;
         final list = ['All', 'FMD', 'LSD', 'HS', 'Mastitis', 'Anthrax'];

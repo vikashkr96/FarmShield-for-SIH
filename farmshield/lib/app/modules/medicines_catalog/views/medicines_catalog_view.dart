@@ -71,7 +71,6 @@ class MedicinesCatalogView extends GetView<MedicinesCatalogController> {
               return ListView.builder(
                 padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, 80),
                 itemCount: list.length,
-                physics: const BouncingScrollPhysics(),
                 itemBuilder: (context, index) => _buildMedicineCard(list[index]),
               );
             }),
@@ -94,7 +93,6 @@ class MedicinesCatalogView extends GetView<MedicinesCatalogController> {
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: ListView(
         scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         children: controller.antimicrobialClasses.map((c) {
           return Obx(() {

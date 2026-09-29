@@ -6,6 +6,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dio/dio.dart' as dio;
 import '../../../data/models/farm_models.dart';
 import '../../../core/values/constants.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
 
 class MedicinesCatalogController extends GetxController {
   final _supabase = Supabase.instance.client;
@@ -111,15 +113,15 @@ class MedicinesCatalogController extends GetxController {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE8F5E9),
-                          borderRadius: BorderRadius.circular(10),
+                          color: AppColors.primarySoft,
+                          borderRadius: AppSpacing.roundedSm,
                         ),
-                        child: const Icon(Icons.add_moderator_rounded, color: Color(0xFF1B5E20), size: 22),
+                        child: const Icon(Icons.add_moderator_rounded, color: AppColors.primary, size: 22),
                       ),
                       const SizedBox(width: 10),
                       Text(
                         'Add Medicine & MRL Rule',
-                        style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.bold, color: Colors.blueGrey.shade900),
+                        style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                       ),
                     ],
                   ),
@@ -140,7 +142,7 @@ class MedicinesCatalogController extends GetxController {
               const SizedBox(height: 14),
 
               // Antimicrobial Class Chips
-              Text('Antimicrobial Category', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.blueGrey.shade700)),
+              Text('Antimicrobial Category', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
               const SizedBox(height: 6),
               Obx(() => Wrap(
                     spacing: 6,
@@ -153,10 +155,10 @@ class MedicinesCatalogController extends GetxController {
                         onSelected: (val) {
                           if (val) selectedClassLocal.value = c;
                         },
-                        selectedColor: const Color(0xFF1B5E20),
-                        backgroundColor: const Color(0xFFF8FAFC),
-                        side: BorderSide(color: isSelected ? const Color(0xFF1B5E20) : Colors.grey.shade300),
-                        labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.blueGrey.shade800),
+                        selectedColor: AppColors.primary,
+                        backgroundColor: AppColors.surface,
+                        side: BorderSide(color: isSelected ? AppColors.primary : AppColors.border),
+                        labelStyle: TextStyle(color: isSelected ? Colors.white : AppColors.textSecondary),
                       );
                     }).toList(),
                   )),
@@ -237,7 +239,7 @@ class MedicinesCatalogController extends GetxController {
                           },
                           icon: const Icon(Icons.upload_rounded, size: 16),
                           label: Text(selectedImage.value == null ? 'Select' : 'Change', style: const TextStyle(fontSize: 12)),
-                          style: TextButton.styleFrom(foregroundColor: const Color(0xFF1B5E20)),
+                          style: TextButton.styleFrom(foregroundColor: AppColors.primary),
                         ),
                       ],
                     ),
@@ -250,9 +252,9 @@ class MedicinesCatalogController extends GetxController {
                 height: 50,
                 child: Obx(() => ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1B5E20),
+                        backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedMd),
                         elevation: 0,
                       ),
                       onPressed: isLoading.value
@@ -299,16 +301,16 @@ class MedicinesCatalogController extends GetxController {
       style: const TextStyle(fontSize: 13),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(fontSize: 12, color: Colors.blueGrey.shade600),
+        labelStyle: TextStyle(fontSize: 12, color: AppColors.textSecondary),
         hintText: hint,
-        hintStyle: TextStyle(fontSize: 12, color: Colors.blueGrey.shade300),
-        prefixIcon: Icon(icon, color: const Color(0xFF1B5E20), size: 18),
+        hintStyle: TextStyle(fontSize: 12, color: AppColors.textMuted),
+        prefixIcon: Icon(icon, color: AppColors.primary, size: 18),
         filled: true,
-        fillColor: const Color(0xFFF8FAFC),
+        fillColor: AppColors.surfaceSubtle,
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF1B5E20), width: 1.5)),
+        border: OutlineInputBorder(borderRadius: AppSpacing.roundedSm, borderSide: const BorderSide(color: AppColors.border)),
+        enabledBorder: OutlineInputBorder(borderRadius: AppSpacing.roundedSm, borderSide: const BorderSide(color: AppColors.borderLight)),
+        focusedBorder: OutlineInputBorder(borderRadius: AppSpacing.roundedSm, borderSide: const BorderSide(color: AppColors.primary, width: 1.5)),
       ),
     );
   }
