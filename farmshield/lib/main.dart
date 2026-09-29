@@ -1,19 +1,53 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app/routes/app_pages.dart';
 import 'app/core/values/strings.dart';
+import 'app/core/values/constants.dart';
+import 'app/core/translations/app_translations.dart';
+import 'app/core/services/offline_storage_service.dart';
+import 'app/core/services/fcm_alert_service.dart';
+import 'app/core/theme/app_theme.dart';
+import 'firebase_options.dart';
 
-void main() {
+import 'app/modules/auth/controllers/auth_controller.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
+  // Initialize Hive and Offline Storage
+  await OfflineStorageService().init();
+
+  await Supabase.initialize(
+    url: constants.supabaseUrl,
+    publishableKey: constants.supabaseKey,
+  );
+
+  // Initialize Global Auth & Push Alert Services
+  Get.put(AuthController(), permanent: true);
+  Get.put(FcmAlertService());
+
+  final session = Supabase.instance.client.auth.currentSession;
+  final String initialRoute = session != null ? Routes.DASHBOARD : Routes.LOGIN;
+
   runApp(
     GetMaterialApp(
       title: AppStrings.appName,
-      initialRoute: AppPages.INITIAL,
+      initialRoute: initialRoute,
       getPages: AppPages.routes,
+      translations: AppTranslations(),
+      locale: const Locale('en', 'US'),
+      fallbackLocale: const Locale('en', 'US'),
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: Colors.green,
-      ),
+      theme: AppTheme.lightTheme,
+      defaultTransition: Transition.rightToLeftWithFade,
+      transitionDuration: const Duration(milliseconds: 260),
+      customTransition: null,
     ),
   );
 }

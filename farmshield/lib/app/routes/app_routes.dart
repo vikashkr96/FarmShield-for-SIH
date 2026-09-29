@@ -8,6 +8,15 @@ abstract class Routes {
   static const LAB_RESULTS = _Paths.LAB_RESULTS;
   static const MODELS_INFO = _Paths.MODELS_INFO;
   static const LIVESTOCK = _Paths.LIVESTOCK;
+  static const LOGIN = _Paths.LOGIN;
+  static const REGISTER = _Paths.REGISTER;
+  static const ANIMAL_DETAIL = _Paths.ANIMAL_DETAIL;
+  static const CALENDAR = _Paths.CALENDAR;
+  static const MEDICINES_CATALOG = _Paths.MEDICINES_CATALOG;
+  static const REPORTS = _Paths.REPORTS;
+  static const SYNDROMIC_REPORT = _Paths.SYNDROMIC_REPORT;
+  static const QR_SCANNER = _Paths.QR_SCANNER;
+  static const GEOSPATIAL_RISK_MAP = _Paths.GEOSPATIAL_RISK_MAP;
 }
 
 abstract class _Paths {
@@ -18,4 +27,13 @@ abstract class _Paths {
   static const LAB_RESULTS = '/lab-results';
   static const MODELS_INFO = '/models-info';
   static const LIVESTOCK = '/livestock';
+  static const LOGIN = '/login';
+  static const REGISTER = '/register';
+  static const ANIMAL_DETAIL = '/animal-detail';
+  static const CALENDAR = '/calendar';
+  static const MEDICINES_CATALOG = '/medicines-catalog';
+  static const REPORTS = '/reports';
+  static const SYNDROMIC_REPORT = '/syndromic-report';
+  static const QR_SCANNER = '/qr-scanner';
+  static const GEOSPATIAL_RISK_MAP = '/geospatial-risk-map';
 }

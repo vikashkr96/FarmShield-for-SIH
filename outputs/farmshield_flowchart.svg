@@ -1,0 +1,308 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 960" width="1600" height="960" style="background:#ffffff; font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Drop Shadow Filters -->
+    <filter id="card-shadow" x="-8%" y="-8%" width="116%" height="120%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+    <filter id="banner-shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#0f172a" flood-opacity="0.16"/>
+    </filter>
+    <filter id="badge-shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000000" flood-opacity="0.06"/>
+    </filter>
+    
+    <!-- Marker Arrows -->
+    <marker id="arrow-solid" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#1e293b"/>
+    </marker>
+    <marker id="arrow-dash" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <!-- ==================== HEADER SECTION ==================== -->
+  <!-- Top Left Pill Badge: DAHD / Govt of India -->
+  <g transform="translate(60, 24)" filter="url(#badge-shadow)">
+    <rect x="0" y="0" width="240" height="60" rx="30" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1.8"/>
+    <text x="120" y="26" font-size="14" font-weight="800" fill="#5b21b6" text-anchor="middle" letter-spacing="0.5">DAHD • GOVT OF INDIA</text>
+    <text x="120" y="44" font-size="11" font-weight="600" fill="#7c3aed" text-anchor="middle">Dept. of Animal Husbandry &amp; Dairying</text>
+  </g>
+
+  <!-- Center Main Title -->
+  <g transform="translate(800, 52)">
+    <text x="0" y="0" font-size="44" font-weight="800" fill="#1d4e89" text-anchor="middle" letter-spacing="1">Flow Chart</text>
+    <!-- Solid Underline matching reference -->
+    <line x1="-120" y1="12" x2="120" y2="12" stroke="#1d4e89" stroke-width="3.5" stroke-linecap="round"/>
+    <text x="0" y="30" font-size="13" font-weight="600" fill="#64748b" text-anchor="middle" letter-spacing="0.3">FarmShield: Livestock Health Intelligence &amp; MRL Compliance Decision Support</text>
+  </g>
+
+  <!-- Top Right SIH Hackathon Emblem -->
+  <g transform="translate(1320, 20)">
+    <!-- Bulb / Brain Symbol -->
+    <g transform="translate(0, 4)">
+      <circle cx="26" cy="26" r="23" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+      <!-- Tricolor Brain hemispheres -->
+      <path d="M 26 7 A 19 19 0 0 0 26 45 Z" fill="#ea580c"/>
+      <path d="M 26 7 A 19 19 0 0 1 26 45 Z" fill="#16a34a"/>
+      <!-- Base of bulb -->
+      <rect x="20.5" y="45" width="11" height="5" rx="1.5" fill="#334155"/>
+      <line x1="22.5" y1="52" x2="29.5" y2="52" stroke="#334155" stroke-width="2"/>
+    </g>
+    <!-- Hackathon Branding Text -->
+    <text x="64" y="22" font-size="17" font-weight="900" fill="#1e293b" letter-spacing="0.5">SMART INDIA</text>
+    <text x="64" y="39" font-size="14" font-weight="800" fill="#0284c7" letter-spacing="1">HACKATHON</text>
+    <text x="64" y="56" font-size="16" font-weight="900" fill="#ea580c">2024</text>
+  </g>
+
+
+  <!-- ==================== ACTOR 1: MANAGER (DAHD & STATE ADMIN) [TOP-LEFT] ==================== -->
+  <!-- Parallelogram Header -->
+  <g transform="translate(370, 126)" filter="url(#banner-shadow)">
+    <polygon points="26,0 264,0 238,44 0,44" fill="#2563eb"/>
+    <text x="132" y="28" font-size="19" font-weight="800" fill="#ffffff" text-anchor="middle" font-style="italic" letter-spacing="0.5">State Admin / DAHD</text>
+  </g>
+
+  <!-- Stacked Action Cards -->
+  <!-- Card 1.1 -->
+  <g transform="translate(350, 185)" filter="url(#card-shadow)">
+    <rect x="0" y="0" width="230" height="40" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="115" y="25" font-size="13" font-weight="700" fill="#1e293b" text-anchor="middle">View surveillance reports</text>
+  </g>
+  <!-- Card 1.2 -->
+  <g transform="translate(350, 235)" filter="url(#card-shadow)">
+    <rect x="0" y="0" width="230" height="40" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="115" y="25" font-size="13" font-weight="700" fill="#1e293b" text-anchor="middle">Review AMU &amp; MRL norms</text>
+  </g>
+  <!-- Card 1.3 -->
+  <g transform="translate(350, 285)" filter="url(#card-shadow)">
+    <rect x="0" y="0" width="230" height="40" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="115" y="25" font-size="13" font-weight="700" fill="#1e293b" text-anchor="middle">Field veterinary oversight</text>
+  </g>
+
+
+  <!-- ==================== ACTOR 2: CREW (FARMER & HERD OWNER) [TOP-RIGHT] ==================== -->
+  <!-- Header -->
+  <g transform="translate(970, 126)" filter="url(#banner-shadow)">
+    <polygon points="26,0 264,0 238,44 0,44" fill="#2563eb"/>
+    <text x="132" y="28" font-size="19" font-weight="800" fill="#ffffff" text-anchor="middle" font-style="italic" letter-spacing="0.5">Farmer &amp; Herd Owner</text>
+  </g>
+
+  <!-- Stacked Action Cards -->
+  <!-- Card 2.1 -->
+  <g transform="translate(960, 185)" filter="url(#card-shadow)">
+    <rect x="0" y="0" width="230" height="40" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="115" y="25" font-size="13" font-weight="700" fill="#1e293b" text-anchor="middle">Request vet care / IVR log</text>
+  </g>
+  <!-- Card 2.2 -->
+  <g transform="translate(960, 235)" filter="url(#card-shadow)">
+    <rect x="0" y="0" width="230" height="40" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="115" y="25" font-size="13" font-weight="700" fill="#1e293b" text-anchor="middle">View animal QR passport</text>
+  </g>
+  <!-- Card 2.3 -->
+  <g transform="translate(960, 285)" filter="url(#card-shadow)">
+    <rect x="0" y="0" width="230" height="40" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="115" y="25" font-size="13" font-weight="700" fill="#1e293b" text-anchor="middle">Receive MRL &amp; weather alerts</text>
+  </g>
+
+
+  <!-- ==================== ACTOR 3: PLANNER (FIELD VETERINARIAN) [BOTTOM-LEFT] ==================== -->
+  <!-- Header -->
+  <g transform="translate(370, 526)" filter="url(#banner-shadow)">
+    <polygon points="26,0 264,0 238,44 0,44" fill="#2563eb"/>
+    <text x="132" y="28" font-size="19" font-weight="800" fill="#ffffff" text-anchor="middle" font-style="italic" letter-spacing="0.5">Field Veterinarian</text>
+  </g>
+
+  <!-- Stacked Action Cards -->
+  <!-- Card 3.1 -->
+  <g transform="translate(350, 585)" filter="url(#card-shadow)">
+    <rect x="0" y="0" width="230" height="40" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="115" y="25" font-size="13" font-weight="700" fill="#1e293b" text-anchor="middle">Syndromic clinical triage</text>
+  </g>
+  <!-- Card 3.2 -->
+  <g transform="translate(350, 635)" filter="url(#card-shadow)">
+    <rect x="0" y="0" width="230" height="40" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="115" y="25" font-size="13" font-weight="700" fill="#1e293b" text-anchor="middle">Prescribe FSSAI drug dose</text>
+  </g>
+  <!-- Card 3.3 -->
+  <g transform="translate(350, 685)" filter="url(#card-shadow)">
+    <rect x="0" y="0" width="230" height="40" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="115" y="25" font-size="13" font-weight="700" fill="#1e293b" text-anchor="middle">Set statutory withdrawal period</text>
+  </g>
+
+
+  <!-- ==================== ACTOR 4: SCHEDULER (DAIRY CHILLING & QA) [BOTTOM-RIGHT] ==================== -->
+  <!-- Header -->
+  <g transform="translate(970, 480)" filter="url(#banner-shadow)">
+    <polygon points="26,0 264,0 238,44 0,44" fill="#2563eb"/>
+    <text x="132" y="28" font-size="19" font-weight="800" fill="#ffffff" text-anchor="middle" font-style="italic" letter-spacing="0.5">Dairy Chilling &amp; QA</text>
+  </g>
+
+  <!-- Stacked Action Cards -->
+  <!-- Card 4.1 -->
+  <g transform="translate(960, 538)" filter="url(#card-shadow)">
+    <rect x="0" y="0" width="230" height="40" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="115" y="25" font-size="13" font-weight="700" fill="#1e293b" text-anchor="middle">Scan ear-tag QR code</text>
+  </g>
+  <!-- Card 4.2 -->
+  <g transform="translate(960, 588)" filter="url(#card-shadow)">
+    <rect x="0" y="0" width="230" height="40" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="115" y="25" font-size="13" font-weight="700" fill="#1e293b" text-anchor="middle">Verify MRL compliance status</text>
+  </g>
+  <!-- Card 4.3 -->
+  <g transform="translate(960, 638)" filter="url(#card-shadow)">
+    <rect x="0" y="0" width="230" height="40" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="115" y="25" font-size="13" font-weight="700" fill="#1e293b" text-anchor="middle">Accept batch or flag breach</text>
+  </g>
+  <!-- Card 4.4 -->
+  <g transform="translate(960, 688)" filter="url(#card-shadow)">
+    <rect x="0" y="0" width="230" height="40" rx="5" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="115" y="25" font-size="13" font-weight="700" fill="#1e293b" text-anchor="middle">Sync collection &amp; intake logs</text>
+  </g>
+
+
+  <!-- ==================== DECISION DIAMONDS & MODIFICATION BOXES ==================== -->
+
+  <!-- 1. Left Approval Diamond (Light Blue) -->
+  <g transform="translate(200, 435)" filter="url(#banner-shadow)">
+    <polygon points="52,0 104,30 52,60 0,30" fill="#7cc0ec" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="52" y="35" font-size="12" font-weight="800" fill="#0369a1" text-anchor="middle">Approval</text>
+  </g>
+
+  <!-- 2. Left Process Box: "Suggest modifications" (Grey-Blue) -->
+  <g transform="translate(68, 245)" filter="url(#card-shadow)">
+    <rect x="0" y="0" width="136" height="44" rx="4" fill="#6485a4" stroke="#486581" stroke-width="1.2"/>
+    <text x="68" y="19" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">Suggest</text>
+    <text x="68" y="34" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">modifications</text>
+  </g>
+
+  <!-- 3. Central Approval Diamond (Light Blue) -->
+  <g transform="translate(710, 420)" filter="url(#banner-shadow)">
+    <polygon points="52,0 104,30 52,60 0,30" fill="#7cc0ec" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="52" y="35" font-size="12" font-weight="800" fill="#0369a1" text-anchor="middle">Approval</text>
+  </g>
+
+  <!-- 4. Right Approval Diamond (Light Blue) -->
+  <g transform="translate(1335, 335)" filter="url(#banner-shadow)">
+    <polygon points="52,0 104,30 52,60 0,30" fill="#7cc0ec" stroke="#38bdf8" stroke-width="1.5"/>
+    <text x="52" y="35" font-size="12" font-weight="800" fill="#0369a1" text-anchor="middle">Approval</text>
+  </g>
+
+  <!-- 5. Notify Diamond 1: Central top (Grey Diamond) -->
+  <g transform="translate(785, 520)">
+    <polygon points="34,0 68,23 34,46 0,23" fill="#94a3b8" stroke="#64748b" stroke-width="1.2"/>
+    <text x="34" y="28" font-size="11" font-weight="800" fill="#ffffff" text-anchor="middle">Notify</text>
+  </g>
+
+  <!-- 6. Notify Diamond 2: Central bottom (Grey Diamond) -->
+  <g transform="translate(745, 680)">
+    <polygon points="34,0 68,23 34,46 0,23" fill="#94a3b8" stroke="#64748b" stroke-width="1.2"/>
+    <text x="34" y="28" font-size="11" font-weight="800" fill="#ffffff" text-anchor="middle">Notify</text>
+  </g>
+
+  <!-- 7. Notify Diamond 3: Right side (Grey Diamond) -->
+  <g transform="translate(1255, 530)">
+    <polygon points="34,0 68,23 34,46 0,23" fill="#94a3b8" stroke="#64748b" stroke-width="1.2"/>
+    <text x="34" y="28" font-size="11" font-weight="800" fill="#ffffff" text-anchor="middle">Notify</text>
+  </g>
+
+
+  <!-- ==================== CONNECTOR PATHS (EXACT REFERENCE ROUTING) ==================== -->
+
+  <!-- Path 1: Manager Card 1 -> Left -> Suggest modifications -->
+  <path d="M 350 205 L 136 205 L 136 245" fill="none" stroke="#1e293b" stroke-width="1.8" marker-end="url(#arrow-solid)"/>
+
+  <!-- Path 2: Suggest modifications -> Down -> Left Approval Diamond -->
+  <path d="M 136 289 L 136 655 L 252 655 L 252 495" fill="none" stroke="#1e293b" stroke-width="1.8" marker-end="url(#arrow-solid)"/>
+
+  <!-- Path 3: Planner Card 3 -> Left into line of Left Approval -->
+  <path d="M 350 655 L 252 655" fill="none" stroke="#1e293b" stroke-width="1.8"/>
+
+  <!-- Path 4: Manager Card 3 (Field veterinary oversight) -> Left -> Left Approval Diamond -->
+  <path d="M 350 305 L 252 305 L 252 435" fill="none" stroke="#1e293b" stroke-width="1.8" marker-end="url(#arrow-solid)"/>
+
+  <!-- Path 5: Planner Card 1 (Syndromic clinical triage) -> Right -> Central Approval Diamond -->
+  <path d="M 580 605 L 762 605 L 762 480" fill="none" stroke="#1e293b" stroke-width="1.8" marker-end="url(#arrow-solid)"/>
+
+  <!-- Path 6: Central Approval Diamond -> Left -> Manager Card 2 (Review AMU & MRL norms) -->
+  <path d="M 710 450 L 635 450 L 635 255 L 580 255" fill="none" stroke="#1e293b" stroke-width="1.8" marker-end="url(#arrow-solid)"/>
+
+  <!-- Path 7: Central Approval Diamond -> Down/Right -> Scheduler Card 2 (Verify MRL compliance status) -->
+  <path d="M 762 480 L 762 608 L 960 608" fill="none" stroke="#1e293b" stroke-width="1.8" marker-end="url(#arrow-solid)"/>
+
+  <!-- Path 8: Crew Card 1 (Request vet care) -> Right -> Down -> Right Approval Diamond -->
+  <path d="M 1190 205 L 1361 205 L 1361 335" fill="none" stroke="#1e293b" stroke-width="1.8" marker-end="url(#arrow-solid)"/>
+
+  <!-- Path 9: Right Approval Diamond -> Down -> Left -> Scheduler Card 4 (Sync collection & intake logs) -->
+  <path d="M 1361 395 L 1361 708 L 1190 708" fill="none" stroke="#1e293b" stroke-width="1.8" marker-end="url(#arrow-solid)"/>
+
+  <!-- Dashed Flow 1: Planner Card 1 dashed out -> down -> Notify Diamond 1 -->
+  <path d="M 580 615 L 700 615 L 700 543 L 785 543" fill="none" stroke="#64748b" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-dash)"/>
+
+  <!-- Dashed Flow 2: Notify Diamond 1 -> Up -> Manager Card 1 (View surveillance reports) -->
+  <path d="M 819 520 L 819 205 L 580 205" fill="none" stroke="#64748b" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-dash)"/>
+
+  <!-- Dashed Flow 3: Notify Diamond 1 -> Right -> Scheduler Card 1 (Scan ear-tag QR code) -->
+  <path d="M 853 543 L 960 543" fill="none" stroke="#64748b" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-dash)"/>
+
+  <!-- Dashed Flow 4: Planner Card 3 -> Right -> Notify Diamond 2 -->
+  <path d="M 580 703 L 745 703" fill="none" stroke="#64748b" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-dash)"/>
+
+  <!-- Dashed Flow 5: Scheduler Card 4 -> Left -> Notify Diamond 2 -->
+  <path d="M 960 705 L 813 705" fill="none" stroke="#64748b" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-dash)"/>
+
+  <!-- Dashed Flow 6: Scheduler Card 3 (Accept batch or flag breach) -> Right -> Notify Diamond 3 -->
+  <path d="M 1190 658 L 1289 658 L 1289 576" fill="none" stroke="#64748b" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-dash)"/>
+
+  <!-- Dashed Flow 7: Notify Diamond 3 -> Up -> Crew Card 3 (Receive MRL & weather alerts) -->
+  <path d="M 1289 530 L 1289 305 L 1190 305" fill="none" stroke="#64748b" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#arrow-dash)"/>
+
+
+  <!-- ==================== BOTTOM CAPSULE BANNER: TECHNOLOGIES TO BE USED ==================== -->
+  <g transform="translate(800, 810)">
+    <!-- Rounded Outer Capsule -->
+    <rect x="-650" y="0" width="1300" height="92" rx="46" fill="#f8fafc" stroke="#1d4e89" stroke-width="2.5"/>
+    
+    <!-- Title Pill Centered on Border -->
+    <rect x="-190" y="-18" width="380" height="36" rx="18" fill="#1d4e89"/>
+    <text x="0" y="6" font-size="16" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="1">Technologies to be Used</text>
+
+    <!-- Technology Badges Inside Capsule -->
+    <g transform="translate(0, 54)">
+      <!-- Tech 1: Flutter Client -->
+      <g transform="translate(-495, 0)">
+        <rect x="-70" y="-18" width="140" height="36" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1.4"/>
+        <text x="0" y="5" font-size="13" font-weight="700" fill="#0369a1" text-anchor="middle">Flutter (Android/Web)</text>
+      </g>
+      <!-- Tech 2: Node.js Express Gateway -->
+      <g transform="translate(-315, 0)">
+        <rect x="-85" y="-18" width="170" height="36" rx="8" fill="#f0fdf4" stroke="#4ade80" stroke-width="1.4"/>
+        <text x="0" y="5" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">Node.js / Express API</text>
+      </g>
+      <!-- Tech 3: Supabase PostgreSQL -->
+      <g transform="translate(-105, 0)">
+        <rect x="-95" y="-18" width="190" height="36" rx="8" fill="#ecfdf5" stroke="#34d399" stroke-width="1.4"/>
+        <text x="0" y="5" font-size="13" font-weight="700" fill="#047857" text-anchor="middle">Supabase PostgreSQL</text>
+      </g>
+      <!-- Tech 4: Python FastAPI & ML -->
+      <g transform="translate(125, 0)">
+        <rect x="-105" y="-18" width="210" height="36" rx="8" fill="#fef3c7" stroke="#fbbf24" stroke-width="1.4"/>
+        <text x="0" y="5" font-size="13" font-weight="700" fill="#b45309" text-anchor="middle">Python FastAPI &amp; XGBoost</text>
+      </g>
+      <!-- Tech 5: Cloudinary & Open-Meteo -->
+      <g transform="translate(345, 0)">
+        <rect x="-90" y="-18" width="180" height="36" rx="8" fill="#ede9fe" stroke="#a78bfa" stroke-width="1.4"/>
+        <text x="0" y="5" font-size="13" font-weight="700" fill="#6d28d9" text-anchor="middle">Open-Meteo / Cloudinary</text>
+      </g>
+      <!-- Tech 6: Hive Local Edge DB -->
+      <g transform="translate(520, 0)">
+        <rect x="-65" y="-18" width="130" height="36" rx="8" fill="#fff7ed" stroke="#fb923c" stroke-width="1.4"/>
+        <text x="0" y="5" font-size="13" font-weight="700" fill="#c2410c" text-anchor="middle">Hive Offline DB</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Presentation Footer Metadata -->
+  <text x="800" y="938" font-size="12" font-weight="500" fill="#94a3b8" text-anchor="middle">
+    FarmShield Platform Architecture • Smart India Hackathon Grand Finale • Ministry of Fisheries, Animal Husbandry &amp; Dairying
+  </text>
+</svg>

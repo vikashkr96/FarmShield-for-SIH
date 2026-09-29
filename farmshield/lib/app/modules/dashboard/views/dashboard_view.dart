@@ -1,334 +1,578 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../controllers/nav_controller.dart';
 import '../../../routes/app_pages.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_empty_state.dart';
+import '../../../core/widgets/app_loading_skeleton.dart';
+import '../../auth/controllers/auth_controller.dart';
+import '../../calendar/views/withdrawal_calendar_view.dart';
+import '../../livestock/views/livestock_view.dart';
+import '../../reports/views/reports_view.dart';
+import '../../geospatial_risk/views/geospatial_risk_map_view.dart';
 import '../controllers/dashboard_controller.dart';
+import '../widgets/amu_analytics_sheet.dart';
+import '../widgets/dashboard_kpi_card.dart';
+import '../widgets/farmshield_bottom_nav_bar.dart';
+import '../widgets/herd_heatmap_card.dart';
+import '../widgets/quick_actions_grid.dart';
+import '../widgets/withdrawal_countdown_card.dart';
+import '../widgets/weather_risk_card.dart';
+import '../widgets/disease_trend_chart.dart';
 
 class DashboardView extends GetView<DashboardController> {
-  const DashboardView({Key? key}) : super(key: key);
+  const DashboardView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
-      appBar: AppBar(
-        title: Text(
-          'FarmShield Dashboard',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white),
+    final nav = Get.find<NavController>();
+
+    return Obx(() {
+      final selectedIndex = nav.selectedIndex.value;
+
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 240),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (child, animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+          child: KeyedSubtree(
+            key: ValueKey<int>(selectedIndex),
+            child: _getPage(selectedIndex, context),
+          ),
         ),
-        backgroundColor: Colors.green.shade700,
+        floatingActionButton: selectedIndex == 4 ? null : _buildScanQrFab(context),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        bottomNavigationBar: FarmShieldBottomNavBar(),
+      );
+    });
+  }
+
+  Widget _getPage(int index, BuildContext context) {
+    switch (index) {
+      case 0:
+        return _buildDashboardBody(context);
+      case 1:
+        return const LivestockView();
+      case 2:
+        return const WithdrawalCalendarView();
+      case 3:
+        return const ReportsView();
+      case 4:
+        return const GeospatialRiskMapView();
+      default:
+        return _buildDashboardBody(context);
+    }
+  }
+
+  Widget _buildScanQrFab(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0, right: 4.0),
+      child: Tooltip(
+        message: 'Scan Animal QR',
+        child: Material(
+          color: Colors.transparent,
+          shape: const CircleBorder(),
+          elevation: 4,
+          shadowColor: kTeal.withValues(alpha: 0.35),
+          child: Ink(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: AppColors.primaryGradient,
+              boxShadow: [
+                BoxShadow(
+                  color: kTeal.withValues(alpha: 0.3),
+                  blurRadius: 14,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              splashColor: Colors.white.withValues(alpha: 0.2),
+              highlightColor: Colors.white.withValues(alpha: 0.1),
+              onTap: () => Get.toNamed(Routes.QR_SCANNER),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.35),
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                  const Icon(
+                    Icons.qr_code_scanner_rounded,
+                    color: Colors.white,
+                    size: 26,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDashboardBody(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        titleSpacing: 16,
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(7),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                borderRadius: AppSpacing.roundedSm,
+              ),
+              child: const Icon(Icons.shield_rounded, color: AppColors.accent, size: 20),
+            ),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'FarmShield',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    fontSize: 18,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                Text(
+                  'Livestock Safety & MRL Portal',
+                  style: GoogleFonts.poppins(
+                    fontSize: 10,
+                    color: Colors.white.withValues(alpha: 0.8),
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         actions: [
+          _buildLanguageSwitcher(),
+          Obx(() {
+            final alertCount = controller.alerts.length;
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+                  onPressed: () => _showAlertsDialog(context),
+                ),
+                if (alertCount > 0)
+                  Positioned(
+                    right: 8,
+                    top: 10,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: AppColors.danger,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                      child: Text(
+                        '$alertCount',
+                        style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          }),
           IconButton(
-            icon: const Icon(Icons.notifications_active),
-            onPressed: () => _showAlertsDialog(context),
+            icon: const Icon(Icons.logout_rounded, color: Colors.white70),
+            onPressed: () => _showLogoutDialog(),
           ),
+          const SizedBox(width: 4),
         ],
       ),
       body: controller.obx(
         (state) => RefreshIndicator(
+          color: AppColors.primary,
           onRefresh: () => controller.loadDashboardData(),
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildSummaryCard(state!),
-                const SizedBox(height: 24),
-                Text(
-                  'Quick Actions',
-                  style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),
+                DashboardKpiCard(state: state!),
+                const SizedBox(height: AppSpacing.lg),
+                WithdrawalCountdownCard(controller: controller),
+                const SizedBox(height: AppSpacing.xl),
+                _buildSectionHeader('herd_risk_heatmap'.tr, Icons.grid_view_rounded),
+                const SizedBox(height: AppSpacing.md),
+                HerdHeatmapCard(controller: controller),
+                const SizedBox(height: AppSpacing.xl),
+                _buildSectionHeader('Environmental Risk & Weather', Icons.cloud_outlined),
+                const SizedBox(height: AppSpacing.md),
+                Obx(() => WeatherRiskCard(
+                      weatherData: controller.weatherRisk.value,
+                      isLoading: controller.isWeatherLoading.value,
+                      onRefresh: () => controller.fetchWeatherRisk(),
+                    )),
+                const SizedBox(height: AppSpacing.xl),
+                _buildSectionHeader('Epidemic Disease Intelligence', Icons.stacked_line_chart_rounded),
+                const SizedBox(height: AppSpacing.md),
+                Obx(() => DiseaseTrendChart(
+                      trendPoints: controller.diseaseTrends,
+                      selectedRange: controller.selectedTrendRange.value,
+                      selectedDisease: controller.selectedTrendDisease.value,
+                      onRangeChanged: controller.setTrendRange,
+                      onDiseaseChanged: controller.setTrendDisease,
+                    )),
+                const SizedBox(height: AppSpacing.xl),
+                _buildSectionHeader('quick_actions'.tr, Icons.bolt_rounded),
+                const SizedBox(height: AppSpacing.md),
+                const QuickActionsGrid(),
+                const SizedBox(height: AppSpacing.xl),
+                _buildSectionHeader('amu_breakdown'.tr, Icons.pie_chart_rounded),
+                const SizedBox(height: AppSpacing.md),
+                AmuAnalyticsSheet(
+                  classBreakdown: state.classBreakdown,
+                  amuTrendData: controller.amuTrendData,
                 ),
-                const SizedBox(height: 16),
-                _buildActionGrid(),
-                const SizedBox(height: 24),
-                Text(
-                  'AMU Class Breakdown',
-                  style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                _buildClassBreakdown(state.classBreakdown),
-                const SizedBox(height: 24),
-                Text(
-                  'Recent Alerts',
-                  style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.xl),
+                _buildSectionHeader('recent_alerts'.tr, Icons.warning_amber_rounded),
+                const SizedBox(height: AppSpacing.md),
                 _buildAlertList(),
+                const SizedBox(height: AppSpacing.xxl),
               ],
             ),
           ),
         ),
-        onLoading: const Center(child: CircularProgressIndicator()),
-        onError: (error) => Center(child: Text('Error: $error')),
-      ),
-    );
-  }
-
-  Widget _buildSummaryCard(dynamic state) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.green.shade700, Colors.green.shade500],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.green.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Total Treatments',
-            style: GoogleFonts.poppins(color: Colors.white70, fontSize: 14),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '${state.totalTreatments ?? 0}',
-            style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        onLoading: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
             children: [
-              _buildStatItem('Active Withdrawals', '${state.activeWithdrawals ?? 0}'),
-              _buildStatItem('Avg W/D Days', '${state.averageWithdrawalDays?.toStringAsFixed(1) ?? "0.0"} d'),
+              AppLoadingSkeleton.card(height: 180),
+              const SizedBox(height: AppSpacing.lg),
+              AppLoadingSkeleton.card(height: 120),
+              const SizedBox(height: AppSpacing.lg),
+              AppLoadingSkeleton.card(height: 140),
             ],
           ),
+        ),
+        onError: (error) => AppEmptyState.error(
+          message: error,
+          onRetry: () => controller.loadDashboardData(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, IconData icon) {
+    final cleanTitle = title.contains('_')
+        ? title.split('_').map((w) => w.capitalizeFirst ?? w).join(' ')
+        : title;
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: AppColors.primary),
+        const SizedBox(width: 8),
+        Text(
+          cleanTitle,
+          style: AppTypography.titleMedium.copyWith(
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.2,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLanguageSwitcher() {
+    return Obx(() {
+      final isHindi = controller.currentLocale.value.languageCode == 'hi';
+      return TextButton(
+        onPressed: () => controller.toggleLanguage(),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.15),
+            borderRadius: AppSpacing.roundedSm,
+          ),
+          child: Text(
+            isHindi ? 'EN' : 'हिंदी',
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+          ),
+        ),
+      );
+    });
+  }
+
+  void _showLogoutDialog() {
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedLg),
+        title: Text('Sign Out', style: AppTypography.titleMedium),
+        content: Text(
+          'Are you sure you want to log out of FarmShield? You will need to sign in again to access the portal.',
+          style: AppTypography.bodyMedium,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('Cancel', style: AppTypography.labelMedium.copyWith(color: AppColors.textMuted)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Get.back();
+              Get.find<AuthController>().signOut();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedSm),
+            ),
+            child: Text('Sign Out', style: AppTypography.labelMedium.copyWith(color: Colors.white)),
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildStatItem(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(color: Colors.white70, fontSize: 12),
-        ),
-        Text(
-          value,
-          style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionGrid() {
-    return GridView.count(
-      shrinkWrap: true,
-      crossAxisCount: 2,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      childAspectRatio: 1.5,
-      physics: const NeverScrollableScrollPhysics(),
-      children: [
-        _buildActionCard(
-          'Livestock',
-          Icons.pets,
-          Colors.brown,
-          () => Get.toNamed(Routes.LIVESTOCK),
-        ),
-        _buildActionCard(
-          'Risk Assess',
-          Icons.analytics_outlined,
-          Colors.blue,
-          () => Get.toNamed(Routes.RISK_ASSESSMENT),
-        ),
-        _buildActionCard(
-          'Safety Passport',
-          Icons.qr_code_scanner,
-          Colors.orange,
-          () => Get.toNamed(Routes.ANIMAL_PASSPORT),
-        ),
-        _buildActionCard(
-          'Add Treatment',
-          Icons.medical_services_outlined,
-          Colors.red,
-          () => Get.toNamed(Routes.ADD_TREATMENT),
-        ),
-        _buildActionCard(
-          'Lab Results',
-          Icons.biotech_outlined,
-          Colors.purple,
-          () => Get.toNamed(Routes.LAB_RESULTS),
-        ),
-        _buildActionCard(
-          'Benchmarks',
-          Icons.psychology_outlined,
-          Colors.teal,
-          () => Get.toNamed(Routes.MODELS_INFO),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionCard(String title, IconData icon, Color color, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color, size: 32),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildClassBreakdown(List<dynamic>? breakdown) {
-    if (breakdown == null || breakdown.isEmpty) return const Text('No usage data recorded.');
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15)),
-      child: Column(
-        children: breakdown.map((item) {
-          final percentage = (item['percentage'] as num?)?.toDouble() ?? 0.0;
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(item['drugClass'] ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.w500)),
-                    Text('${percentage.toStringAsFixed(1)}%', style: const TextStyle(color: Colors.grey)),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                LinearProgressIndicator(
-                  value: percentage / 100,
-                  backgroundColor: Colors.grey.shade200,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade400),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
       ),
     );
   }
 
   Widget _buildAlertList() {
-    return Obx(() => ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: controller.alerts.length.clamp(0, 3),
-          itemBuilder: (context, index) {
-            final alert = controller.alerts[index];
-            return Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: _getAlertColor(alert.type).withOpacity(0.3)),
+    return Obx(() {
+      if (controller.alerts.isEmpty) {
+        return AppCard(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Row(
+            children: [
+              const Icon(Icons.check_circle_outline_rounded, color: AppColors.success, size: 24),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Text(
+                  'No active clinical or regulatory alerts at this time.',
+                  style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+                ),
               ),
-              child: Row(
-                children: [
-                  Icon(_getAlertIcon(alert.type), color: _getAlertColor(alert.type)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          alert.title ?? 'No Title',
-                          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          alert.message ?? '',
-                          style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade600),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
+            ],
+          ),
+        );
+      }
+
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: controller.alerts.length.clamp(0, 3),
+        itemBuilder: (context, index) {
+          final alert = controller.alerts[index];
+          final color = _getAlertColor(alert.type);
+
+          return Container(
+            margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: AppSpacing.roundedMd,
+              border: Border.all(color: color.withValues(alpha: 0.25), width: 1.0),
+              boxShadow: AppSpacing.shadowSubtle,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
                   ),
-                ],
-              ),
-            );
-          },
-        ));
-  }
-
-  Color _getAlertColor(String? type) {
-    switch (type) {
-      case 'CRITICAL': return Colors.red;
-      case 'WARNING': return Colors.orange;
-      default: return Colors.blue;
-    }
-  }
-
-  IconData _getAlertIcon(String? type) {
-    switch (type) {
-      case 'CRITICAL': return Icons.error;
-      case 'WARNING': return Icons.warning;
-      default: return Icons.info;
-    }
+                  child: Icon(_getAlertIcon(alert.type), color: color, size: 18),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        alert.title ?? 'Alert',
+                        style: AppTypography.titleSmall.copyWith(fontSize: 13),
+                      ),
+                      Text(
+                        alert.message ?? '',
+                        style: AppTypography.bodySmall,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    });
   }
 
   void _showAlertsDialog(BuildContext context) {
     Get.bottomSheet(
       Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        constraints: BoxConstraints(maxHeight: Get.height * 0.75),
         decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusXl)),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('All Alerts', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold)),
-            const Divider(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: AppSpacing.roundedSm,
+                      ),
+                      child: const Icon(Icons.notifications_active_rounded, color: AppColors.primary, size: 20),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Text(
+                      'Live Safety Alerts',
+                      style: AppTypography.titleMedium,
+                    ),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded),
+                  onPressed: () => Get.back(),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.lg),
             Expanded(
-              child: Obx(() => ListView.builder(
-                itemCount: controller.alerts.length,
-                itemBuilder: (context, index) {
-                  final alert = controller.alerts[index];
-                  return ListTile(
-                    leading: Icon(_getAlertIcon(alert.type), color: _getAlertColor(alert.type)),
-                    title: Text(alert.title ?? ''),
-                    subtitle: Text(alert.message ?? ''),
+              child: Obx(() {
+                if (controller.alerts.isEmpty) {
+                  return AppEmptyState(
+                    icon: Icons.check_circle_outline_rounded,
+                    title: 'All Clear',
+                    description: 'No active safety alerts for this livestock facility.',
+                    iconColor: AppColors.success,
                   );
-                },
-              )),
+                }
+
+                return ListView.builder(
+                  itemCount: controller.alerts.length,
+                  itemBuilder: (context, index) {
+                    final alert = controller.alerts[index];
+                    final color = _getAlertColor(alert.type);
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.04),
+                        borderRadius: AppSpacing.roundedMd,
+                        border: Border.all(color: color.withValues(alpha: 0.2)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: color.withValues(alpha: 0.12),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(_getAlertIcon(alert.type), color: color, size: 18),
+                          ),
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      alert.title ?? 'Alert',
+                                      style: AppTypography.titleSmall.copyWith(fontSize: 13),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: color,
+                                        borderRadius: AppSpacing.roundedXs,
+                                      ),
+                                      child: Text(
+                                        alert.type ?? 'INFO',
+                                        style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  alert.message ?? '',
+                                  style: AppTypography.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              }),
             ),
           ],
         ),
       ),
+      isScrollControlled: true,
     );
+  }
+
+  Color _getAlertColor(String? type) {
+    switch (type?.toUpperCase()) {
+      case 'CRITICAL':
+        return AppColors.danger;
+      case 'WARNING':
+        return AppColors.warning;
+      default:
+        return AppColors.info;
+    }
+  }
+
+  IconData _getAlertIcon(String? type) {
+    switch (type?.toUpperCase()) {
+      case 'CRITICAL':
+        return Icons.error_outline_rounded;
+      case 'WARNING':
+        return Icons.warning_amber_rounded;
+      default:
+        return Icons.info_outline_rounded;
+    }
   }
 }
